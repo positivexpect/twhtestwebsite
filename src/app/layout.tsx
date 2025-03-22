@@ -4,6 +4,7 @@ import "./globals.css";
 import dynamic from 'next/dynamic';
 
 const Navigation = dynamic(() => import('@/components/client/Navigation'), { ssr: true });
+const Footer = dynamic(() => import('@/components/client/Footer'), { ssr: true });
 
 const inter = Inter({
   subsets: ["latin"],
@@ -28,9 +29,10 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="en" className="scroll-smooth">
-      <body className={`${inter.variable} font-sans antialiased bg-white`}>
+      <body className={`${inter.variable} font-sans antialiased bg-white min-h-screen flex flex-col`}>
         <Navigation />
-        <main>{children}</main>
+        <main className="flex-grow">{children}</main>
+        <Footer />
       </body>
     </html>
   );

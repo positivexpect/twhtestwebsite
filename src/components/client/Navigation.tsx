@@ -2,8 +2,8 @@
 
 import { Disclosure } from '@headlessui/react';
 import { Bars3Icon, XMarkIcon, PhoneIcon } from '@heroicons/react/24/outline';
-import Logo from '@/components/Logo';
 import Link from 'next/link';
+import Image from 'next/image';
 
 const navigation = [
   { name: 'Glass Services', href: '/glass-services' },
@@ -21,8 +21,15 @@ export default function Navigation() {
           <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
             <div className="flex justify-between h-16">
               <div className="flex">
-                <Link href="/" className="flex-shrink-0 flex items-center hover:opacity-90 transition-opacity py-2">
-                  <Logo variant="full" className="-ml-2" />
+                <Link href="/" className="flex-shrink-0 flex items-center">
+                  <Image
+                    src="/images/fulllogo_transparent_nobuffer - Copy.png"
+                    alt="Window Hospital Inc Logo"
+                    width={180}
+                    height={45}
+                    className="h-10 w-auto"
+                    priority
+                  />
                 </Link>
                 <div className="hidden sm:ml-6 sm:flex sm:space-x-8">
                   {navigation.map((item) => (

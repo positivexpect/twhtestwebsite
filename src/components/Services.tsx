@@ -5,7 +5,7 @@ const services = [
   {
     title: 'Glass Repair',
     description: 'Fix foggy windows, seal failures, cracks, and chips without full replacement. Save 50-80% compared to new windows.',
-    image: '/images/glass-repair.jpg',
+    image: '/images/glassicon.jpg',
     features: [
       'Foggy Glass Repair',
       'Seal Failure Fix',
@@ -17,7 +17,7 @@ const services = [
   {
     title: 'Parts Repair',
     description: 'Restore window functionality with expert parts repair and replacement. No need to replace the entire window.',
-    image: '/images/parts-repair.jpg',
+    image: '/images/partsicon.jpeg',
     features: [
       'Hardware Replacement',
       'Balance Repair',
@@ -29,7 +29,7 @@ const services = [
   {
     title: 'Screen Services',
     description: 'Professional screen repair and replacement services. Custom-fit screens for any window type.',
-    image: '/images/screen-repair.jpg',
+    image: '/images/screenicon.jpeg',
     features: [
       'Screen Repair',
       'New Screen Installation',

@@ -8,6 +8,7 @@ type FormData = {
   phone: string;
   issueType: string;
   message: string;
+  textConsent: 'yes' | 'no' | '';
 };
 
 export default function AssessmentForm() {
@@ -17,6 +18,7 @@ export default function AssessmentForm() {
     phone: '',
     issueType: '',
     message: '',
+    textConsent: '',
   });
 
   const handleSubmit = (e: React.FormEvent) => {
@@ -109,6 +111,78 @@ export default function AssessmentForm() {
               className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500"
               required
             />
+          </div>
+
+          <div className="space-y-4">
+            <div className="bg-gray-50 p-4 rounded-md">
+              <p className="text-sm text-gray-700">
+                Do you agree to receive text messages from The Window Hospital Inc. sent from (540)-603-0088? Message frequency varies and may include (To provide and manage our services, to schedule and confirm appointments, to process payments and send invoices, to communicate with you regarding your inquiries and our services.) We do not sell your information this is only to communicate with The Window Hospital Inc. Message and data rates may apply. Reply STOP at any time to end or unsubscribe. For assistance, reply HELP or contact support at (540)-603-0088
+              </p>
+              <div className="mt-6 space-y-4">
+                <label className="relative block">
+                  <input
+                    type="radio"
+                    name="textConsent"
+                    value="yes"
+                    checked={formData.textConsent === 'yes'}
+                    onChange={(e) => setFormData({ ...formData, textConsent: e.target.value as 'yes' | 'no' })}
+                    className="sr-only"
+                    required
+                  />
+                  <div className={`cursor-pointer w-full p-4 border-2 rounded-lg transition-all duration-200 ${
+                    formData.textConsent === 'yes' 
+                      ? 'border-blue-500 bg-blue-50 text-blue-700' 
+                      : 'border-gray-300 hover:border-blue-300'
+                  }`}>
+                    <div className="flex items-center">
+                      <div className={`w-6 h-6 border-2 rounded-full mr-3 flex items-center justify-center ${
+                        formData.textConsent === 'yes'
+                          ? 'border-blue-500 bg-blue-500'
+                          : 'border-gray-400'
+                      }`}>
+                        {formData.textConsent === 'yes' && (
+                          <div className="w-2.5 h-2.5 rounded-full bg-white"></div>
+                        )}
+                      </div>
+                      <span className="font-medium">Yes, I agree to receive text messages from The Window Hospital Inc. sent from (540)-603-0088</span>
+                    </div>
+                  </div>
+                </label>
+
+                <label className="relative block">
+                  <input
+                    type="radio"
+                    name="textConsent"
+                    value="no"
+                    checked={formData.textConsent === 'no'}
+                    onChange={(e) => setFormData({ ...formData, textConsent: e.target.value as 'yes' | 'no' })}
+                    className="sr-only"
+                    required
+                  />
+                  <div className={`cursor-pointer w-full p-4 border-2 rounded-lg transition-all duration-200 ${
+                    formData.textConsent === 'no' 
+                      ? 'border-blue-500 bg-blue-50 text-blue-700' 
+                      : 'border-gray-300 hover:border-blue-300'
+                  }`}>
+                    <div className="flex items-center">
+                      <div className={`w-6 h-6 border-2 rounded-full mr-3 flex items-center justify-center ${
+                        formData.textConsent === 'no'
+                          ? 'border-blue-500 bg-blue-500'
+                          : 'border-gray-400'
+                      }`}>
+                        {formData.textConsent === 'no' && (
+                          <div className="w-2.5 h-2.5 rounded-full bg-white"></div>
+                        )}
+                      </div>
+                      <span className="font-medium">No, I do not want to receive text messages from The Window Hospital Inc.</span>
+                    </div>
+                  </div>
+                </label>
+              </div>
+              <p className="mt-4 text-sm text-gray-500">
+                See our <a href="/privacy-policy" className="text-blue-600 hover:text-blue-800">Privacy Policy</a> for details on how we handle your information.
+              </p>
+            </div>
           </div>
 
           <div>

@@ -9,6 +9,45 @@ export default function Education() {
           <p className="mt-4 text-xl text-gray-600">Learn why repair is often better than replacement</p>
         </div>
 
+        <div className="mt-16">
+          <h2 className="text-3xl font-bold text-gray-900 text-center mb-8">See Our Process in Action</h2>
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
+            <div className="bg-white rounded-lg shadow-lg overflow-hidden">
+              <div className="aspect-w-16 aspect-h-9">
+                <iframe
+                  className="w-full h-full"
+                  src="https://www.youtube.com/embed/E0SNpWYY5Gw"
+                  title="Window Glass Manufacturing Process"
+                  frameBorder="0"
+                  allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+                  allowFullScreen
+                ></iframe>
+              </div>
+              <div className="p-6">
+                <h3 className="text-xl font-bold text-gray-900 mb-2">Our Manufacturing Process</h3>
+                <p className="text-gray-600">Watch how we manufacture custom dual-pane glass units in our facility, ensuring perfect fits and superior quality.</p>
+              </div>
+            </div>
+
+            <div className="bg-white rounded-lg shadow-lg overflow-hidden">
+              <div className="aspect-w-16 aspect-h-9">
+                <iframe
+                  className="w-full h-full"
+                  src="https://www.youtube.com/embed/LK4RVyhkfwk"
+                  title="Window Repair Demonstration"
+                  frameBorder="0"
+                  allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+                  allowFullScreen
+                ></iframe>
+              </div>
+              <div className="p-6">
+                <h3 className="text-xl font-bold text-gray-900 mb-2">Window Repair in Action</h3>
+                <p className="text-gray-600">Watch a quick demonstration of our window repair process and see how we can fix your windows without replacement.</p>
+              </div>
+            </div>
+          </div>
+        </div>
+
         <div className="mt-16 grid grid-cols-1 gap-12 lg:grid-cols-2">
           <div className="bg-white rounded-lg shadow-lg overflow-hidden">
             <div className="p-8">
