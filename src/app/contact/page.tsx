@@ -2,7 +2,7 @@
 
 import React from 'react';
 import { PhoneIcon, MapPinIcon, ClockIcon, StarIcon } from '@heroicons/react/24/outline';
-import ContactConsent from '../components/ContactConsent';
+import AssessmentForm from '@/components/client/AssessmentForm';
 import dynamic from 'next/dynamic';
 
 const StoreLocator = dynamic(() => import('@/components/client/StoreLocator'), {
@@ -23,65 +23,55 @@ const ContactPage = () => {
             <h1 className="text-4xl font-bold text-gray-900 mb-8">
               Get Your Free Window Assessment
             </h1>
-            
-            <div className="space-y-8 mb-12">
+
+            {/* Contact Details */}
+            <div className="space-y-8">
+              {/* Phone */}
               <div className="flex items-start">
-                <PhoneIcon className="h-6 w-6 text-[#CD2028] mt-1" />
-                <div className="ml-4">
-                  <h3 className="text-lg font-medium text-gray-900">Quick Quote by Text</h3>
-                  <p className="mt-1 text-gray-600">
-                    Text <a href="tel:5406030088" className="text-[#CD2028] font-semibold hover:text-[#B01B22]">540-603-0088</a> with a picture of your window for a fast response
+                <div className="flex-shrink-0">
+                  <PhoneIcon className="h-6 w-6 text-[#CD2028]" />
+                </div>
+                <div className="ml-3">
+                  <h3 className="text-lg font-medium text-gray-900">Phone</h3>
+                  <p className="mt-1">
+                    <a href="tel:5406030088" className="text-[#CD2028] hover:text-[#B01B22]">
+                      (540) 603-0088
+                    </a>
+                  </p>
+                  <p className="mt-1 text-sm text-gray-500">
+                    Text us for quick quotes and scheduling
                   </p>
                 </div>
               </div>
-              
+
+              {/* Address */}
               <div className="flex items-start">
-                <MapPinIcon className="h-6 w-6 text-[#CD2028] mt-1" />
-                <div className="ml-4">
-                  <h3 className="text-lg font-medium text-gray-900">Visit Us</h3>
-                  <p className="mt-1 text-gray-600">
+                <div className="flex-shrink-0">
+                  <MapPinIcon className="h-6 w-6 text-[#CD2028]" />
+                </div>
+                <div className="ml-3">
+                  <h3 className="text-lg font-medium text-gray-900">Location</h3>
+                  <p className="mt-1">
                     10944 Patriot Highway, Suite 4745<br />
                     Fredericksburg, VA 22408
                   </p>
                 </div>
               </div>
-              
+
+              {/* Hours */}
               <div className="flex items-start">
-                <ClockIcon className="h-6 w-6 text-[#CD2028] mt-1" />
-                <div className="ml-4">
+                <div className="flex-shrink-0">
+                  <ClockIcon className="h-6 w-6 text-[#CD2028]" />
+                </div>
+                <div className="ml-3">
                   <h3 className="text-lg font-medium text-gray-900">Business Hours</h3>
-                  <p className="mt-1 text-gray-600">
-                    Monday - Thursday: 9am - 4pm<br />
-                    Friday: 9am - 1pm<br />
-                    Saturday - Sunday: Closed
-                  </p>
+                  <p className="mt-1">Monday-Thursday: 9am-4pm</p>
+                  <p>Friday: 9am-1pm</p>
+                  <p>Saturday-Sunday: Closed</p>
                 </div>
               </div>
             </div>
 
-            <div className="space-y-4">
-              <h3 className="text-lg font-medium text-gray-900 mb-4">Why Choose Us?</h3>
-              <ul className="space-y-4 text-gray-600">
-                <li className="flex items-center">
-                  <span className="text-green-500 mr-2">✓</span>
-                  85% of windows can be repaired, not replaced
-                </li>
-                <li className="flex items-center">
-                  <span className="text-green-500 mr-2">✓</span>
-                  Save 50-80% compared to replacement
-                </li>
-                <li className="flex items-center">
-                  <span className="text-green-500 mr-2">✓</span>
-                  Most repairs cost $200-$600
-                </li>
-                <li className="flex items-center">
-                  <span className="text-green-500 mr-2">✓</span>
-                  Same day service available
-                </li>
-              </ul>
-            </div>
-
-            {/* Google Reviews Section */}
             <div className="mt-12 bg-white rounded-lg p-6 shadow-md">
               <div className="flex items-center mb-4">
                 <StarIcon className="h-6 w-6 text-yellow-400" />
@@ -112,20 +102,9 @@ const ContactPage = () => {
             </div>
           </div>
 
-          {/* Contact Form */}
+          {/* Assessment Form */}
           <div className="bg-white rounded-lg shadow-lg p-8">
-            <h2 className="text-2xl font-bold text-gray-900 mb-6">
-              Request a Free Assessment
-            </h2>
-            
-            <ContactConsent 
-              onSubmit={async (data) => {
-                // Here you would handle the form submission
-                console.log('Form submitted:', data);
-                // TODO: Add your form submission logic here
-                alert('Thank you for your submission! We will contact you shortly.');
-              }}
-            />
+            <AssessmentForm />
           </div>
         </div>
       </main>
