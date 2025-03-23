@@ -9,8 +9,10 @@ const navigation = [
   { name: 'Glass Services', href: '/glass-services' },
   { name: 'Parts Services', href: '/parts-services' },
   { name: 'Screen Services', href: '/screen-services' },
+  { name: 'About', href: '/about' },
+  { name: 'FAQ', href: '/faq' },
   { name: 'Education Center', href: '/education' },
-  { name: 'Cost Calculator', href: '/#savings-calculator' },
+  { name: 'Contact', href: '/contact' },
 ];
 
 export default function Navigation() {
@@ -33,22 +35,28 @@ export default function Navigation() {
                 </Link>
                 <div className="hidden sm:ml-6 sm:flex sm:space-x-8">
                   {navigation.map((item) => (
-                    <a
+                    <Link
                       key={item.name}
                       href={item.href}
                       className="inline-flex items-center px-1 pt-1 text-sm font-medium text-gray-500 hover:text-gray-900"
                     >
                       {item.name}
-                    </a>
+                    </Link>
                   ))}
                 </div>
               </div>
-              <div className="hidden sm:ml-6 sm:flex sm:items-center">
+              <div className="hidden sm:ml-6 sm:flex sm:items-center space-x-4">
                 <a
-                  href="#assessment"
-                  className="inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md shadow-sm text-white bg-[#CD2028] hover:bg-[#B01B22]"
+                  href="tel:5406030088"
+                  className="inline-flex items-center px-4 py-2 border border-blue-600 text-sm font-medium rounded-md text-blue-600 hover:bg-blue-50"
                 >
                   <PhoneIcon className="h-4 w-4 mr-2" />
+                  540-603-0088
+                </a>
+                <a
+                  href="/contact"
+                  className="inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md shadow-sm text-white bg-[#CD2028] hover:bg-[#B01B22]"
+                >
                   Get Free Assessment
                 </a>
               </div>
@@ -77,10 +85,17 @@ export default function Navigation() {
                   {item.name}
                 </Disclosure.Button>
               ))}
-              <div className="mt-4 px-4">
+              <div className="mt-4 px-4 space-y-2">
                 <a
-                  href="#assessment"
-                  className="block w-full text-center px-4 py-2 border border-transparent text-base font-medium rounded-md shadow-sm text-white bg-blue-600 hover:bg-blue-700"
+                  href="tel:5406030088"
+                  className="block w-full text-center px-4 py-2 border border-blue-600 text-base font-medium rounded-md text-blue-600 hover:bg-blue-50"
+                >
+                  <PhoneIcon className="h-4 w-4 mr-2 inline-block" />
+                  540-603-0088
+                </a>
+                <a
+                  href="/contact"
+                  className="block w-full text-center px-4 py-2 border border-transparent text-base font-medium rounded-md shadow-sm text-white bg-[#CD2028] hover:bg-[#B01B22]"
                 >
                   Get Free Assessment
                 </a>

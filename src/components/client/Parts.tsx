@@ -2,6 +2,7 @@
 
 import { useState } from 'react';
 import Link from 'next/link';
+import Image from 'next/image';
 
 type WindowPart = {
   name: string;
@@ -17,42 +18,42 @@ const WINDOW_PARTS: WindowPart[] = [
     description: 'Replacement balance system for double-hung windows',
     price: 45,
     category: 'Hardware',
-    image: '/images/parts/balance.jpg'
+    image: '/images/parts/window-balance.jpg'
   },
   {
     name: 'Lock Set',
     description: 'Standard cam lock and keeper set',
     price: 25,
     category: 'Hardware',
-    image: '/images/parts/lock.jpg'
+    image: '/images/parts/lock-set.jpeg'
   },
   {
     name: 'Weather Stripping',
     description: 'Premium weatherseal kit for windows',
     price: 35,
     category: 'Seals',
-    image: '/images/parts/weatherstrip.jpg'
+    image: '/images/parts/weatherstrip.jpeg'
   },
   {
     name: 'Window Screen',
     description: 'Standard fiberglass window screen',
     price: 40,
     category: 'Screens',
-    image: '/images/parts/screen.jpg'
+    image: '/images/parts/window-screen.jpeg'
   },
   {
     name: 'Sash Cord',
     description: 'Replacement cord for sash windows',
     price: 20,
     category: 'Hardware',
-    image: '/images/parts/cord.jpg'
+    image: '/images/parts/sashcord.jpeg'
   },
   {
     name: 'Glass Unit',
     description: 'Double-pane insulated glass unit',
     price: 200,
     category: 'Glass',
-    image: '/images/parts/glass.jpg'
+    image: '/images/parts/glass.jpeg'
   }
 ];
 
@@ -114,11 +115,18 @@ export default function Parts() {
                 key={index}
                 className="border border-gray-200 rounded-lg overflow-hidden shadow-sm hover:shadow-md transition-shadow"
               >
-                <div className="aspect-w-16 aspect-h-9 bg-gray-100">
-                  <div className="p-4 flex items-center justify-center">
-                    {/* Placeholder for part image */}
-                    <div className="text-4xl text-gray-400">🔧</div>
-                  </div>
+                <div className="h-48 bg-gray-100 relative">
+                  <Image
+                    src={part.image}
+                    alt={part.name}
+                    fill
+                    className="object-contain p-2"
+                    sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
+                    priority={index < 6}
+                    onError={(e) => {
+                      console.error(`Error loading image for ${part.name}:`, part.image);
+                    }}
+                  />
                 </div>
                 <div className="p-4">
                   <h3 className="text-lg font-medium text-gray-900">{part.name}</h3>

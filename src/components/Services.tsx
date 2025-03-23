@@ -1,5 +1,5 @@
 import Image from 'next/image';
-import { ArrowRightIcon } from '@heroicons/react/24/outline';
+import { ArrowRightIcon, QuestionMarkCircleIcon } from '@heroicons/react/24/outline';
 
 const services = [
   {
@@ -12,7 +12,17 @@ const services = [
       'Glass Replacement',
       'Energy Efficiency Restoration'
     ],
-    savingsRange: '$600-$1,200 per window'
+    savingsRange: '$600-$1,200 per window',
+    faqs: [
+      {
+        question: 'Can I replace just the glass in my window?',
+        answer: 'Yes, in 85% of cases, you can replace just the glass for $200-$600, saving thousands over full replacement.'
+      },
+      {
+        question: 'Why do my windows become foggy?',
+        answer: 'Foggy windows result from seal failure, letting moisture condense between panes. This is fixable for $200-$600.'
+      }
+    ]
   },
   {
     title: 'Parts Repair',
@@ -24,7 +34,17 @@ const services = [
       'Lock Mechanism Fix',
       'Smooth Operation Restoration'
     ],
-    savingsRange: '$400-$800 per window'
+    savingsRange: '$400-$800 per window',
+    faqs: [
+      {
+        question: 'What are muntins/grids?',
+        answer: 'Muntins or grids are bars dividing a window into smaller panes. We can repair or replace these while keeping your existing window.'
+      },
+      {
+        question: 'Is it more efficient to replace my window or parts?',
+        answer: 'If your frame is good, parts repair at $200-$300 beats $1,000+ replacements in cost and efficiency.'
+      }
+    ]
   },
   {
     title: 'Screen Services',
@@ -36,7 +56,17 @@ const services = [
       'Pet-Resistant Screens',
       'Solar Screen Options'
     ],
-    savingsRange: '$50-$200 per screen'
+    savingsRange: '$50-$200 per screen',
+    faqs: [
+      {
+        question: 'Can screens be repaired instead of replaced?',
+        answer: 'Yes, most screen damage can be repaired for $50-$150, compared to $1,000+ for new windows with screens.'
+      },
+      {
+        question: 'Do you offer pet-resistant screen options?',
+        answer: 'Yes, we offer heavy-duty pet-resistant screens that are 7x stronger than standard screens.'
+      }
+    ]
   }
 ];
 
@@ -49,7 +79,7 @@ export default function Services() {
             Expert Window Repair Services
           </h2>
           <p className="mt-4 max-w-2xl mx-auto text-xl text-gray-500">
-            85% of windows can be fixed instead of replaced. Our three specialized services cover all your window repair needs.
+            85% of windows can be fixed instead of replaced. Text <a href="tel:5406030088" className="text-blue-600 font-semibold hover:text-blue-800">540-603-0088</a> with a picture for a quick quote!
           </p>
         </div>
 
@@ -87,12 +117,27 @@ export default function Services() {
                     Typical Savings: {service.savingsRange}
                   </span>
                 </div>
+                
+                {/* FAQ Section */}
+                <div className="mt-6 space-y-4">
+                  <h4 className="text-lg font-semibold text-gray-900 flex items-center">
+                    <QuestionMarkCircleIcon className="h-5 w-5 text-blue-500 mr-2" />
+                    Common Questions
+                  </h4>
+                  {service.faqs.map((faq, index) => (
+                    <div key={index} className="bg-white p-4 rounded-lg shadow-sm">
+                      <h5 className="font-medium text-gray-900">{faq.question}</h5>
+                      <p className="mt-1 text-sm text-gray-600">{faq.answer}</p>
+                    </div>
+                  ))}
+                </div>
+
                 <div className="mt-6">
                   <a
-                    href={`#${service.title.toLowerCase().replace(' ', '-')}-assessment`}
-                    className="inline-flex items-center px-4 py-2 border border-transparent text-base font-medium rounded-md shadow-sm text-white bg-blue-600 hover:bg-blue-700"
+                    href="#assessment"
+                    className="inline-flex items-center px-4 py-2 border border-transparent text-base font-medium rounded-md shadow-sm text-white bg-[#CD2028] hover:bg-[#B01B22]"
                   >
-                    Learn More
+                    Get Quote
                     <ArrowRightIcon className="ml-2 -mr-1 h-4 w-4" />
                   </a>
                 </div>
@@ -103,14 +148,14 @@ export default function Services() {
 
         <div className="mt-16 text-center">
           <p className="text-xl text-gray-500">
-            Not sure what service you need? Get a free assessment and we'll help identify the most cost-effective solution.
+            Not sure what service you need? Text us at <a href="tel:5406030088" className="text-[#CD2028] font-semibold hover:text-[#B01B22]">540-603-0088</a> with a picture for a free assessment.
           </p>
           <div className="mt-8">
             <a
               href="#assessment"
-              className="inline-flex items-center justify-center px-8 py-3 border border-transparent text-base font-medium rounded-md text-white bg-blue-600 hover:bg-blue-700 md:py-4 md:text-lg md:px-10"
+              className="inline-flex items-center justify-center px-8 py-3 border border-transparent text-base font-medium rounded-md text-white bg-[#CD2028] hover:bg-[#B01B22] md:py-4 md:text-lg md:px-10"
             >
-              Schedule Free Assessment
+              Get Free Assessment
             </a>
           </div>
         </div>

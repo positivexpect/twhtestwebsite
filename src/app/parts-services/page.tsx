@@ -1,16 +1,32 @@
 'use client';
 
 import Link from 'next/link';
-import { CheckCircleIcon, WrenchScrewdriverIcon } from '@heroicons/react/24/outline';
+import { CheckCircleIcon, WrenchScrewdriverIcon, QuestionMarkCircleIcon } from '@heroicons/react/24/outline';
+import ContactConsent from '../components/ContactConsent';
+
+const partsServicesFAQs = [
+  {
+    question: "How much does it cost to repair a window?",
+    answer: "Window repair costs vary by part: $165 for single part repair ($15 part + $150 service fee) or as low as $30 per window for multiple repairs (sharing one $150 service fee). Compare this to $1,000+ for full replacements."
+  },
+  {
+    question: "What parts typically need replacing?",
+    answer: "Common replacements include balances ($15-30), operators ($20-40), latches ($10-20), and weatherstripping ($10-30). Most repairs are simple part swaps costing under $50 in parts."
+  },
+  {
+    question: "Can I buy just the parts I need?",
+    answer: "Yes! We offer an online parts store with thousands of components. Send us photos of your window issues for help identifying the exact parts needed. We also provide free DIY installation guides."
+  }
+];
 
 export default function PartsServices() {
   return (
     <div className="min-h-screen bg-white">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-16">
         {/* Hero Section */}
-        <div className="text-center mb-16">
-          <h1 className="text-4xl font-bold text-gray-900 sm:text-5xl">Window Parts & Hardware Repair</h1>
-          <p className="mt-4 text-xl text-gray-600 max-w-3xl mx-auto">
+        <div className="text-center mb-16 mt-4 sm:mt-0">
+          <h1 className="text-4xl font-bold text-gray-900 sm:text-5xl mb-2 sm:mb-3">Window Parts & Hardware Repair</h1>
+          <p className="mt-4 sm:mt-6 text-xl text-gray-600 max-w-3xl mx-auto">
             As a reformed sales rep, I know the truth: Most windows don't need replacing—they just need the right parts and expertise.
           </p>
         </div>
@@ -171,44 +187,61 @@ export default function PartsServices() {
           </div>
         </div>
 
+        {/* FAQ Section */}
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 mb-16">
+          <div className="lg:text-center mb-12">
+            <h2 className="text-3xl font-extrabold text-gray-900">
+              Common Questions About Window Parts & Repairs
+            </h2>
+            <p className="mt-4 max-w-2xl text-xl text-gray-500 lg:mx-auto">
+              Get answers to frequently asked questions about window parts and repairs.
+            </p>
+          </div>
+
+          <div className="mt-12 max-w-3xl mx-auto">
+            <div className="space-y-8">
+              {partsServicesFAQs.map((faq, index) => (
+                <div key={index} className="bg-gray-50 rounded-lg p-6 shadow-sm">
+                  <div className="flex items-start">
+                    <QuestionMarkCircleIcon className="h-6 w-6 text-[#CD2028] mt-1" />
+                    <div className="ml-4">
+                      <h3 className="text-lg font-medium text-gray-900">{faq.question}</h3>
+                      <p className="mt-2 text-gray-600">{faq.answer}</p>
+                    </div>
+                  </div>
+                </div>
+              ))}
+            </div>
+
+            <div className="mt-8 text-center">
+              <Link
+                href="/faq"
+                className="inline-flex items-center text-[#CD2028] hover:text-[#B01B22]"
+              >
+                View all FAQs
+                <svg className="ml-2 h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17 8l4 4m0 0l-4 4m4-4H3" />
+                </svg>
+              </Link>
+            </div>
+          </div>
+        </div>
+
         {/* Call to Action Section */}
         <div className="bg-gray-50 rounded-xl p-8">
-          <div className="max-w-3xl mx-auto text-center">
-            <h2 className="text-2xl font-bold text-gray-900 mb-6">Ready to Fix Your Windows?</h2>
-            <div className="grid sm:grid-cols-2 gap-4">
-              <div className="bg-white p-6 rounded-lg shadow-sm">
-                <h3 className="text-lg font-bold text-gray-900 mb-2">Need Professional Service?</h3>
-                <p className="text-gray-600 mb-4">Schedule an inspection or text us a photo for quick advice</p>
-                <Link
-                  href="/assessment"
-                  className="inline-flex items-center px-4 py-2 border border-transparent text-base font-medium rounded-md shadow-sm text-white bg-[#CD2028] hover:bg-[#B01B22]"
-                >
-                  Schedule Service
-                </Link>
-              </div>
-              <div className="bg-white p-6 rounded-lg shadow-sm">
-                <h3 className="text-lg font-bold text-gray-900 mb-2">Prefer DIY?</h3>
-                <p className="text-gray-600 mb-4">Browse our parts store and access repair guides</p>
-                <Link
-                  href="https://windowhospital.forpartsnow.com/"
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="inline-flex items-center px-4 py-2 border border-transparent text-base font-medium rounded-md shadow-sm text-white bg-[#CD2028] hover:bg-[#B01B22]"
-                >
-                  Shop Parts
-                </Link>
-              </div>
+          <div className="max-w-3xl mx-auto">
+            <h2 className="text-2xl font-bold text-gray-900 text-center mb-6">Get Help With Your Windows</h2>
+            <div className="bg-white rounded-lg shadow-lg p-6">
+              <ContactConsent 
+                onSubmit={async (data) => {
+                  // Here you would handle the form submission
+                  console.log('Form submitted:', data);
+                  // TODO: Add your form submission logic here
+                  alert('Thank you for your submission! We will contact you shortly.');
+                }}
+              />
             </div>
-            <div className="mt-8 text-gray-600">
-              <p className="font-medium">
-                Text us a photo:{' '}
-                <a 
-                  href="tel:540-603-0088" 
-                  className="text-[#CD2028] hover:text-[#B01B22] transition-colors"
-                >
-                  (540) 603-0088
-                </a>
-              </p>
+            <div className="mt-8 text-center text-gray-600">
               <p className="mt-2">10944 Patriot Highway, Suite 4745<br />Fredericksburg, VA 22408</p>
               <p className="mt-1">Open Mon-Thurs 9am-4pm, Fri 9am-1pm</p>
             </div>

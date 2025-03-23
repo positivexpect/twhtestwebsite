@@ -12,15 +12,18 @@ export default function Hero() {
                 <span className="block text-[#CD2028]">Window Replacement</span>
               </h1>
               <p className="mt-3 text-base text-gray-500 sm:mt-5 sm:text-lg sm:max-w-xl sm:mx-auto md:mt-5 md:text-xl lg:mx-0">
-                85% of windows can be repaired, not replaced. Save thousands with our expert window repair services. We specialize in glass, parts, and screen repairs.
+                85% of windows can be repaired, not replaced. Save thousands with our expert window repair services in Fredericksburg, VA.
+              </p>
+              <p className="mt-2 text-base text-gray-500 sm:text-lg sm:max-w-xl sm:mx-auto md:text-xl lg:mx-0">
+                Text <a href="tel:5406030088" className="text-blue-600 font-semibold hover:text-blue-800">540-603-0088</a> with a picture of your window for a quick quote!
               </p>
               <div className="mt-5 sm:mt-8 sm:flex sm:justify-center lg:justify-start">
                 <div className="rounded-md shadow">
                   <a
-                    href="#assessment"
+                    href="/contact"
                     className="w-full flex items-center justify-center px-8 py-3 border border-transparent text-base font-medium rounded-md text-white bg-[#CD2028] hover:bg-[#B01B22] md:py-4 md:text-lg md:px-10"
                   >
-                    Get Free Assessment
+                    Get Professional Assessment
                   </a>
                 </div>
                 <div className="mt-3 sm:mt-0 sm:ml-3">
@@ -31,6 +34,11 @@ export default function Hero() {
                     Calculate Savings
                   </a>
                 </div>
+              </div>
+              <div className="mt-4 text-sm text-gray-500">
+                <p>✓ Most repairs $200-$600</p>
+                <p>✓ Same day service available</p>
+                <p>✓ Serving Fredericksburg & surrounding areas</p>
               </div>
             </div>
           </main>
@@ -50,6 +58,7 @@ export default function Hero() {
               fill
               className="object-cover"
               priority
+              sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
             />
           </div>
           {/* Overlay image (foggy window) that disappears on hover */}
@@ -59,6 +68,7 @@ export default function Hero() {
               alt="Foggy window with condensation"
               fill
               className="object-cover"
+              sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
             />
           </div>
           
