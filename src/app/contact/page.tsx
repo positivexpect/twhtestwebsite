@@ -5,7 +5,7 @@ import { PhoneIcon, MapPinIcon, ClockIcon, StarIcon } from '@heroicons/react/24/
 import ContactConsent from '../components/ContactConsent';
 import dynamic from 'next/dynamic';
 
-const GoogleMap = dynamic(() => import('@/components/client/GoogleMap'), {
+const StoreLocator = dynamic(() => import('@/components/client/StoreLocator'), {
   ssr: false,
 });
 
@@ -24,7 +24,7 @@ const ContactPage = () => {
               Get Your Free Window Assessment
             </h1>
             
-            <div className="space-y-8">
+            <div className="space-y-8 mb-12">
               <div className="flex items-start">
                 <PhoneIcon className="h-6 w-6 text-[#CD2028] mt-1" />
                 <div className="ml-4">
@@ -59,7 +59,7 @@ const ContactPage = () => {
               </div>
             </div>
 
-            <div className="mt-12">
+            <div className="space-y-4">
               <h3 className="text-lg font-medium text-gray-900 mb-4">Why Choose Us?</h3>
               <ul className="space-y-4 text-gray-600">
                 <li className="flex items-center">
@@ -89,7 +89,9 @@ const ContactPage = () => {
               </div>
               
               {/* Google Rating Display */}
-              <GoogleRating placeId="ChIJCfPfZxmvtokRHj3UZPsjf68" />
+              <div className="mb-4">
+                <GoogleRating placeId="ChIJOdzghZ3xtokRrt9-myMgPOM" />
+              </div>
 
               <p className="text-gray-600 mb-4">
                 Your feedback helps us serve the Fredericksburg community better. Share your experience with others!
@@ -104,9 +106,9 @@ const ContactPage = () => {
               </a>
             </div>
 
-            {/* Google Map */}
+            {/* Store Locator Map */}
             <div className="mt-12">
-              <GoogleMap />
+              <StoreLocator />
             </div>
           </div>
 

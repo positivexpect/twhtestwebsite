@@ -5,8 +5,9 @@ import MissionSection from '@/components/about/MissionSection';
 import FounderStorySection from '@/components/about/FounderStorySection';
 import RepairVsReplaceSection from '@/components/about/RepairVsReplaceSection';
 import ExpansionSection from '@/components/about/ExpansionSection';
-import BlogSection from '@/components/about/BlogSection';
+import TestimonialsSection from '@/components/about/TestimonialsSection';
 import PrivacySummary from '@/components/about/PrivacySummary';
+import AssessmentForm from '@/components/client/AssessmentForm';
 
 export const metadata: Metadata = {
   title: 'About Us | The Window Hospital',
@@ -20,9 +21,14 @@ export default function AboutPage() {
         <MissionSection />
         <FounderStorySection />
         <RepairVsReplaceSection />
+        <TestimonialsSection />
         <ExpansionSection />
-        <BlogSection />
         <PrivacySummary />
+        
+        {/* Assessment Form Section */}
+        <section className="py-12">
+          <AssessmentForm />
+        </section>
       </div>
     </main>
   );

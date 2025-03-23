@@ -32,13 +32,46 @@ export default function AssessmentForm() {
     message: '',
   });
 
-  const [submitted, setSubmitted] = useState(false);
+  const [isSubmitting, setIsSubmitting] = useState(false);
+  const [submitSuccess, setSubmitSuccess] = useState(false);
+  const [submitError, setSubmitError] = useState('');
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    // Here you would typically send the form data to your backend
-    console.log('Form submitted:', formData);
-    setSubmitted(true);
+    setIsSubmitting(true);
+    setSubmitError('');
+
+    try {
+      const response = await fetch('/api/submit-assessment', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(formData),
+      });
+
+      const result = await response.json();
+
+      if (result.success) {
+        setSubmitSuccess(true);
+        setFormData({
+          name: '',
+          phone: '',
+          email: '',
+          zipCode: '',
+          issueType: '',
+          replacementQuote: '',
+          message: '',
+        });
+      } else {
+        setSubmitError(result.message || 'Failed to submit form. Please try again.');
+      }
+    } catch (error) {
+      console.error('Error submitting form:', error);
+      setSubmitError('Failed to submit form. Please try again.');
+    } finally {
+      setIsSubmitting(false);
+    }
   };
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement | HTMLTextAreaElement>) => {
@@ -46,9 +79,14 @@ export default function AssessmentForm() {
     setFormData(prev => ({ ...prev, [name]: value }));
   };
 
-  if (submitted) {
+  if (submitSuccess) {
     return (
       <div className="bg-green-50 p-8 rounded-lg text-center">
+        <div className="mx-auto flex items-center justify-center h-12 w-12 rounded-full bg-green-100">
+          <svg className="h-6 w-6 text-green-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M5 13l4 4L19 7" />
+          </svg>
+        </div>
         <h3 className="text-2xl font-bold text-green-800">Thank You!</h3>
         <p className="mt-2 text-green-600">
           We've received your request and will contact you within 1 business day to schedule your free assessment.
@@ -72,6 +110,13 @@ export default function AssessmentForm() {
           </p>
         </div>
 
+        {submitError && (
+          <div className="mt-6 bg-red-50 border border-red-200 text-red-700 px-4 py-3 rounded relative" role="alert">
+            <strong className="font-bold">Error: </strong>
+            <span className="block sm:inline">{submitError}</span>
+          </div>
+        )}
+
         <form onSubmit={handleSubmit} className="mt-12 grid grid-cols-1 gap-y-6 sm:grid-cols-2 sm:gap-x-8">
           <div>
             <label htmlFor="name" className="block text-sm font-medium text-gray-700">
@@ -85,7 +130,7 @@ export default function AssessmentForm() {
                 required
                 value={formData.name}
                 onChange={handleChange}
-                className="block w-full shadow-sm sm:text-sm focus:ring-blue-500 focus:border-blue-500 border-gray-300 rounded-md"
+                className="block w-full shadow-sm sm:text-sm focus:ring-[#CD2028] focus:border-[#CD2028] border-gray-300 rounded-md text-gray-900"
               />
             </div>
           </div>
@@ -102,7 +147,7 @@ export default function AssessmentForm() {
                 required
                 value={formData.phone}
                 onChange={handleChange}
-                className="block w-full shadow-sm sm:text-sm focus:ring-blue-500 focus:border-blue-500 border-gray-300 rounded-md"
+                className="block w-full shadow-sm sm:text-sm focus:ring-[#CD2028] focus:border-[#CD2028] border-gray-300 rounded-md text-gray-900"
               />
             </div>
           </div>
@@ -119,7 +164,7 @@ export default function AssessmentForm() {
                 required
                 value={formData.email}
                 onChange={handleChange}
-                className="block w-full shadow-sm sm:text-sm focus:ring-blue-500 focus:border-blue-500 border-gray-300 rounded-md"
+                className="block w-full shadow-sm sm:text-sm focus:ring-[#CD2028] focus:border-[#CD2028] border-gray-300 rounded-md text-gray-900"
               />
             </div>
           </div>
@@ -137,7 +182,7 @@ export default function AssessmentForm() {
                 pattern="[0-9]{5}"
                 value={formData.zipCode}
                 onChange={handleChange}
-                className="block w-full shadow-sm sm:text-sm focus:ring-blue-500 focus:border-blue-500 border-gray-300 rounded-md"
+                className="block w-full shadow-sm sm:text-sm focus:ring-[#CD2028] focus:border-[#CD2028] border-gray-300 rounded-md text-gray-900"
               />
             </div>
           </div>
@@ -153,7 +198,7 @@ export default function AssessmentForm() {
                 required
                 value={formData.issueType}
                 onChange={handleChange}
-                className="block w-full shadow-sm sm:text-sm focus:ring-blue-500 focus:border-blue-500 border-gray-300 rounded-md"
+                className="block w-full shadow-sm sm:text-sm focus:ring-[#CD2028] focus:border-[#CD2028] border-gray-300 rounded-md text-gray-900"
               >
                 <option value="">Select an issue</option>
                 {WINDOW_ISSUES.map(issue => (
@@ -177,7 +222,7 @@ export default function AssessmentForm() {
                 placeholder="$"
                 value={formData.replacementQuote}
                 onChange={handleChange}
-                className="block w-full shadow-sm sm:text-sm focus:ring-blue-500 focus:border-blue-500 border-gray-300 rounded-md"
+                className="block w-full shadow-sm sm:text-sm focus:ring-[#CD2028] focus:border-[#CD2028] border-gray-300 rounded-md text-gray-900"
               />
             </div>
             <p className="mt-2 text-sm text-gray-500">
@@ -196,7 +241,7 @@ export default function AssessmentForm() {
                 rows={4}
                 value={formData.message}
                 onChange={handleChange}
-                className="block w-full shadow-sm sm:text-sm focus:ring-blue-500 focus:border-blue-500 border-gray-300 rounded-md"
+                className="block w-full shadow-sm sm:text-sm focus:ring-[#CD2028] focus:border-[#CD2028] border-gray-300 rounded-md text-gray-900"
               />
             </div>
           </div>
@@ -204,9 +249,24 @@ export default function AssessmentForm() {
           <div className="sm:col-span-2">
             <button
               type="submit"
-              className="w-full inline-flex justify-center py-3 px-6 border border-transparent shadow-sm text-base font-medium rounded-md text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500"
+              disabled={isSubmitting}
+              className={`w-full inline-flex justify-center py-3 px-6 border border-transparent shadow-sm text-base font-medium rounded-md text-white ${
+                isSubmitting 
+                  ? 'bg-gray-400 cursor-not-allowed'
+                  : 'bg-[#CD2028] hover:bg-[#B01B22] focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-[#CD2028]'
+              }`}
             >
-              Schedule Free Assessment
+              {isSubmitting ? (
+                <>
+                  <svg className="animate-spin -ml-1 mr-3 h-5 w-5 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                    <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
+                    <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                  </svg>
+                  Submitting...
+                </>
+              ) : (
+                'Schedule Free Assessment'
+              )}
             </button>
             <p className="mt-3 text-sm text-gray-500 text-center">
               No obligation assessment • Same day appointments available • Save 50-80% vs replacement

@@ -3,17 +3,22 @@ import Image from 'next/image';
 export default function FounderStorySection() {
   return (
     <section className="py-16 bg-gray-50">
-      <div className="md:flex items-center max-w-6xl mx-auto">
+      <div className="md:flex items-center max-w-6xl mx-auto px-4">
         <div className="md:w-1/2 pr-8 mb-8 md:mb-0">
-          <div className="relative w-full aspect-square max-w-md mx-auto">
+          <div className="relative w-full aspect-[4/5] max-w-md mx-auto">
             <Image
-              src="/images/placeholder-founder.jpg"
-              alt="Joshua Zabec, Founder of The Window Hospital"
+              src="/images/aboutusjz.jpg"
+              alt="Joshua Zabec with his dog Dro at The Window Hospital workshop"
               fill
               className="rounded-lg shadow-xl object-cover"
               sizes="(max-width: 768px) 100vw, 50vw"
               priority
             />
+            <div className="absolute bottom-0 left-0 right-0 bg-gradient-to-t from-black/60 to-transparent p-4 rounded-b-lg">
+              <p className="text-white text-sm">
+                Joshua with his dog Dro at The Window Hospital workshop
+              </p>
+            </div>
           </div>
         </div>
         <div className="md:w-1/2">

@@ -1,21 +1,28 @@
 'use client';
 
+import Image from 'next/image';
 import Link from 'next/link';
 import { CheckCircleIcon, WrenchScrewdriverIcon, QuestionMarkCircleIcon } from '@heroicons/react/24/outline';
-import ContactConsent from '../components/ContactConsent';
+import AssessmentForm from '@/components/client/AssessmentForm';
+import FAQSection from '@/components/client/FAQSection';
+import type { FAQItem } from '@/components/client/FAQSection';
 
-const partsServicesFAQs = [
+const partsServicesFAQs: FAQItem[] = [
   {
-    question: "How much does it cost to repair a window?",
-    answer: "Window repair costs vary by part: $165 for single part repair ($15 part + $150 service fee) or as low as $30 per window for multiple repairs (sharing one $150 service fee). Compare this to $1,000+ for full replacements."
+    question: "What window parts do you carry?",
+    answer: "We stock a wide range of window parts including balances, locks, operators, weatherstripping, and more. Our inventory covers most major window brands and styles."
   },
   {
-    question: "What parts typically need replacing?",
-    answer: "Common replacements include balances ($15-30), operators ($20-40), latches ($10-20), and weatherstripping ($10-30). Most repairs are simple part swaps costing under $50 in parts."
+    question: "How do I know which part I need?",
+    answer: "Our experts can help identify the correct part based on photos or measurements of your window. We also have detailed guides and video tutorials to help you identify parts."
   },
   {
-    question: "Can I buy just the parts I need?",
-    answer: "Yes! We offer an online parts store with thousands of components. Send us photos of your window issues for help identifying the exact parts needed. We also provide free DIY installation guides."
+    question: "Do you offer installation services?",
+    answer: "Yes, we offer professional installation services for all window parts. However, many parts can also be installed DIY with our video tutorials and guides."
+  },
+  {
+    question: "What brands do you service?",
+    answer: "We service most major window brands including Andersen, Pella, Marvin, Jeld-Wen, and many others. Contact us with your window details for specific part availability."
   }
 ];
 
@@ -189,64 +196,45 @@ export default function PartsServices() {
 
         {/* FAQ Section */}
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 mb-16">
-          <div className="lg:text-center mb-12">
-            <h2 className="text-3xl font-extrabold text-gray-900">
-              Common Questions About Window Parts & Repairs
-            </h2>
-            <p className="mt-4 max-w-2xl text-xl text-gray-500 lg:mx-auto">
-              Get answers to frequently asked questions about window parts and repairs.
-            </p>
-          </div>
+          <FAQSection
+            faqs={partsServicesFAQs}
+            title="Common Questions About Window Parts & Repairs"
+            description="Get answers to frequently asked questions about window parts and repairs."
+          />
+        </div>
 
-          <div className="mt-12 max-w-3xl mx-auto">
-            <div className="space-y-8">
-              {partsServicesFAQs.map((faq, index) => (
-                <div key={index} className="bg-gray-50 rounded-lg p-6 shadow-sm">
-                  <div className="flex items-start">
-                    <QuestionMarkCircleIcon className="h-6 w-6 text-[#CD2028] mt-1" />
-                    <div className="ml-4">
-                      <h3 className="text-lg font-medium text-gray-900">{faq.question}</h3>
-                      <p className="mt-2 text-gray-600">{faq.answer}</p>
-                    </div>
-                  </div>
+        {/* Contact Section */}
+        <section id="get-quote" className="bg-white py-16">
+          <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div className="max-w-3xl mx-auto">
+              <AssessmentForm />
+              <div className="mt-8 text-center text-gray-600">
+                <p className="font-medium mb-2">Visit Our Facility</p>
+                <p>10944 Patriot Highway, Suite 4745<br />Fredericksburg, VA 22408</p>
+                <p className="mt-2">
+                  <span className="font-medium">Hours:</span>
+                  <br />
+                  Monday-Thursday: 9am-4pm
+                  <br />
+                  Friday: 9am-1pm
+                </p>
+                <div className="mt-4">
+                  <Link
+                    href="https://maps.google.com/?q=10944+Patriot+Highway+Suite+4745+Fredericksburg+VA+22408"
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="inline-flex items-center px-4 py-2 border border-transparent text-base font-medium rounded-md shadow-sm text-white bg-[#CD2028] hover:bg-[#B01B22] transition-colors"
+                  >
+                    Get Directions
+                    <svg className="ml-2 h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17 8l4 4m0 0l-4 4m4-4H3" />
+                    </svg>
+                  </Link>
                 </div>
-              ))}
-            </div>
-
-            <div className="mt-8 text-center">
-              <Link
-                href="/faq"
-                className="inline-flex items-center text-[#CD2028] hover:text-[#B01B22]"
-              >
-                View all FAQs
-                <svg className="ml-2 h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17 8l4 4m0 0l-4 4m4-4H3" />
-                </svg>
-              </Link>
+              </div>
             </div>
           </div>
-        </div>
-
-        {/* Call to Action Section */}
-        <div className="bg-gray-50 rounded-xl p-8">
-          <div className="max-w-3xl mx-auto">
-            <h2 className="text-2xl font-bold text-gray-900 text-center mb-6">Get Help With Your Windows</h2>
-            <div className="bg-white rounded-lg shadow-lg p-6">
-              <ContactConsent 
-                onSubmit={async (data) => {
-                  // Here you would handle the form submission
-                  console.log('Form submitted:', data);
-                  // TODO: Add your form submission logic here
-                  alert('Thank you for your submission! We will contact you shortly.');
-                }}
-              />
-            </div>
-            <div className="mt-8 text-center text-gray-600">
-              <p className="mt-2">10944 Patriot Highway, Suite 4745<br />Fredericksburg, VA 22408</p>
-              <p className="mt-1">Open Mon-Thurs 9am-4pm, Fri 9am-1pm</p>
-            </div>
-          </div>
-        </div>
+        </section>
       </div>
     </div>
   );

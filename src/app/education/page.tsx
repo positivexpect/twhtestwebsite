@@ -1,4 +1,6 @@
 import { InformationCircleIcon, CheckCircleIcon } from '@heroicons/react/24/outline';
+import BlogSection from '@/components/about/BlogSection';
+import Link from 'next/link';
 
 export default function Education() {
   return (
@@ -151,6 +153,25 @@ export default function Education() {
             Get a Professional Assessment
           </a>
         </div>
+
+        <BlogSection />
+
+        {/* Call to Action Section */}
+        <section className="mt-16 bg-gray-50 rounded-lg p-12 text-center">
+          <h2 className="text-3xl font-bold text-gray-900 mb-4">Ready to Save on Your Window Repairs?</h2>
+          <p className="text-xl text-gray-600 mb-8">
+            Now that you understand the benefits of window repair, let our experts assess your windows and provide a customized solution.
+          </p>
+          <Link
+            href="/#assessment"
+            className="inline-flex items-center px-8 py-4 border border-transparent text-lg font-medium rounded-md shadow-sm text-white bg-[#CD2028] hover:bg-[#B01B22] focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-[#CD2028]"
+          >
+            Get Your Free Assessment
+            <svg className="ml-2 -mr-1 h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17 8l4 4m0 0l-4 4m4-4H3" />
+            </svg>
+          </Link>
+        </section>
       </div>
     </div>
   );

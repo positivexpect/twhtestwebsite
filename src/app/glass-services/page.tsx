@@ -3,20 +3,26 @@
 import Image from 'next/image';
 import Link from 'next/link';
 import { QuestionMarkCircleIcon } from '@heroicons/react/24/outline';
-import ContactConsent from '../components/ContactConsent';
+import AssessmentForm from '@/components/client/AssessmentForm';
+import FAQSection from '@/components/client/FAQSection';
+import type { FAQItem } from '@/components/client/FAQSection';
 
-const glassServicesFAQs = [
+const glassServicesFAQs: FAQItem[] = [
   {
     question: "Can I replace just the glass in my window?",
-    answer: "Yes, in 85% of cases, you can replace just the glass for $200-$600, saving you thousands over full window replacement costs of $1,000-$3,000+. Our professional glaziers handle this common repair, ensuring proper sealing for energy efficiency."
+    answer: "Yes, in most cases you can replace just the glass, saving thousands over full window replacement. Our glass-only replacement service preserves your existing frame while restoring clarity and energy efficiency."
   },
   {
-    question: "Why do my windows become foggy?",
-    answer: "Foggy windows result from seal failure, letting moisture condense between panes. This is fixable for $200-$600—85% of cases don't need $1,000+ replacements. Contact us to restore clarity fast."
+    question: "How much does glass replacement cost?",
+    answer: "Glass replacement typically costs between $200-$600, depending on size and type. This is significantly less than full window replacement which can cost $1,000 or more."
   },
   {
-    question: "What's an IGU?",
-    answer: "An IGU (insulating glass unit) has two+ panes with air or gas between, boosting efficiency. We replace failed IGUs for $200-$600, not $1,000+ for new windows."
+    question: "Do you offer Low-E glass options?",
+    answer: "Yes, we offer Low-E glass options that help improve energy efficiency by reflecting heat while letting light through. We can match your existing Low-E configuration or upgrade to Low-E if desired."
+  },
+  {
+    question: "How long does glass replacement take?",
+    answer: "Most glass replacements can be completed in 1-2 hours per window. We work efficiently to minimize disruption to your home."
   }
 ];
 
@@ -177,84 +183,41 @@ export default function GlassServices() {
       {/* FAQ Section */}
       <section className="bg-white py-16">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="lg:text-center mb-12">
-            <h2 className="text-3xl font-extrabold text-gray-900">
-              Frequently Asked Questions About Glass Repair
-            </h2>
-            <p className="mt-4 max-w-2xl text-xl text-gray-500 lg:mx-auto">
-              Get answers to common questions about our glass repair services.
-            </p>
-          </div>
-
-          <div className="mt-12 max-w-3xl mx-auto">
-            <div className="space-y-8">
-              {glassServicesFAQs.map((faq, index) => (
-                <div key={index} className="bg-gray-50 rounded-lg p-6 shadow-sm">
-                  <div className="flex items-start">
-                    <QuestionMarkCircleIcon className="h-6 w-6 text-[#CD2028] mt-1" />
-                    <div className="ml-4">
-                      <h3 className="text-lg font-medium text-gray-900">{faq.question}</h3>
-                      <p className="mt-2 text-gray-600">{faq.answer}</p>
-                    </div>
-                  </div>
-                </div>
-              ))}
-            </div>
-
-            <div className="mt-8 text-center">
-              <Link
-                href="/faq"
-                className="inline-flex items-center text-[#CD2028] hover:text-[#B01B22]"
-              >
-                View all FAQs
-                <svg className="ml-2 h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17 8l4 4m0 0l-4 4m4-4H3" />
-                </svg>
-              </Link>
-            </div>
-          </div>
+          <FAQSection
+            faqs={glassServicesFAQs}
+            title="Common Questions About Glass Repair"
+            description="Get answers to frequently asked questions about our glass repair services."
+          />
         </div>
       </section>
 
       {/* Contact Section */}
       <section id="get-quote" className="bg-white py-16">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="max-w-lg mx-auto">
-            <div className="bg-white shadow-lg rounded-lg p-8">
-              <h2 className="text-2xl font-bold text-gray-900 text-center mb-6">Get a Free Quote</h2>
-              <ContactConsent 
-                onSubmit={async (data) => {
-                  // Here you would handle the form submission
-                  console.log('Form submitted:', data);
-                  // TODO: Add your form submission logic here
-                  alert('Thank you for your submission! We will contact you shortly.');
-                }}
-              />
-              <div className="mt-8 pt-6 border-t border-gray-200">
-                <div className="text-center text-gray-600">
-                  <p className="font-medium mb-2">Visit Our Facility</p>
-                  <p>10944 Patriot Highway, Suite 4745<br />Fredericksburg, VA 22408</p>
-                  <p className="mt-2">
-                    <span className="font-medium">Hours:</span>
-                    <br />
-                    Monday-Thursday: 9am-4pm
-                    <br />
-                    Friday: 9am-1pm
-                  </p>
-                  <div className="mt-4">
-                    <Link
-                      href="https://maps.google.com/?q=10944+Patriot+Highway+Suite+4745+Fredericksburg+VA+22408"
-                      target="_blank"
-                      rel="noopener noreferrer"
-                      className="inline-flex items-center px-4 py-2 border border-transparent text-base font-medium rounded-md shadow-sm text-white bg-[#CD2028] hover:bg-[#B01B22] transition-colors"
-                    >
-                      Get Directions
-                      <svg className="ml-2 h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17 8l4 4m0 0l-4 4m4-4H3" />
-                      </svg>
-                    </Link>
-                  </div>
-                </div>
+          <div className="max-w-3xl mx-auto">
+            <AssessmentForm />
+            <div className="mt-8 text-center text-gray-600">
+              <p className="font-medium mb-2">Visit Our Facility</p>
+              <p>10944 Patriot Highway, Suite 4745<br />Fredericksburg, VA 22408</p>
+              <p className="mt-2">
+                <span className="font-medium">Hours:</span>
+                <br />
+                Monday-Thursday: 9am-4pm
+                <br />
+                Friday: 9am-1pm
+              </p>
+              <div className="mt-4">
+                <Link
+                  href="https://maps.google.com/?q=10944+Patriot+Highway+Suite+4745+Fredericksburg+VA+22408"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="inline-flex items-center px-4 py-2 border border-transparent text-base font-medium rounded-md shadow-sm text-white bg-[#CD2028] hover:bg-[#B01B22] transition-colors"
+                >
+                  Get Directions
+                  <svg className="ml-2 h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17 8l4 4m0 0l-4 4m4-4H3" />
+                  </svg>
+                </Link>
               </div>
             </div>
           </div>
