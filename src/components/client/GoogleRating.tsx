@@ -7,8 +7,8 @@ interface GoogleRatingProps {
 }
 
 export default function GoogleRating({ placeId = 'ChIJOdzghZ3xtokRrt9-myMgPOM' }: GoogleRatingProps) {
-  const [rating, setRating] = useState<number | null>(null);
-  const [totalReviews, setTotalReviews] = useState<number | null>(null);
+  const [rating, setRating] = useState<number>(4.9); // Default rating
+  const [totalReviews, setTotalReviews] = useState<number>(63); // Default to 63 reviews
 
   useEffect(() => {
     const fetchRating = async () => {
@@ -22,6 +22,7 @@ export default function GoogleRating({ placeId = 'ChIJOdzghZ3xtokRrt9-myMgPOM' }
         }
       } catch (error) {
         console.error('Error fetching Google rating:', error);
+        // Keep using the default values if the API call fails
       }
     };
 
@@ -56,7 +57,7 @@ export default function GoogleRating({ placeId = 'ChIJOdzghZ3xtokRrt9-myMgPOM' }
         {[1, 2, 3, 4, 5].map((star) => (
           <svg
             key={star}
-            className={`h-6 w-6 ${star <= (rating || 0) ? 'text-yellow-400' : 'text-gray-300'}`}
+            className={`h-6 w-6 ${star <= rating ? 'text-yellow-400' : 'text-gray-300'}`}
             fill="currentColor"
             viewBox="0 0 20 20"
           >
@@ -68,8 +69,8 @@ export default function GoogleRating({ placeId = 'ChIJOdzghZ3xtokRrt9-myMgPOM' }
       </div>
       
       <div className="text-center">
-        {rating && <p className="text-2xl font-bold text-gray-900">{rating.toFixed(1)}</p>}
-        {totalReviews && <p className="text-sm text-gray-600">Based on {totalReviews} reviews</p>}
+        <p className="text-2xl font-bold text-gray-900">{rating.toFixed(1)}</p>
+        <p className="text-sm text-gray-600">Based on {totalReviews} reviews</p>
       </div>
     </div>
   );

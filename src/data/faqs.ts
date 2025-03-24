@@ -2,35 +2,71 @@ import { FAQItem } from '@/components/client/FAQSection';
 
 export const defaultFaqs: FAQItem[] = [
   {
-    question: "Can I replace just the glass in my window?",
-    answer: "Yes, in 85% of cases, you can replace just the glass for $200-$600, saving thousands over full replacement. We specialize in glass-only replacement, which preserves your existing frame while restoring clarity and energy efficiency.",
+    question: "How to Get an Accurate Window Repair Quote with Just a Photo",
+    answer: "Learn how we can provide accurate quotes through photos, making the process easier for you.",
     media: {
-      type: 'image',
-      url: '/images/faqs/brokenglass.jpg',
-      alt: 'Glass replacement example'
+      type: 'video',
+      url: 'https://youtu.be/PiOGtX46SnA',
+      alt: 'Photo quote process video'
     }
   },
   {
-    question: "Why do my windows become foggy?",
-    answer: "Foggy windows result from seal failure, letting moisture condense between panes. This common issue is fixable for $200-$600 through our specialized glass replacement process.",
+    question: "What is Laminated Glass?",
+    answer: "Laminated glass consists of multiple layers bonded together with a plastic interlayer, providing enhanced safety and security.",
     media: {
-      type: 'image',
-      url: '/images/faqs/foggy.jpg',
-      alt: 'Foggy window example'
+      type: 'video',
+      url: 'https://youtu.be/j7ww47VTPk8',
+      alt: 'Laminated glass explanation'
     }
   },
   {
-    question: "If I have Low-E, can I save money by opting for clear glass?",
-    answer: "While clear glass is less expensive, we recommend maintaining your existing Low-E configuration for optimal energy efficiency. The image shows the difference between Low-E (left) and clear glass (right).",
+    question: "What is Tempered Glass?",
+    answer: "Tempered glass is heat-treated for increased strength and safety, breaking into small pieces when damaged.",
     media: {
-      type: 'image',
-      url: '/images/faqs/loweleftclearright.jpg',
-      alt: 'Low-E vs Clear glass comparison'
+      type: 'video',
+      url: 'https://youtu.be/CGNI1cjkNkY',
+      alt: 'Tempered glass explanation'
     }
   },
   {
-    question: "What's the difference between contour and flat grids?",
-    answer: "We offer both contour (sculptured) and flat grid options. Contour grids have a more dimensional, decorative appearance, while flat grids provide a classic, clean look.",
+    question: "What if one side of my glass is broken?",
+    answer: "Learn about our process for handling single-side glass damage and why both panes typically need replacement.",
+    media: {
+      type: 'video',
+      url: 'https://youtu.be/4IZhMaRsJ6w',
+      alt: 'Single side glass replacement explanation'
+    }
+  },
+  {
+    question: "What is a 6-lite window pattern?",
+    answer: "A 6-lite window has six divided sections, typically arranged in a 2x3 pattern, creating a classic architectural look.",
+    media: {
+      type: 'image',
+      url: '/images/faqs/6lite.png',
+      alt: '6-lite window pattern example'
+    }
+  },
+  {
+    question: "What is a 9-lite window pattern?",
+    answer: "A 9-lite window features nine equal sections in a 3x3 grid pattern, offering a traditional aesthetic.",
+    media: {
+      type: 'image',
+      url: '/images/faqs/9lite.png',
+      alt: '9-lite window pattern example'
+    }
+  },
+  {
+    question: "What does broken glass look like and can it be repaired?",
+    answer: "Broken glass can present in various ways, from small cracks to complete breaks. Most cases can be repaired by replacing just the glass unit.",
+    media: {
+      type: 'image',
+      url: '/images/faqs/broeknglass.jpg',
+      alt: 'Example of broken window glass'
+    }
+  },
+  {
+    question: "What are contour grids?",
+    answer: "Contour grids are dimensional grid patterns that add depth and character to your windows, compared to flat grids.",
     media: {
       type: 'image',
       url: '/images/faqs/contour.jpg',
@@ -38,39 +74,39 @@ export const defaultFaqs: FAQItem[] = [
     }
   },
   {
-    question: "What grid patterns are available?",
-    answer: "We offer various grid patterns including 6-lite and 9-lite configurations. The choice depends on your home's style and personal preference.",
+    question: "What are flat grids?",
+    answer: "Flat grids provide a sleek, traditional look with a smooth surface profile between glass panes.",
     media: {
       type: 'image',
-      url: '/images/faqs/6lite.png',
-      alt: '6-lite grid pattern'
+      url: '/images/faqs/flat.jpg',
+      alt: 'Flat grid example'
     }
   },
   {
-    question: "How can you tell if Low-E glass is hazy?",
-    answer: "Hazy Low-E glass can be identified by a milky or cloudy appearance. This is different from normal Low-E coating and may indicate a need for replacement.",
+    question: "Why do windows become foggy?",
+    answer: "Window fogging occurs when the seal between panes fails, allowing moisture to enter. This can be fixed with glass replacement.",
     media: {
       type: 'image',
-      url: '/images/faqs/hazylowe.jpg',
+      url: '/images/faqs/foggy.jpg',
+      alt: 'Foggy window example'
+    }
+  },
+  {
+    question: "What does hazy Low-E glass look like?",
+    answer: "Hazy Low-E glass shows a cloudy or milky appearance, different from the normal slight tint of Low-E coating.",
+    media: {
+      type: 'image',
+      url: '/images/faqs/hazylwoe.jpg',
       alt: 'Hazy Low-E glass example'
     }
   },
   {
-    question: "How do you accurately price through photos?",
-    answer: "We use a systematic approach to evaluate window issues through photos. Watch this video to learn how we assess and price repairs accurately.",
+    question: "What's the difference between Low-E and clear glass?",
+    answer: "This comparison shows Low-E glass (left) versus clear glass (right). Notice the subtle green tint of Low-E that helps with energy efficiency.",
     media: {
-      type: 'video',
-      url: 'https://youtu.be/PiOGtX46SnA',
-      alt: 'Photo pricing process video'
-    }
-  },
-  {
-    question: "Can you replace just one side of my glass?",
-    answer: "Watch this detailed video explanation of how we handle single-side glass replacement and when it's appropriate.",
-    media: {
-      type: 'video',
-      url: 'https://www.youtube.com/watch?v=4IZhMaRsJ6w',
-      alt: 'Single side glass replacement video'
+      type: 'image',
+      url: '/images/faqs/loweleftclearright.jpg',
+      alt: 'Low-E vs clear glass comparison'
     }
   }
 ]; 

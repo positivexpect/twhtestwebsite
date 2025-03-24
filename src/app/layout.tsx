@@ -3,6 +3,7 @@ import { Inter } from 'next/font/google';
 import type { Metadata } from 'next';
 import Navigation from '@/components/client/Navigation';
 import Footer from '@/components/Footer';
+import ChatBot from '@/components/client/ChatBot';
 
 const inter = Inter({ subsets: ['latin'], variable: '--font-inter' });
 
@@ -57,6 +58,7 @@ export default function RootLayout({
         <Navigation />
         <main className="flex-grow">{children}</main>
         <Footer />
+        <ChatBot />
       </body>
     </html>
   );

@@ -1,11 +1,13 @@
 'use client';
 
+import React from 'react';
 import Image from 'next/image';
 import Link from 'next/link';
 import { QuestionMarkCircleIcon } from '@heroicons/react/24/outline';
 import AssessmentForm from '@/components/client/AssessmentForm';
 import FAQSection from '@/components/client/FAQSection';
 import type { FAQItem } from '@/components/client/FAQSection';
+import BeforeAfterGallery from '@/components/client/BeforeAfterGallery';
 
 const glassServicesFAQs: FAQItem[] = [
   {
@@ -23,6 +25,21 @@ const glassServicesFAQs: FAQItem[] = [
   {
     question: "How long does glass replacement take?",
     answer: "Most glass replacements can be completed in 1-2 hours per window. We work efficiently to minimize disruption to your home."
+  }
+];
+
+const commonQuestions = [
+  {
+    question: "Can I replace just the glass in my window?",
+    answer: "Yes! In about 85% of cases, we can replace just the glass for a fraction of the cost of full window replacement. This typically saves you $600-$1200 per window."
+  },
+  {
+    question: "Why do my windows get foggy?",
+    answer: "Foggy windows occur when the seal between glass panes fails, allowing moisture to enter. This common issue affects energy efficiency but can often be fixed without replacing the entire window."
+  },
+  {
+    question: "How much does glass repair cost?",
+    answer: "Glass repair typically costs $200-$600 per window, saving you 50-80% compared to full window replacement. We provide exact quotes after assessing your specific situation."
   }
 ];
 
@@ -183,12 +200,24 @@ export default function GlassServices() {
       {/* FAQ Section */}
       <section className="bg-white py-16">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <FAQSection
-            faqs={glassServicesFAQs}
-            title="Common Questions About Glass Repair"
-            description="Get answers to frequently asked questions about our glass repair services."
-          />
+          <h2 className="text-3xl font-bold text-gray-900 mb-8 text-center">
+            Common Questions About Glass Repair
+          </h2>
+          <FAQSection faqs={commonQuestions} />
         </div>
+      </section>
+
+      {/* Before/After Preview Section */}
+      <section className="mb-16">
+        <Link href="/gallery" className="block text-center hover:opacity-80 transition-opacity">
+          <h2 className="text-3xl font-bold text-gray-900 mb-8 inline-flex items-center justify-center">
+            Before & After Gallery
+            <svg xmlns="http://www.w3.org/2000/svg" className="h-6 w-6 ml-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 7l5 5m0 0l-5 5m5-5H6" />
+            </svg>
+          </h2>
+        </Link>
+        <BeforeAfterGallery previewMode={true} />
       </section>
 
       {/* Contact Section */}

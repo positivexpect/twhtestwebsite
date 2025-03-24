@@ -38,7 +38,7 @@ export default function RepairVsReplaceSection() {
         </div>
 
         <Link 
-          href="/services" 
+          href="/#glass-services" 
           className="inline-block bg-[#CD2028] hover:bg-[#B01B22] text-white font-bold py-3 px-6 rounded-lg transition-colors duration-200"
         >
           Explore Our Services →

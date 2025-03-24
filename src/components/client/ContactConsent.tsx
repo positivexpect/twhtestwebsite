@@ -10,6 +10,7 @@ export default function ContactConsent() {
           alt="Close-up of window damage"
           fill
           className="object-cover"
+          sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 33vw"
         />
       </div>
       <p className="text-sm text-red-600">Close-up shots make it difficult to determine the window size and overall context</p>

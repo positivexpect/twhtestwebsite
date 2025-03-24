@@ -2,28 +2,16 @@
 
 import React from 'react';
 import { motion } from 'framer-motion';
-import { faqSchema } from './faqData';
+import { faqData } from './faqData';
 import AssessmentForm from '@/components/client/AssessmentForm';
 import FAQSection from '@/components/client/FAQSection';
-import type { FAQItem } from '@/components/client/FAQSection';
 
 const FAQPage = () => {
-  // Convert schema FAQs to FAQItem format
-  const faqs: FAQItem[] = faqSchema.mainEntity.map(faq => ({
-    question: faq.name,
-    answer: faq.acceptedAnswer.text
-  }));
-
   return (
     <div className="min-h-screen bg-white">
-      <script
-        type="application/ld+json"
-        dangerouslySetInnerHTML={{ __html: JSON.stringify(faqSchema) }}
-      />
-      
       <main className="max-w-4xl mx-auto px-4 py-8">
         <FAQSection
-          faqs={faqs}
+          faqs={faqData}
           title="Frequently Asked Questions"
           description="85% of windows don't need replacing—save big with repairs at The Window Hospital Inc.!"
         />

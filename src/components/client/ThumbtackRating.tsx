@@ -1,56 +1,47 @@
 'use client';
 
-import { useEffect, useRef } from 'react';
+import React from 'react';
 import Image from 'next/image';
 
 export default function ThumbtackRating() {
-  const widgetRef = useRef<HTMLDivElement>(null);
-
-  useEffect(() => {
-    // Load Thumbtack widget script
-    const script = document.createElement('script');
-    script.src = 'https://www.thumbtack.com/profile/widgets/scripts/?service_pk=211393566261601435&widget_id=review&type=star';
-    script.async = true;
-    
-    // Add script only if it hasn't been added yet
-    if (widgetRef.current && !document.querySelector('script[src*="thumbtack.com/profile/widgets"]')) {
-      document.body.appendChild(script);
-    }
-
-    return () => {
-      // Cleanup script on unmount
-      script.remove();
-    };
-  }, []);
+  const thumbtackStats = {
+    rating: 4.83,
+    reviews: 139
+  };
 
   return (
     <div className="flex flex-col items-center justify-center p-6 bg-white rounded-lg shadow-sm">
-      <div className="flex flex-col space-y-3">
-        <div className="flex items-center space-x-2 mb-3">
+      <div className="flex items-center space-x-2 mb-3">
+        <div className="relative w-[120px] h-[24px]">
           <Image
             src="https://cdn.thumbtackstatic.com/fe-assets-web/media/logos/thumbtack/wordmark.svg"
             alt="Thumbtack"
             className="tt-logo"
-            width={120}
-            height={24}
+            fill
+            style={{ objectFit: 'contain' }}
+            sizes="120px"
           />
-          <span className="text-lg font-medium text-gray-700">Rating</span>
         </div>
-        <div className="flex items-center justify-center mb-2">
-          {[...Array(5)].map((_, i) => (
+        <span className="text-lg font-medium text-gray-700">Rating</span>
+      </div>
+      
+      <div className="flex items-center justify-center mb-2">
+        {[1, 2, 3, 4, 5].map((star) => (
+          <div key={star} className="relative w-5 h-5">
             <Image
-              key={i}
               src="https://cdn.thumbtackstatic.com/fe-assets-web/media/pages/profile/standard-widgets/review-widget/orange_star.svg"
               alt="star"
-              width={20}
-              height={20}
+              fill
+              style={{ objectFit: 'contain' }}
+              sizes="20px"
             />
-          ))}
-        </div>
-        <div className="text-center">
-          <p className="text-2xl font-bold text-gray-900">5.0</p>
-          <p className="text-sm text-gray-600">123 reviews</p>
-        </div>
+          </div>
+        ))}
+      </div>
+      
+      <div className="text-center">
+        <p className="text-2xl font-bold text-gray-900">{thumbtackStats.rating.toFixed(2)}</p>
+        <p className="text-sm text-gray-600">Based on {thumbtackStats.reviews} reviews</p>
       </div>
     </div>
   );

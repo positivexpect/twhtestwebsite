@@ -71,15 +71,18 @@ export default function FAQSection({ faqs = defaultFaqs, title, description }: F
                           alt={faq.media.alt || ''}
                           fill
                           className="object-contain rounded-lg"
+                          sizes="(max-width: 768px) 100vw, (max-width: 1024px) 50vw, 33vw"
                         />
                       </div>
                     ) : (
                       <div className="relative aspect-video">
                         <iframe
-                          src={faq.media.url.replace('youtu.be/', 'youtube.com/embed/').replace('watch?v=', 'embed/')}
+                          src={`${faq.media.url.replace('youtu.be/', 'youtube.com/embed/').replace('watch?v=', 'embed/')}?enablejsapi=1&rel=0&modestbranding=1`}
                           title={faq.media.alt || 'FAQ Video'}
                           className="absolute top-0 left-0 w-full h-full rounded-lg"
-                          allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+                          allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope"
+                          loading="lazy"
+                          data-disable-picture-in-picture="true"
                           allowFullScreen
                         />
                       </div>

@@ -145,15 +145,6 @@ export default function Education() {
           </div>
         </div>
 
-        <div className="mt-16 text-center">
-          <a
-            href="/assessment"
-            className="inline-flex items-center px-6 py-3 border border-transparent text-base font-medium rounded-md shadow-sm text-white bg-[#CD2028] hover:bg-[#B01B22] focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-[#CD2028]"
-          >
-            Get a Professional Assessment
-          </a>
-        </div>
-
         <BlogSection />
 
         {/* Call to Action Section */}

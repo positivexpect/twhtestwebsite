@@ -1,4 +1,5 @@
 import Link from 'next/link';
+import { FaFacebook, FaYoutube, FaTwitter, FaInstagram } from 'react-icons/fa';
 
 export default function Footer() {
   return (
@@ -79,6 +80,18 @@ export default function Footer() {
             <p className="text-gray-300">
               Serving Fredericksburg, Stafford, Spotsylvania, King George, Caroline, and surrounding areas.
             </p>
+            <div className="mt-4 space-y-2">
+              <div>
+                <Link href="/gallery" className="text-gray-300 hover:text-white transition-colors">
+                  View Our Work Gallery
+                </Link>
+              </div>
+              <div>
+                <Link href="/reviews" className="text-gray-300 hover:text-white transition-colors">
+                  Read Customer Reviews
+                </Link>
+              </div>
+            </div>
             <div className="mt-4">
               <Link
                 href="/franchise"
@@ -86,6 +99,45 @@ export default function Footer() {
               >
                 Franchise Opportunities Available →
               </Link>
+            </div>
+            {/* Social Media Icons */}
+            <div className="mt-4 flex space-x-4">
+              <a
+                href="https://www.facebook.com/people/The-Window-Hospital/100076861613944/"
+                target="_blank"
+                rel="noopener noreferrer"
+                className="text-gray-300 hover:text-[#1877F2] transition-colors"
+                aria-label="Follow us on Facebook"
+              >
+                <FaFacebook className="w-6 h-6" />
+              </a>
+              <a
+                href="https://www.youtube.com/@thewindowhosptial"
+                target="_blank"
+                rel="noopener noreferrer"
+                className="text-gray-300 hover:text-[#FF0000] transition-colors"
+                aria-label="Subscribe to our YouTube channel"
+              >
+                <FaYoutube className="w-6 h-6" />
+              </a>
+              <a
+                href="https://twitter.com/windowhospital"
+                target="_blank"
+                rel="noopener noreferrer"
+                className="text-gray-300 hover:text-[#1DA1F2] transition-colors"
+                aria-label="Follow us on Twitter"
+              >
+                <FaTwitter className="w-6 h-6" />
+              </a>
+              <a
+                href="https://instagram.com/thewindowhospital"
+                target="_blank"
+                rel="noopener noreferrer"
+                className="text-gray-300 hover:text-[#E4405F] transition-colors"
+                aria-label="Follow us on Instagram"
+              >
+                <FaInstagram className="w-6 h-6" />
+              </a>
             </div>
           </div>
         </div>
