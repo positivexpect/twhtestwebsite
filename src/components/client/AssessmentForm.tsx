@@ -564,7 +564,7 @@ export default function AssessmentForm() {
           {/* Text Message Consent */}
           <div className="space-y-4">
             <div className="bg-gray-50 p-4 rounded-md">
-              <p className="text-sm text-gray-700 mb-4">
+              <p className="text-sm text-gray-900 mb-4 leading-relaxed">
                 Do you agree to receive text messages from The Window Hospital Inc. sent from (540)-603-0088? Message frequency varies and may include (To provide and manage our services, to schedule and confirm appointments, to process payments and send invoices, to communicate with you regarding your inquiries and our services.) We do not sell your information this is only to communicate with The Window Hospital Inc. Message and data rates may apply. Reply STOP at any time to end or unsubscribe. For assistance, reply HELP or contact support at (540)-603-0088
               </p>
               <div className="mt-6 space-y-4">
@@ -581,7 +581,7 @@ export default function AssessmentForm() {
                   <div className={`cursor-pointer w-full p-4 border-2 rounded-lg transition-all duration-200 ${
                     formData.textConsent === 'yes' 
                       ? 'border-[#CD2028] bg-red-50 text-red-700' 
-                      : 'border-gray-300 hover:border-red-300'
+                      : 'border-gray-300 bg-white text-gray-900 hover:border-red-300'
                   }`}>
                     <div className="flex items-center">
                       <div className={`w-6 h-6 border-2 rounded-full mr-3 flex items-center justify-center ${
@@ -611,7 +611,7 @@ export default function AssessmentForm() {
                   <div className={`cursor-pointer w-full p-4 border-2 rounded-lg transition-all duration-200 ${
                     formData.textConsent === 'no' 
                       ? 'border-[#CD2028] bg-red-50 text-red-700' 
-                      : 'border-gray-300 hover:border-red-300'
+                      : 'border-gray-300 bg-white text-gray-900 hover:border-red-300'
                   }`}>
                     <div className="flex items-center">
                       <div className={`w-6 h-6 border-2 rounded-full mr-3 flex items-center justify-center ${
@@ -628,7 +628,7 @@ export default function AssessmentForm() {
                   </div>
                 </label>
               </div>
-              <p className="mt-4 text-sm text-gray-500">
+              <p className="mt-4 text-sm text-gray-700">
                 See our <Link href="/privacy-policy" className="text-[#CD2028] hover:text-[#B01B22]">Privacy Policy</Link> for details on how we handle your information.
               </p>
             </div>

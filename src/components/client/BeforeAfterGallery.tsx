@@ -1,8 +1,8 @@
 'use client';
 
-import React, { useState } from 'react';
+import React, { useState, useMemo, useCallback, useDeferredValue } from 'react';
 import Image from 'next/image';
-import { motion } from 'framer-motion';
+import { motion, useReducedMotion } from 'framer-motion';
 
 interface BeforeAfterImage {
   id: string;
@@ -26,8 +26,10 @@ interface BeforeAfterGalleryProps {
 export default function BeforeAfterGallery({ previewMode = false }: BeforeAfterGalleryProps) {
   const [selectedImage, setSelectedImage] = useState<BeforeAfterImage | SingleImage | null>(null);
   const [selectedType, setSelectedType] = useState<'pair' | 'single' | null>(null);
+  const deferredSelected = useDeferredValue(selectedImage);
+  const prefersReducedMotion = useReducedMotion();
 
-  const beforeAfterImages: BeforeAfterImage[] = [
+  const beforeAfterImages: BeforeAfterImage[] = useMemo(() => [
     {
       id: '1',
       title: 'Door Glass Repair',
@@ -49,9 +51,9 @@ export default function BeforeAfterGallery({ previewMode = false }: BeforeAfterG
       after: '/images/before-after/win3-after.jpg',
       description: 'Replaced damaged glass panel with new safety glass'
     }
-  ];
+  ], []);
 
-  const singleImages: SingleImage[] = [
+  const singleImages: SingleImage[] = useMemo(() => [
     {
       id: 's1',
       title: 'Butyl Snake Issue',
@@ -130,7 +132,34 @@ export default function BeforeAfterGallery({ previewMode = false }: BeforeAfterG
       image: '/images/before-after/werelicensedandinsured.JPG',
       description: 'We are licensed and insured for your peace of mind'
     }
-  ];
+  ], []);
+
+  const handleCloseModal = useCallback((e?: React.MouseEvent | React.TouchEvent) => {
+    if (e) {
+      e.preventDefault();
+      if ('touches' in e) {
+        // Handle touch events
+        const touch = e.touches[0];
+        if (touch) {
+          const target = document.elementFromPoint(touch.clientX, touch.clientY);
+          if (target?.closest('.modal-content')) return;
+        }
+      }
+    }
+    setSelectedImage(null);
+    setSelectedType(null);
+  }, []);
+
+  const handleImageClick = useCallback((image: BeforeAfterImage | SingleImage, type: 'pair' | 'single') => (e: React.MouseEvent | React.TouchEvent) => {
+    e.preventDefault();
+    setSelectedImage(image);
+    setSelectedType(type);
+  }, []);
+
+  const motionProps = useMemo(() => ({
+    whileHover: prefersReducedMotion ? {} : { scale: 1.02 },
+    transition: { type: "tween", duration: 0.2 }
+  }), [prefersReducedMotion]);
 
   return (
     <div>
@@ -144,11 +173,8 @@ export default function BeforeAfterGallery({ previewMode = false }: BeforeAfterG
             <motion.div
               key={image.id}
               className="relative group cursor-pointer"
-              whileHover={{ scale: 1.02 }}
-              onClick={() => {
-                setSelectedImage(image);
-                setSelectedType('pair');
-              }}
+              {...motionProps}
+              onClick={handleImageClick(image, 'pair')}
             >
               <div className="relative h-64 rounded-lg overflow-hidden">
                 <div className="absolute inset-0 z-10">
@@ -157,6 +183,8 @@ export default function BeforeAfterGallery({ previewMode = false }: BeforeAfterG
                     alt={`Before ${image.title}`}
                     fill
                     className="object-cover group-hover:opacity-0 transition-opacity duration-300"
+                    sizes="(max-width: 768px) 100vw, (max-width: 1024px) 50vw, 33vw"
+                    priority={image.id === '1'}
                   />
                 </div>
                 <Image
@@ -164,6 +192,8 @@ export default function BeforeAfterGallery({ previewMode = false }: BeforeAfterG
                   alt={`After ${image.title}`}
                   fill
                   className="object-cover"
+                  sizes="(max-width: 768px) 100vw, (max-width: 1024px) 50vw, 33vw"
+                  priority={image.id === '1'}
                 />
               </div>
               <div className="mt-4">
@@ -184,11 +214,8 @@ export default function BeforeAfterGallery({ previewMode = false }: BeforeAfterG
               <motion.div
                 key={image.id}
                 className="relative cursor-pointer"
-                whileHover={{ scale: 1.02 }}
-                onClick={() => {
-                  setSelectedImage(image);
-                  setSelectedType('single');
-                }}
+                {...motionProps}
+                onClick={handleImageClick(image, 'single')}
               >
                 <div className="relative h-64 rounded-lg overflow-hidden">
                   <Image
@@ -210,19 +237,31 @@ export default function BeforeAfterGallery({ previewMode = false }: BeforeAfterG
       )}
 
       {/* Modal */}
-      {selectedImage && (
-        <div
+      {deferredSelected && (
+        <motion.div
+          initial={{ opacity: 0 }}
+          animate={{ opacity: 1 }}
+          exit={{ opacity: 0 }}
+          transition={{ duration: 0.2 }}
           className="fixed inset-0 bg-black bg-opacity-75 flex items-center justify-center z-50 p-4"
-          onClick={() => {
-            setSelectedImage(null);
-            setSelectedType(null);
-          }}
+          onClick={handleCloseModal}
         >
-          <div className="bg-white rounded-lg p-6 max-w-4xl w-full" onClick={e => e.stopPropagation()}>
+          <motion.div 
+            className="modal-content bg-white rounded-lg p-6 max-w-4xl w-full"
+            initial={{ scale: 0.95, opacity: 0 }}
+            animate={{ scale: 1, opacity: 1 }}
+            exit={{ scale: 0.95, opacity: 0 }}
+            transition={{ type: "tween", duration: 0.2 }}
+            onClick={(e) => {
+              e.preventDefault();
+              e.stopPropagation();
+            }}
+          >
             <div className="flex justify-between items-start mb-4">
-              <h3 className="text-2xl font-bold text-gray-900">{selectedImage.title}</h3>
+              <h3 className="text-2xl font-bold text-gray-900">{deferredSelected.title}</h3>
               <button
-                onClick={() => {
+                onClick={(e) => {
+                  e.preventDefault();
                   setSelectedImage(null);
                   setSelectedType(null);
                 }}
@@ -239,8 +278,8 @@ export default function BeforeAfterGallery({ previewMode = false }: BeforeAfterG
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                 <div className="relative h-80">
                   <Image
-                    src={(selectedImage as BeforeAfterImage).before}
-                    alt={`Before ${selectedImage.title}`}
+                    src={(deferredSelected as BeforeAfterImage).before}
+                    alt={`Before ${deferredSelected.title}`}
                     fill
                     className="object-cover rounded"
                     sizes="(max-width: 768px) 100vw, 50vw"
@@ -251,8 +290,8 @@ export default function BeforeAfterGallery({ previewMode = false }: BeforeAfterG
                 </div>
                 <div className="relative h-80">
                   <Image
-                    src={(selectedImage as BeforeAfterImage).after}
-                    alt={`After ${selectedImage.title}`}
+                    src={(deferredSelected as BeforeAfterImage).after}
+                    alt={`After ${deferredSelected.title}`}
                     fill
                     className="object-cover rounded"
                     sizes="(max-width: 768px) 100vw, 50vw"
@@ -265,17 +304,17 @@ export default function BeforeAfterGallery({ previewMode = false }: BeforeAfterG
             ) : (
               <div className="relative h-[60vh] max-h-[600px]">
                 <Image
-                  src={(selectedImage as SingleImage).image}
-                  alt={selectedImage.title}
+                  src={(deferredSelected as SingleImage).image}
+                  alt={deferredSelected.title}
                   fill
                   className="object-contain rounded"
                   sizes="(max-width: 768px) 100vw, 75vw"
                 />
               </div>
             )}
-            <p className="mt-4 text-gray-600">{selectedImage.description}</p>
-          </div>
-        </div>
+            <p className="mt-4 text-gray-600">{deferredSelected.description}</p>
+          </motion.div>
+        </motion.div>
       )}
     </div>
   );

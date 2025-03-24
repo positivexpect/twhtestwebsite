@@ -36,25 +36,25 @@ export default function ReviewsPage() {
   return (
     <div className="min-h-screen bg-white">
       {/* Hero Section */}
-      <div className="text-center mb-12">
-        <h1 className="text-4xl font-bold text-gray-900 mb-4">
+      <div className="text-center mb-12 pt-16">
+        <h1 className="text-4xl font-extrabold text-gray-900 sm:text-5xl md:text-6xl tracking-tight mb-4">
           Our Customer Reviews
         </h1>
-        <p className="text-xl text-gray-600">
+        <p className="text-xl text-gray-600 max-w-3xl mx-auto">
           See what our satisfied customers have to say about our window repair services
         </p>
       </div>
 
       {/* Overall Rating Section */}
       <div className="bg-gray-50 py-12 mb-16">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+        <div className="max-w-7xl mx-auto">
           <div className="text-center">
             <div className="flex items-center justify-center mb-4">
               {[1, 2, 3, 4, 5].map((star) => (
                 <FaStar key={star} className="text-yellow-400 h-12 w-12" />
               ))}
             </div>
-            <h2 className="text-5xl font-bold text-gray-900 mb-2">4.88</h2>
+            <div className="stat-number mb-2">4.88</div>
             <p className="text-xl text-gray-600">Overall Rating</p>
             <p className="mt-2 text-gray-500">Based on 300+ Reviews</p>
           </div>

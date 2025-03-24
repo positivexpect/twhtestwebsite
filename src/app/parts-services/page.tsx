@@ -32,7 +32,9 @@ export default function PartsServices() {
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-16">
         {/* Hero Section */}
         <div className="text-center mb-16 mt-4 sm:mt-0">
-          <h1 className="text-4xl font-bold text-gray-900 sm:text-5xl mb-2 sm:mb-3">Window Parts & Hardware Repair</h1>
+          <h1 className="text-4xl font-extrabold text-gray-900 sm:text-5xl md:text-6xl tracking-tight mb-2 sm:mb-3">
+            Window Parts & Hardware Repair
+          </h1>
           <p className="mt-4 sm:mt-6 text-xl text-gray-600 max-w-3xl mx-auto">
             As a reformed sales rep, I know the truth: Most windows don't need replacing—they just need the right parts and expertise.
           </p>
@@ -41,8 +43,10 @@ export default function PartsServices() {
         {/* Unique Value Proposition */}
         <div className="bg-blue-50 rounded-xl p-8 mb-16">
           <div className="max-w-3xl mx-auto">
-            <h2 className="text-2xl font-bold text-gray-900 mb-4">Single Part vs Multiple Parts Repair</h2>
-            <p className="text-lg text-gray-700 mb-6">
+            <h2 className="text-3xl font-bold text-gray-900 sm:text-4xl tracking-tight mb-4">
+              Single Part vs Multiple Parts Repair
+            </h2>
+            <p className="text-lg text-gray-600 mb-6">
               I'll be honest—as a former window sales rep, I was trained to push replacements over repairs. But here's the truth: most windows just need the right parts and proper maintenance to function like new.
             </p>
             <div className="grid md:grid-cols-2 gap-6">

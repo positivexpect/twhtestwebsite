@@ -3,6 +3,7 @@
 import React from 'react';
 import Image from 'next/image';
 import { motion } from 'framer-motion';
+import Link from 'next/link';
 
 const parts = [
   {
@@ -79,6 +80,24 @@ export default function Parts() {
               </div>
             </motion.div>
           ))}
+        </div>
+
+        {/* Parts Store Link */}
+        <div className="mt-12 text-center">
+          <Link
+            href="https://windowhospital.forpartsnow.com/"
+            target="_blank"
+            rel="noopener noreferrer"
+            className="inline-flex items-center px-8 py-4 border border-transparent text-lg font-medium rounded-md shadow-sm text-white bg-[#CD2028] hover:bg-[#B01B22] focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-[#CD2028]"
+          >
+            Visit Our Parts Store
+            <svg className="ml-2 -mr-1 h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14" />
+            </svg>
+          </Link>
+          <p className="mt-4 text-gray-600">
+            Browse our complete catalog of window parts and hardware
+          </p>
         </div>
       </div>
     </div>
