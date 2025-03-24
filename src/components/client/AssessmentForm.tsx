@@ -3,6 +3,7 @@
 import { useState } from 'react';
 import Image from 'next/image';
 import { ChevronDownIcon } from '@heroicons/react/24/outline';
+import Link from 'next/link';
 
 type FormData = {
   name: string;
@@ -563,7 +564,7 @@ export default function AssessmentForm() {
           {/* Text Message Consent */}
           <div className="space-y-4">
             <div className="bg-gray-50 p-4 rounded-md">
-              <p className="text-sm text-gray-700">
+              <p className="text-sm text-gray-700 mb-4">
                 Do you agree to receive text messages from The Window Hospital Inc. sent from (540)-603-0088? Message frequency varies and may include (To provide and manage our services, to schedule and confirm appointments, to process payments and send invoices, to communicate with you regarding your inquiries and our services.) We do not sell your information this is only to communicate with The Window Hospital Inc. Message and data rates may apply. Reply STOP at any time to end or unsubscribe. For assistance, reply HELP or contact support at (540)-603-0088
               </p>
               <div className="mt-6 space-y-4">
@@ -628,7 +629,7 @@ export default function AssessmentForm() {
                 </label>
               </div>
               <p className="mt-4 text-sm text-gray-500">
-                See our <a href="/privacy-policy" className="text-[#CD2028] hover:text-[#B01B22]">Privacy Policy</a> for details on how we handle your information.
+                See our <Link href="/privacy-policy" className="text-[#CD2028] hover:text-[#B01B22]">Privacy Policy</Link> for details on how we handle your information.
               </p>
             </div>
           </div>

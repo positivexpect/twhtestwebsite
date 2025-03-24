@@ -2,31 +2,104 @@ import Link from 'next/link';
 
 export default function Footer() {
   return (
-    <footer className="bg-gray-50 py-12">
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        <h2>
-          <Link href="/footer">
-            Contact Us
-          </Link>
-        </h2>
-        <p className="mt-4">
-          Do you agree to receive text messages from The Window Hospital Inc. sent from (540)-603-0088? 
-          Message frequency varies and may include communications regarding inquiries and services. 
-          We do not sell your information. Reply STOP to unsubscribe.
-        </p>
-        <div className="mt-4 space-y-2">
-          <label className="flex items-center space-x-2">
-            <input type="radio" name="textOptIn" value="yes" />
-            <span>Yes, I agree to receive text messages.</span>
-          </label>
-          <label className="flex items-center space-x-2">
-            <input type="radio" name="textOptIn" value="no" />
-            <span>No, I do not want to receive text messages.</span>
-          </label>
+    <footer className="bg-gray-900">
+      <div className="max-w-7xl mx-auto py-12 px-4 sm:px-6 lg:px-8">
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
+          {/* Contact Information */}
+          <div>
+            <h3 className="text-white text-lg font-semibold mb-4">Contact Us</h3>
+            <div className="space-y-3 text-gray-300">
+              <p>
+                <a 
+                  href="tel:5406030088" 
+                  className="hover:text-white transition-colors"
+                >
+                  (540) 603-0088
+                </a>
+              </p>
+              <p>
+                <a 
+                  href="https://maps.google.com/?q=10944+Patriot+Highway+Suite+4745+Fredericksburg+VA+22408"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="hover:text-white transition-colors"
+                >
+                  10944 Patriot Highway, Suite 4745<br />
+                  Fredericksburg, VA 22408
+                </a>
+              </p>
+              <div>
+                <p>Monday-Thursday: 9am-4pm</p>
+                <p>Friday: 9am-1pm</p>
+                <p>Saturday-Sunday: Closed</p>
+              </div>
+            </div>
+          </div>
+
+          {/* Quick Links */}
+          <div>
+            <h3 className="text-white text-lg font-semibold mb-4">Quick Links</h3>
+            <ul className="space-y-2">
+              <li>
+                <Link href="/glass-services" className="text-gray-300 hover:text-white transition-colors">
+                  Glass Services
+                </Link>
+              </li>
+              <li>
+                <Link href="/parts-services" className="text-gray-300 hover:text-white transition-colors">
+                  Parts Services
+                </Link>
+              </li>
+              <li>
+                <Link href="/screen-services" className="text-gray-300 hover:text-white transition-colors">
+                  Screen Services
+                </Link>
+              </li>
+              <li>
+                <Link href="/about" className="text-gray-300 hover:text-white transition-colors">
+                  About Us
+                </Link>
+              </li>
+              <li>
+                <Link href="/faq" className="text-gray-300 hover:text-white transition-colors">
+                  FAQ
+                </Link>
+              </li>
+              <li>
+                <Link href="/contact" className="text-gray-300 hover:text-white transition-colors">
+                  Contact
+                </Link>
+              </li>
+            </ul>
+          </div>
+
+          {/* Service Area */}
+          <div>
+            <h3 className="text-white text-lg font-semibold mb-4">Service Area</h3>
+            <p className="text-gray-300">
+              Serving Fredericksburg, Stafford, Spotsylvania, King George, Caroline, and surrounding areas.
+            </p>
+            <div className="mt-4">
+              <Link
+                href="/franchise"
+                className="text-[#CD2028] hover:text-[#B01B22] font-medium"
+              >
+                Franchise Opportunities Available →
+              </Link>
+            </div>
+          </div>
         </div>
-        <p className="mt-4">
-          See our <Link href="/privacy-policy">Privacy Policy</Link> for details on how we handle your information.
-        </p>
+
+        <div className="mt-8 pt-8 border-t border-gray-700">
+          <div className="text-center text-gray-400 text-sm">
+            <p>© {new Date().getFullYear()} The Window Hospital Inc. All rights reserved.</p>
+            <p className="mt-2">
+              <Link href="/privacy-policy" className="hover:text-white transition-colors">
+                Privacy Policy
+              </Link>
+            </p>
+          </div>
+        </div>
       </div>
     </footer>
   );
