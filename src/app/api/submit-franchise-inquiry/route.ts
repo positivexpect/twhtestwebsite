@@ -17,6 +17,18 @@ const transporter = nodemailer.createTransport({
     user: process.env.FRANCHISE_SMTP_USER,
     pass: process.env.FRANCHISE_SMTP_PASS,
   },
+  tls: {
+    rejectUnauthorized: true
+  }
+});
+
+// Verify SMTP connection
+transporter.verify(function(error, success) {
+  if (error) {
+    console.error('SMTP connection error:', error);
+  } else {
+    console.log('SMTP server is ready to take our messages');
+  }
 });
 
 export async function POST(request: Request) {
@@ -60,7 +72,7 @@ export async function POST(request: Request) {
     // Create email content for admin
     const adminEmailHtml = `
       <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto;">
-        <img src="cid:companyLogo" alt="The Window Hospital" style="width: 200px; margin-bottom: 20px;" />
+        <img src="https://thewindowhospital.com/images/fulllogo_transparent_nobuffer.png" alt="The Window Hospital" style="width: 200px; margin-bottom: 20px;" />
         <h2 style="color: #CD2028;">New Franchise Inquiry</h2>
         <div style="background: #f5f5f5; padding: 20px; border-radius: 5px;">
           <p><strong>Name:</strong> ${data.name}</p>
@@ -84,16 +96,20 @@ export async function POST(request: Request) {
         },
         to: process.env.FRANCHISE_ADMIN_EMAIL!,
         subject: `New Franchise Inquiry from ${data.name}`,
-        html: adminEmailHtml,
-        attachments: [{
-          filename: 'logo.png',
-          path: './public/images/fulllogo_transparent_nobuffer - Copy.png',
-          cid: 'companyLogo'
-        }]
+        html: adminEmailHtml
       });
       console.log('Admin email sent successfully');
     } catch (emailError) {
       console.error('Error sending admin email:', emailError);
+      // Log the full error details
+      if (emailError instanceof Error) {
+        console.error('Email error details:', {
+          message: emailError.message,
+          stack: emailError.stack,
+          code: (emailError as any).code,
+          command: (emailError as any).command
+        });
+      }
       // Don't throw here, continue with the rest of the process
     }
 
@@ -102,7 +118,7 @@ export async function POST(request: Request) {
       try {
         const autoReplyHtml = `
           <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto;">
-            <img src="cid:companyLogo" alt="The Window Hospital" style="width: 200px; margin-bottom: 20px;" />
+            <img src="https://thewindowhospital.com/images/fulllogo_transparent_nobuffer.png" alt="The Window Hospital" style="width: 200px; margin-bottom: 20px;" />
             <h2 style="color: #CD2028;">Thank You for Your Franchise Inquiry</h2>
             <p>Dear ${data.name},</p>
             <p>We have received your franchise inquiry and will contact you shortly to discuss this exciting opportunity.</p>
@@ -117,16 +133,20 @@ export async function POST(request: Request) {
           },
           to: data.email,
           subject: 'Thank You for Your Franchise Inquiry',
-          html: autoReplyHtml,
-          attachments: [{
-            filename: 'logo.png',
-            path: './public/images/fulllogo_transparent_nobuffer - Copy.png',
-            cid: 'companyLogo'
-          }]
+          html: autoReplyHtml
         });
         console.log('Franchise inquirer auto-reply sent successfully');
       } catch (emailError) {
         console.error('Error sending franchise inquirer auto-reply:', emailError);
+        // Log the full error details
+        if (emailError instanceof Error) {
+          console.error('Email error details:', {
+            message: emailError.message,
+            stack: emailError.stack,
+            code: (emailError as any).code,
+            command: (emailError as any).command
+          });
+        }
         // Don't throw here, continue with the rest of the process
       }
     }
