@@ -106,7 +106,7 @@ export async function POST(request: Request) {
         try {
           // Combine chunks if they exist
           const fileBuffer = file.chunks 
-            ? Buffer.concat(file.chunks.map(chunk => Buffer.from(chunk, 'base64')))
+            ? Buffer.concat(file.chunks.map((chunk: string) => Buffer.from(chunk, 'base64')))
             : Buffer.from(file.base64, 'base64');
 
           const fileName = `${uuidv4()}-${file.name}`;
