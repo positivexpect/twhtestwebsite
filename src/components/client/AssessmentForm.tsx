@@ -6,6 +6,7 @@ import { ChevronDownIcon } from '@heroicons/react/24/outline';
 import Link from 'next/link';
 import { FFmpeg } from '@ffmpeg/ffmpeg';
 import { fetchFile } from '@ffmpeg/util';
+import { toBlobURL } from '@ffmpeg/util';
 
 type FormData = {
   name: string;
@@ -118,48 +119,63 @@ export default function AssessmentForm() {
   useEffect(() => {
     // Initialize FFmpeg
     const initFFmpeg = async () => {
-      const ffmpeg = new FFmpeg();
-      await ffmpeg.load();
-      ffmpegRef.current = ffmpeg;
+      try {
+        const ffmpeg = new FFmpeg();
+        await ffmpeg.load({
+          coreURL: 'https://cdn.jsdelivr.net/npm/@ffmpeg/core@0.12.9/dist/umd/ffmpeg-core.js',
+          wasmURL: 'https://cdn.jsdelivr.net/npm/@ffmpeg/core@0.12.9/dist/umd/ffmpeg-core.wasm',
+        });
+        ffmpegRef.current = ffmpeg;
+      } catch (error) {
+        console.error('Failed to initialize FFmpeg:', error);
+        // Don't throw, just log the error. The form will still work without compression.
+      }
     };
     initFFmpeg();
   }, []);
 
   const compressVideo = async (file: File): Promise<File> => {
     if (!ffmpegRef.current) {
-      throw new Error('FFmpeg not initialized');
+      console.log('FFmpeg not available, uploading original file');
+      return file;
     }
 
-    const ffmpeg = ffmpegRef.current;
-    const inputFileName = 'input.mp4';
-    const outputFileName = 'output.mp4';
+    try {
+      const ffmpeg = ffmpegRef.current;
+      const inputFileName = 'input.mp4';
+      const outputFileName = 'output.mp4';
 
-    // Write the file to FFmpeg's virtual filesystem
-    await ffmpeg.writeFile(inputFileName, await fetchFile(file));
+      // Write the file to FFmpeg's virtual filesystem
+      await ffmpeg.writeFile(inputFileName, await fetchFile(file));
 
-    // Set up progress handling
-    ffmpeg.on('progress', ({ progress }) => {
-      setCompressionProgress(Math.round(progress * 100));
-    });
+      // Set up progress handling
+      ffmpeg.on('progress', ({ progress }) => {
+        setCompressionProgress(Math.round(progress * 100));
+      });
 
-    // Run FFmpeg command to compress video
-    await ffmpeg.exec([
-      '-i', inputFileName,
-      '-c:v', 'libx264',
-      '-crf', '28', // Higher value = more compression (18-28 is good for quality)
-      '-preset', 'medium', // Balance between speed and compression
-      '-c:a', 'aac',
-      '-b:a', '128k',
-      outputFileName
-    ]);
+      // Run FFmpeg command to compress video
+      await ffmpeg.exec([
+        '-i', inputFileName,
+        '-c:v', 'libx264',
+        '-crf', '28', // Higher value = more compression (18-28 is good for quality)
+        '-preset', 'medium', // Balance between speed and compression
+        '-c:a', 'aac',
+        '-b:a', '128k',
+        outputFileName
+      ]);
 
-    // Read the compressed file
-    const data = await ffmpeg.readFile(outputFileName);
-    
-    // Create a new File object from the compressed data
-    return new File([data], file.name.replace(/\.[^/.]+$/, '_compressed.mp4'), {
-      type: 'video/mp4'
-    });
+      // Read the compressed file
+      const data = await ffmpeg.readFile(outputFileName);
+      
+      // Create a new File object from the compressed data
+      return new File([data], file.name.replace(/\.[^/.]+$/, '_compressed.mp4'), {
+        type: 'video/mp4'
+      });
+    } catch (error) {
+      console.error('Error compressing video:', error);
+      // Return the original file if compression fails
+      return file;
+    }
   };
 
   const toggleIssueType = (type: string) => {
@@ -191,7 +207,7 @@ export default function AssessmentForm() {
       const totalSize = [...formData.files, ...newFiles].reduce((sum, file) => sum + file.size, 0);
       
       if (totalSize > 100 * 1024 * 1024) {
-        alert('The total size of all files exceeds 100MB. Please select smaller files or fewer files.');
+        setSubmitError('The total size of all files exceeds 100MB. Please select smaller files or fewer files.');
         return;
       }
       
@@ -208,7 +224,7 @@ export default function AssessmentForm() {
                           file.name.toLowerCase().endsWith('.pdf');
         
         if (!isValidType) {
-          alert(`"${file.name}" is not a supported file type. Please upload only photos, videos, or PDFs.`);
+          setSubmitError(`"${file.name}" is not a supported file type. Please upload only photos, videos, or PDFs.`);
           return false;
         }
         
@@ -224,11 +240,16 @@ export default function AssessmentForm() {
               file.name.toLowerCase().endsWith('.m4v')) {
             setIsCompressing(true);
             try {
+              if (!ffmpegRef.current) {
+                console.log('Video compression not available, uploading original file');
+                setSubmitError('Video compression is temporarily unavailable. Your video will be uploaded in its original format.');
+                return file;
+              }
               const compressedFile = await compressVideo(file);
               return compressedFile;
             } catch (error) {
               console.error('Error compressing video:', error);
-              alert(`We couldn't compress the video "${file.name}". The original file will be uploaded instead.`);
+              setSubmitError('Video compression is temporarily unavailable. Your video will be uploaded in its original format.');
               return file;
             } finally {
               setIsCompressing(false);
