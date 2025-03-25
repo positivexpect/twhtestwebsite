@@ -103,6 +103,7 @@ export default function AssessmentForm() {
   const [isCompressing, setIsCompressing] = useState(false);
   const [compressionProgress, setCompressionProgress] = useState(0);
   const ffmpegRef = useRef<FFmpeg | null>(null);
+  const compressionAbortRef = useRef<AbortController | null>(null);
 
   useEffect(() => {
     if (submitError && errorRef.current) {
@@ -144,6 +145,7 @@ export default function AssessmentForm() {
       const ffmpeg = ffmpegRef.current;
       const inputFileName = 'input.mp4';
       const outputFileName = 'output.mp4';
+      compressionAbortRef.current = new AbortController();
 
       // Write the file to FFmpeg's virtual filesystem
       await ffmpeg.writeFile(inputFileName, await fetchFile(file));
@@ -157,8 +159,8 @@ export default function AssessmentForm() {
       await ffmpeg.exec([
         '-i', inputFileName,
         '-c:v', 'libx264',
-        '-crf', '28', // Higher value = more compression (18-28 is good for quality)
-        '-preset', 'medium', // Balance between speed and compression
+        '-crf', '28',
+        '-preset', 'medium',
         '-c:a', 'aac',
         '-b:a', '128k',
         outputFileName
@@ -171,11 +173,24 @@ export default function AssessmentForm() {
       return new File([data], file.name.replace(/\.[^/.]+$/, '_compressed.mp4'), {
         type: 'video/mp4'
       });
-    } catch (error) {
+    } catch (error: any) {
+      if (error?.name === 'AbortError') {
+        console.log('Video compression cancelled');
+        return file;
+      }
       console.error('Error compressing video:', error);
-      // Return the original file if compression fails
       return file;
+    } finally {
+      compressionAbortRef.current = null;
     }
+  };
+
+  const cancelCompression = () => {
+    if (compressionAbortRef.current) {
+      compressionAbortRef.current.abort();
+    }
+    setIsCompressing(false);
+    setCompressionProgress(0);
   };
 
   const toggleIssueType = (type: string) => {
@@ -561,7 +576,8 @@ export default function AssessmentForm() {
               <input
                 type="file"
                 multiple
-                accept="image/*,video/*,.pdf"
+                accept="image/*,video/*,.pdf,.mov,.m4v"
+                capture="environment"
                 onChange={handleFileChange}
                 className="block w-full text-sm text-gray-500
                   file:mr-4 file:py-2 file:px-4
@@ -571,6 +587,9 @@ export default function AssessmentForm() {
                   hover:file:bg-[#B01B22]"
               />
             </div>
+            <p className="mt-2 text-sm text-gray-500">
+              Supported formats: Photos (JPG, PNG), Videos (MP4, MOV, M4V), PDFs
+            </p>
             {formData.files.length > 0 && (
               <div className="mt-4 space-y-2">
                 <p className="text-sm text-gray-500">Selected files:</p>
@@ -849,13 +868,19 @@ export default function AssessmentForm() {
               <p className="text-sm text-gray-500 mb-4">
                 This may take a few minutes depending on the video size...
               </p>
-              <div className="w-full bg-gray-200 rounded-full h-2.5">
+              <div className="w-full bg-gray-200 rounded-full h-2.5 mb-4">
                 <div 
                   className="bg-[#CD2028] h-2.5 rounded-full transition-all duration-300"
                   style={{ width: `${compressionProgress}%` }}
                 ></div>
               </div>
-              <p className="text-sm text-gray-600 mt-2">{compressionProgress}% complete</p>
+              <p className="text-sm text-gray-600 mb-4">{compressionProgress}% complete</p>
+              <button
+                onClick={cancelCompression}
+                className="inline-flex items-center px-4 py-2 border border-gray-300 shadow-sm text-sm font-medium rounded-md text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-[#CD2028]"
+              >
+                Cancel Compression
+              </button>
             </div>
           </div>
         </div>
