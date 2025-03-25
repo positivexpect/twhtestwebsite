@@ -30,7 +30,7 @@ async function ensureBucketExists() {
         .storage
         .createBucket('form-uploads', {
           public: true,
-          fileSizeLimit: 52428800, // 50MB
+          fileSizeLimit: 104857600, // 100MB
         });
 
       if (createError) {

@@ -96,12 +96,19 @@ export default function AssessmentForm() {
   const [submitSuccess, setSubmitSuccess] = useState(false);
   const [submitError, setSubmitError] = useState('');
   const errorRef = useRef<HTMLDivElement>(null);
+  const successRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
     if (submitError && errorRef.current) {
       errorRef.current.scrollIntoView({ behavior: 'smooth', block: 'start' });
     }
   }, [submitError]);
+
+  useEffect(() => {
+    if (submitSuccess && successRef.current) {
+      successRef.current.scrollIntoView({ behavior: 'smooth', block: 'start' });
+    }
+  }, [submitSuccess]);
 
   const toggleIssueType = (type: string) => {
     setFormData(prev => ({
@@ -127,9 +134,32 @@ export default function AssessmentForm() {
   const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     if (e.target.files) {
       const newFiles = Array.from(e.target.files);
+      
+      // Calculate total size including existing files
+      const totalSize = [...formData.files, ...newFiles].reduce((sum, file) => sum + file.size, 0);
+      
+      if (totalSize > 100 * 1024 * 1024) {
+        alert('Total file size exceeds 100MB limit. Please select smaller files or fewer files.');
+        return;
+      }
+      
+      // Validate file types
+      const validFiles = newFiles.filter(file => {
+        const isValidType = file.type.startsWith('image/') || 
+                          file.type.startsWith('video/') || 
+                          file.type === 'application/octet-stream'; // Handle some video formats
+        
+        if (!isValidType) {
+          alert(`File "${file.name}" is not a valid image or video file.`);
+          return false;
+        }
+        
+        return true;
+      });
+
       setFormData(prev => ({
         ...prev,
-        files: [...prev.files, ...newFiles]
+        files: [...prev.files, ...validFiles]
       }));
     }
   };
@@ -146,20 +176,34 @@ export default function AssessmentForm() {
     setIsSubmitting(true);
     setSubmitError('');
 
+    // Check total file size before submission
+    const totalSize = formData.files.reduce((sum, file) => sum + file.size, 0);
+    if (totalSize > 100 * 1024 * 1024) {
+      setSubmitError('Total file size exceeds 100MB limit. Please select smaller files or fewer files.');
+      setIsSubmitting(false);
+      return;
+    }
+
     try {
-      // Convert files to base64
+      // Convert files to base64 with progress tracking
       const filesWithBase64 = await Promise.all(
         formData.files.map(async (file) => {
-          const base64 = await new Promise<string>((resolve) => {
-            const reader = new FileReader();
-            reader.onloadend = () => resolve(reader.result as string);
-            reader.readAsDataURL(file);
-          });
-          return {
-            name: file.name,
-            type: file.type,
-            base64: base64.split(',')[1] // Remove data URL prefix
-          };
+          try {
+            const base64 = await new Promise<string>((resolve, reject) => {
+              const reader = new FileReader();
+              reader.onloadend = () => resolve(reader.result as string);
+              reader.onerror = reject;
+              reader.readAsDataURL(file);
+            });
+            return {
+              name: file.name,
+              type: file.type,
+              base64: base64.split(',')[1] // Remove data URL prefix
+            };
+          } catch (error) {
+            console.error(`Error processing file ${file.name}:`, error);
+            throw new Error(`Failed to process file ${file.name}. Please try again.`);
+          }
         })
       );
 
@@ -209,7 +253,7 @@ export default function AssessmentForm() {
       }
     } catch (error) {
       console.error('Error submitting form:', error);
-      setSubmitError('Failed to submit form. Please try again.');
+      setSubmitError(error instanceof Error ? error.message : 'Failed to submit form. Please try again.');
     } finally {
       setIsSubmitting(false);
     }
@@ -217,7 +261,7 @@ export default function AssessmentForm() {
 
   if (submitSuccess) {
     return (
-      <div className="bg-green-50 p-8 rounded-lg text-center">
+      <div ref={successRef} className="bg-green-50 p-8 rounded-lg text-center">
         <div className="mx-auto flex items-center justify-center h-12 w-12 rounded-full bg-green-100">
           <svg className="h-6 w-6 text-green-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M5 13l4 4L19 7" />
