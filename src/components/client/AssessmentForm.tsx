@@ -307,20 +307,30 @@ export default function AssessmentForm() {
       const filesWithBase64 = await Promise.all(
         formData.files.map(async (file) => {
           try {
-            const base64 = await new Promise<string>((resolve, reject) => {
-              const reader = new FileReader();
-              reader.onloadend = () => resolve(reader.result as string);
-              reader.onerror = (error) => {
-                console.error('FileReader error:', error);
-                reject(new Error(`Unable to process "${file.name}". Please try uploading it again.`));
-              };
-              reader.readAsDataURL(file);
-            });
+            // Split large files into chunks
+            const chunkSize = 5 * 1024 * 1024; // 5MB chunks
+            const chunks = [];
+            let offset = 0;
+
+            while (offset < file.size) {
+              const chunk = file.slice(offset, offset + chunkSize);
+              const base64Chunk = await new Promise<string>((resolve, reject) => {
+                const reader = new FileReader();
+                reader.onloadend = () => resolve(reader.result as string);
+                reader.onerror = (error) => {
+                  console.error('FileReader error:', error);
+                  reject(new Error(`Unable to process "${file.name}". Please try uploading it again.`));
+                };
+                reader.readAsDataURL(chunk);
+              });
+              chunks.push(base64Chunk.split(',')[1]);
+              offset += chunkSize;
+            }
 
             return {
               name: file.name,
               type: file.type || 'application/octet-stream',
-              base64: base64.split(',')[1]
+              chunks: chunks
             };
           } catch (error) {
             console.error(`Error processing file ${file.name}:`, error);
@@ -340,6 +350,12 @@ export default function AssessmentForm() {
           files: filesWithBase64
         }),
       });
+
+      if (!response.ok) {
+        const errorText = await response.text();
+        console.error('Server response error:', errorText);
+        throw new Error(`Server error: ${response.status} ${response.statusText}`);
+      }
 
       const result = await response.json();
 
@@ -374,9 +390,9 @@ export default function AssessmentForm() {
         console.error('Server response error:', result);
         setSubmitError('We encountered an issue submitting your form. Please try again or contact us if the problem persists.');
       }
-    } catch (error) {
+    } catch (error: any) {
       console.error('Error submitting form:', error);
-      setSubmitError('We encountered an issue submitting your form. Please try again or contact us if the problem persists.');
+      setSubmitError(error.message || 'We encountered an issue submitting your form. Please try again or contact us if the problem persists.');
     } finally {
       setIsSubmitting(false);
     }
@@ -572,14 +588,28 @@ export default function AssessmentForm() {
             <label className="block text-sm font-medium text-gray-700">
               Upload Photos, Videos, or PDFs (Optional)
             </label>
-            <div className="mt-2">
+            <div className="mt-2 space-y-4">
+              {/* Desktop file input */}
+              <input
+                type="file"
+                multiple
+                accept="image/*,video/*,.pdf,.mov,.m4v"
+                onChange={handleFileChange}
+                className="hidden md:block w-full text-sm text-gray-500
+                  file:mr-4 file:py-2 file:px-4
+                  file:rounded-md file:border-0
+                  file:text-sm file:font-semibold
+                  file:bg-[#CD2028] file:text-white
+                  hover:file:bg-[#B01B22]"
+              />
+              {/* Mobile file input */}
               <input
                 type="file"
                 multiple
                 accept="image/*,video/*,.pdf,.mov,.m4v"
                 capture="environment"
                 onChange={handleFileChange}
-                className="block w-full text-sm text-gray-500
+                className="md:hidden block w-full text-sm text-gray-500
                   file:mr-4 file:py-2 file:px-4
                   file:rounded-md file:border-0
                   file:text-sm file:font-semibold
