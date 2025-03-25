@@ -1,6 +1,6 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import Image from 'next/image';
 import { ChevronDownIcon } from '@heroicons/react/24/outline';
 import Link from 'next/link';
@@ -95,6 +95,13 @@ export default function AssessmentForm() {
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [submitSuccess, setSubmitSuccess] = useState(false);
   const [submitError, setSubmitError] = useState('');
+  const errorRef = useRef<HTMLDivElement>(null);
+
+  useEffect(() => {
+    if (submitError && errorRef.current) {
+      errorRef.current.scrollIntoView({ behavior: 'smooth', block: 'start' });
+    }
+  }, [submitError]);
 
   const toggleIssueType = (type: string) => {
     setFormData(prev => ({
@@ -238,7 +245,7 @@ export default function AssessmentForm() {
         </div>
 
         {submitError && (
-          <div className="mb-6 bg-red-50 border border-red-200 text-red-700 px-4 py-3 rounded relative" role="alert">
+          <div ref={errorRef} className="mb-6 bg-red-50 border border-red-200 text-red-700 px-4 py-3 rounded relative" role="alert">
             <strong className="font-bold">Error: </strong>
             <span className="block sm:inline">{submitError}</span>
           </div>
@@ -396,13 +403,13 @@ export default function AssessmentForm() {
           {/* File Upload Section */}
           <div className="mt-6">
             <label className="block text-sm font-medium text-gray-700">
-              Upload Photos (Optional)
+              Upload Photos or Videos (Optional)
             </label>
             <div className="mt-2">
               <input
                 type="file"
                 multiple
-                accept="image/*"
+                accept="image/*,video/*"
                 onChange={handleFileChange}
                 className="block w-full text-sm text-gray-500
                   file:mr-4 file:py-2 file:px-4
@@ -417,7 +424,7 @@ export default function AssessmentForm() {
                 <p className="text-sm text-gray-500">Selected files:</p>
                 <ul className="space-y-2">
                   {formData.files.map((file, index) => (
-                    <li key={index} className="flex items-center justify-between text-sm">
+                    <li key={index} className="flex items-center justify-between text-sm bg-gray-50 p-2 rounded-md">
                       <span className="text-gray-700">{file.name}</span>
                       <button
                         type="button"
@@ -429,6 +436,9 @@ export default function AssessmentForm() {
                     </li>
                   ))}
                 </ul>
+                <p className="text-sm text-gray-500 mt-2">
+                  You can add more files by selecting them again
+                </p>
               </div>
             )}
           </div>
