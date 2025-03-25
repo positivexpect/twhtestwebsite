@@ -4,6 +4,7 @@ import RepairVsReplace from '@/components/RepairVsReplace';
 import Services from '@/components/Services';
 import EducationalContent from '@/components/EducationalContent';
 import Link from 'next/link';
+import SocialProof from '@/components/client/SocialProof';
 
 // Import client components dynamically
 const SavingsCalculator = dynamic(() => import('@/components/client/SavingsCalculator'));
@@ -54,6 +55,9 @@ export default function Home() {
           </div>
         </div>
       </section>
+
+      {/* Social Proof Section */}
+      <SocialProof />
       
       {/* Services Section */}
       <section id="services" className="py-16 bg-white">

@@ -4,12 +4,9 @@ import React from 'react';
 import { PhoneIcon, MapPinIcon, ClockIcon, StarIcon } from '@heroicons/react/24/outline';
 import AssessmentForm from '@/components/client/AssessmentForm';
 import dynamic from 'next/dynamic';
+import GoogleRating from '@/components/client/GoogleRating';
 
 const StoreLocator = dynamic(() => import('@/components/client/StoreLocator'), {
-  ssr: false,
-});
-
-const GoogleRating = dynamic(() => import('@/components/client/GoogleRating'), {
   ssr: false,
 });
 

@@ -6,6 +6,18 @@ export type FormData = {
   email: string;
   message: string;
   textConsent: 'yes' | 'no' | '';
+  files: File[];
+  address: {
+    street: string;
+    city: string;
+    state: string;
+    zip: string;
+  };
+  customerType: string;
+  serviceType: string;
+  urgency: string;
+  issueType: string[];
+  needByDate: string;
 };
 
 interface ContactConsentProps {
@@ -19,6 +31,18 @@ export default function ContactConsent({ onSubmit }: ContactConsentProps) {
     email: '',
     message: '',
     textConsent: '',
+    files: [],
+    address: {
+      street: '',
+      city: '',
+      state: '',
+      zip: '',
+    },
+    customerType: '',
+    serviceType: '',
+    urgency: '',
+    issueType: [],
+    needByDate: '',
   });
 
   const [isSubmitting, setIsSubmitting] = useState(false);
@@ -31,25 +55,32 @@ export default function ContactConsent({ onSubmit }: ContactConsentProps) {
     setSubmitError('');
 
     try {
-      if (onSubmit) {
-        await onSubmit(formData);
-        setSubmitSuccess(true);
-        setFormData({
-          name: '',
-          phone: '',
-          email: '',
-          message: '',
-          textConsent: '',
-        });
-        return;
-      }
+      // Convert files to base64
+      const filesWithBase64 = await Promise.all(
+        formData.files.map(async (file) => {
+          const base64 = await new Promise<string>((resolve) => {
+            const reader = new FileReader();
+            reader.onloadend = () => resolve(reader.result as string);
+            reader.readAsDataURL(file);
+          });
+          return {
+            name: file.name,
+            type: file.type,
+            base64: base64.split(',')[1] // Remove data URL prefix
+          };
+        })
+      );
 
-      const response = await fetch('/api/submit-assessment', {
+      const response = await fetch('/api/submit-form', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
         },
-        body: JSON.stringify(formData),
+        body: JSON.stringify({
+          ...formData,
+          formType: 'contact',
+          files: filesWithBase64
+        }),
       });
 
       const result = await response.json();
@@ -60,8 +91,20 @@ export default function ContactConsent({ onSubmit }: ContactConsentProps) {
           name: '',
           phone: '',
           email: '',
+          address: {
+            street: '',
+            city: '',
+            state: '',
+            zip: ''
+          },
+          customerType: '',
+          serviceType: '',
+          urgency: '',
+          issueType: [],
           message: '',
+          files: [],
           textConsent: '',
+          needByDate: '',
         });
       } else {
         setSubmitError(result.message || 'Failed to submit form. Please try again.');

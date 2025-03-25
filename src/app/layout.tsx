@@ -1,13 +1,22 @@
 import './globals.css';
 import { Inter } from 'next/font/google';
-import type { Metadata } from 'next';
+import type { Metadata, Viewport } from 'next';
 import Navigation from '@/components/client/Navigation';
 import Footer from '@/components/Footer';
 import ChatBot from '@/components/client/ChatBot';
+import ExitIntentPopup from '@/components/client/ExitIntentPopup';
 
 const inter = Inter({ subsets: ['latin'], variable: '--font-inter' });
 
+export const viewport: Viewport = {
+  width: 'device-width',
+  initialScale: 1,
+  maximumScale: 1,
+  themeColor: '#CD2028',
+};
+
 export const metadata: Metadata = {
+  metadataBase: new URL('https://thewindowhospital.com'),
   title: 'The Window Hospital',
   description: 'Expert window repair services in Fredericksburg, VA. Save 50-80% compared to replacement.',
   icons: {
@@ -37,7 +46,31 @@ export const metadata: Metadata = {
         color: '#CD2028'
       }
     ]
-  }
+  },
+  keywords: 'window repair, glass repair, window replacement, foggy windows, window parts, window maintenance, Fredericksburg VA, window repair cost, window repair vs replacement',
+  openGraph: {
+    title: 'The Window Hospital | Professional Window Repair Services',
+    description: 'Expert window repair services in Fredericksburg, VA. Save 50-80% compared to window replacement.',
+    url: 'https://thewindowhospital.com',
+    siteName: 'The Window Hospital',
+    images: [
+      {
+        url: '/images/og-image.jpg',
+        width: 1200,
+        height: 630,
+        alt: 'The Window Hospital - Professional Window Repair Services',
+      },
+    ],
+    locale: 'en_US',
+    type: 'website',
+  },
+  twitter: {
+    card: 'summary_large_image',
+    title: 'The Window Hospital | Professional Window Repair Services',
+    description: 'Expert window repair services in Fredericksburg, VA. Save 50-80% compared to window replacement.',
+    images: ['/images/og-image.jpg'],
+  },
+  manifest: '/manifest.json',
 };
 
 export default function RootLayout({
@@ -59,6 +92,7 @@ export default function RootLayout({
         <main className="flex-grow">{children}</main>
         <Footer />
         <ChatBot />
+        <ExitIntentPopup />
       </body>
     </html>
   );

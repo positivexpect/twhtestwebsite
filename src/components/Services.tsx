@@ -9,7 +9,7 @@ const services = [
     image: '/images/glassicon.jpg',
     title: 'Glass Repair & Replacement',
     description: 'Expert glass repair and replacement services for all window types.',
-    link: '/services/glass',
+    link: '/glass-services',
     features: [
       'Foggy Glass Repair',
       'Seal Failure Fix',
@@ -33,7 +33,7 @@ const services = [
     image: '/images/partsicon.jpeg',
     title: 'Parts Replacement',
     description: 'Quality replacement parts to keep your windows functioning properly.',
-    link: '/services/parts',
+    link: '/parts-services',
     features: [
       'Hardware Replacement',
       'Balance Repair',
@@ -57,7 +57,7 @@ const services = [
     image: '/images/screenicon.jpeg',
     title: 'Screen Services',
     description: 'Professional window screen repair and replacement.',
-    link: '/services/screens',
+    link: '/screen-services',
     features: [
       'Screen Repair',
       'New Screen Installation',

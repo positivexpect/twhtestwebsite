@@ -9,7 +9,7 @@ const navigation = [
   { name: 'Glass Services', href: '/glass-services' },
   { name: 'Parts Services', href: '/parts-services' },
   { name: 'Screen Services', href: '/screen-services' },
-  { name: 'About', href: '/about' },
+  { name: 'Why Choose Us?', href: '/about' },
   { name: 'FAQ', href: '/faq' },
   { name: 'Education Center', href: '/education' },
   { name: 'Contact', href: '/contact' },

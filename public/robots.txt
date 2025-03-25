@@ -1,0 +1,17 @@
+User-agent: *
+Allow: /
+Allow: /reviews
+Allow: /franchise
+Allow: /about
+Allow: /contact
+Allow: /services
+Allow: /blog
+Allow: /sitemap.xml
+
+Disallow: /api/
+Disallow: /_next/
+Disallow: /static/
+Disallow: /admin/
+Disallow: /private/
+
+Sitemap: https://thewindowhospital.com/sitemap.xml 
