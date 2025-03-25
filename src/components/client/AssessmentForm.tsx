@@ -225,6 +225,13 @@ export default function AssessmentForm() {
         setSubmitError('The total size of all files exceeds 100MB. Please select smaller files or fewer files.');
         return;
       }
+
+      // Check individual file sizes
+      const largeFiles = newFiles.filter(file => file.size > 50 * 1024 * 1024);
+      if (largeFiles.length > 0) {
+        setSubmitError('Some files are too large. Please compress videos before uploading or select smaller files.');
+        return;
+      }
       
       // Validate file types
       const validFiles = newFiles.filter(file => {
@@ -307,8 +314,8 @@ export default function AssessmentForm() {
       const filesWithBase64 = await Promise.all(
         formData.files.map(async (file) => {
           try {
-            // Split large files into chunks
-            const chunkSize = 5 * 1024 * 1024; // 5MB chunks
+            // Split large files into smaller chunks
+            const chunkSize = 2 * 1024 * 1024; // 2MB chunks
             const chunks = [];
             let offset = 0;
 
@@ -354,6 +361,9 @@ export default function AssessmentForm() {
       if (!response.ok) {
         const errorText = await response.text();
         console.error('Server response error:', errorText);
+        if (response.status === 413) {
+          throw new Error('The files are too large to upload. Please compress your videos or select smaller files.');
+        }
         throw new Error(`Server error: ${response.status} ${response.statusText}`);
       }
 
