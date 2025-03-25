@@ -155,14 +155,15 @@ export default function AssessmentForm() {
         setCompressionProgress(Math.round(progress * 100));
       });
 
-      // Run FFmpeg command to compress video
+      // More aggressive compression settings
       await ffmpeg.exec([
         '-i', inputFileName,
         '-c:v', 'libx264',
-        '-crf', '28',
-        '-preset', 'medium',
+        '-crf', '35', // Higher value = more compression (35 is more aggressive)
+        '-preset', 'faster', // Faster compression
         '-c:a', 'aac',
-        '-b:a', '128k',
+        '-b:a', '96k', // Lower audio bitrate
+        '-vf', 'scale=1280:-2', // Scale to 720p
         outputFileName
       ]);
 
@@ -221,13 +222,13 @@ export default function AssessmentForm() {
       // Calculate total size including existing files
       const totalSize = [...formData.files, ...newFiles].reduce((sum, file) => sum + file.size, 0);
       
-      if (totalSize > 100 * 1024 * 1024) {
-        setSubmitError('The total size of all files exceeds 100MB. Please select smaller files or fewer files.');
+      if (totalSize > 50 * 1024 * 1024) { // Reduced from 100MB to 50MB
+        setSubmitError('The total size of all files exceeds 50MB. Please select smaller files or fewer files.');
         return;
       }
 
       // Check individual file sizes
-      const largeFiles = newFiles.filter(file => file.size > 50 * 1024 * 1024);
+      const largeFiles = newFiles.filter(file => file.size > 25 * 1024 * 1024); // Reduced from 50MB to 25MB
       if (largeFiles.length > 0) {
         setSubmitError('Some files are too large. Please compress videos before uploading or select smaller files.');
         return;
@@ -303,8 +304,8 @@ export default function AssessmentForm() {
 
     // Check total file size before submission
     const totalSize = formData.files.reduce((sum, file) => sum + file.size, 0);
-    if (totalSize > 100 * 1024 * 1024) {
-      setSubmitError('The total size of all files exceeds 100MB. Please select smaller files or fewer files.');
+    if (totalSize > 50 * 1024 * 1024) { // Reduced from 100MB to 50MB
+      setSubmitError('The total size of all files exceeds 50MB. Please select smaller files or fewer files.');
       setIsSubmitting(false);
       return;
     }
@@ -315,7 +316,7 @@ export default function AssessmentForm() {
         formData.files.map(async (file) => {
           try {
             // Split large files into smaller chunks
-            const chunkSize = 2 * 1024 * 1024; // 2MB chunks
+            const chunkSize = 500 * 1024; // Reduced to 500KB chunks
             const chunks = [];
             let offset = 0;
 

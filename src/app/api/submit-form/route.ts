@@ -103,40 +103,52 @@ export async function POST(request: Request) {
     let fileReferences = [];
     if (data.files && data.files.length > 0) {
       for (const file of data.files) {
-        const fileBuffer = Buffer.from(file.base64, 'base64');
-        const fileName = `${uuidv4()}-${file.name}`;
-        
-        const { data: uploadData, error: uploadError } = await supabase
-          .storage
-          .from('form-uploads')
-          .upload(fileName, fileBuffer, {
-            contentType: file.type,
-            upsert: false
+        try {
+          // Combine chunks if they exist
+          const fileBuffer = file.chunks 
+            ? Buffer.concat(file.chunks.map(chunk => Buffer.from(chunk, 'base64')))
+            : Buffer.from(file.base64, 'base64');
+
+          const fileName = `${uuidv4()}-${file.name}`;
+          
+          // Upload to Supabase in chunks
+          const { data: uploadData, error: uploadError } = await supabase
+            .storage
+            .from('form-uploads')
+            .upload(fileName, fileBuffer, {
+              contentType: file.type,
+              upsert: false,
+              cacheControl: '3600'
+            });
+
+          if (uploadError) {
+            console.error('Error uploading file:', uploadError);
+            throw uploadError;
+          }
+          
+          // Get the public URL for the file
+          const { data: { publicUrl } } = supabase
+            .storage
+            .from('form-uploads')
+            .getPublicUrl(uploadData.path);
+
+          console.log('File uploaded successfully:', {
+            fileName,
+            path: uploadData.path,
+            publicUrl
           });
-
-        if (uploadError) {
-          console.error('Error uploading file:', uploadError);
-          throw uploadError;
+          
+          fileReferences.push({
+            name: file.name,
+            path: uploadData.path,
+            type: file.type,
+            url: publicUrl
+          });
+        } catch (error) {
+          console.error('Error processing file:', error);
+          // Continue with other files even if one fails
+          continue;
         }
-        
-        // Get the public URL for the file
-        const { data: { publicUrl } } = supabase
-          .storage
-          .from('form-uploads')
-          .getPublicUrl(uploadData.path);
-
-        console.log('File uploaded successfully:', {
-          fileName,
-          path: uploadData.path,
-          publicUrl
-        });
-        
-        fileReferences.push({
-          name: file.name,
-          path: uploadData.path,
-          type: file.type,
-          url: publicUrl
-        });
       }
     }
 
