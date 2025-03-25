@@ -4,6 +4,8 @@ import { useState, useEffect, useRef } from 'react';
 import Image from 'next/image';
 import { ChevronDownIcon } from '@heroicons/react/24/outline';
 import Link from 'next/link';
+import { FFmpeg } from '@ffmpeg/ffmpeg';
+import { fetchFile } from '@ffmpeg/util';
 
 type FormData = {
   name: string;
@@ -97,6 +99,9 @@ export default function AssessmentForm() {
   const [submitError, setSubmitError] = useState('');
   const errorRef = useRef<HTMLDivElement>(null);
   const successRef = useRef<HTMLDivElement>(null);
+  const [isCompressing, setIsCompressing] = useState(false);
+  const [compressionProgress, setCompressionProgress] = useState(0);
+  const ffmpegRef = useRef<FFmpeg | null>(null);
 
   useEffect(() => {
     if (submitError && errorRef.current) {
@@ -109,6 +114,53 @@ export default function AssessmentForm() {
       successRef.current.scrollIntoView({ behavior: 'smooth', block: 'start' });
     }
   }, [submitSuccess]);
+
+  useEffect(() => {
+    // Initialize FFmpeg
+    const initFFmpeg = async () => {
+      const ffmpeg = new FFmpeg();
+      await ffmpeg.load();
+      ffmpegRef.current = ffmpeg;
+    };
+    initFFmpeg();
+  }, []);
+
+  const compressVideo = async (file: File): Promise<File> => {
+    if (!ffmpegRef.current) {
+      throw new Error('FFmpeg not initialized');
+    }
+
+    const ffmpeg = ffmpegRef.current;
+    const inputFileName = 'input.mp4';
+    const outputFileName = 'output.mp4';
+
+    // Write the file to FFmpeg's virtual filesystem
+    await ffmpeg.writeFile(inputFileName, await fetchFile(file));
+
+    // Set up progress handling
+    ffmpeg.on('progress', ({ progress }) => {
+      setCompressionProgress(Math.round(progress * 100));
+    });
+
+    // Run FFmpeg command to compress video
+    await ffmpeg.exec([
+      '-i', inputFileName,
+      '-c:v', 'libx264',
+      '-crf', '28', // Higher value = more compression (18-28 is good for quality)
+      '-preset', 'medium', // Balance between speed and compression
+      '-c:a', 'aac',
+      '-b:a', '128k',
+      outputFileName
+    ]);
+
+    // Read the compressed file
+    const data = await ffmpeg.readFile(outputFileName);
+    
+    // Create a new File object from the compressed data
+    return new File([data], file.name.replace(/\.[^/.]+$/, '_compressed.mp4'), {
+      type: 'video/mp4'
+    });
+  };
 
   const toggleIssueType = (type: string) => {
     setFormData(prev => ({
@@ -131,7 +183,7 @@ export default function AssessmentForm() {
     setFormData(prev => ({ ...prev, preferredTimes: newTimes }));
   };
 
-  const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+  const handleFileChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
     if (e.target.files) {
       const newFiles = Array.from(e.target.files);
       
@@ -139,27 +191,57 @@ export default function AssessmentForm() {
       const totalSize = [...formData.files, ...newFiles].reduce((sum, file) => sum + file.size, 0);
       
       if (totalSize > 100 * 1024 * 1024) {
-        alert('Total file size exceeds 100MB limit. Please select smaller files or fewer files.');
+        alert('The total size of all files exceeds 100MB. Please select smaller files or fewer files.');
         return;
       }
       
       // Validate file types
       const validFiles = newFiles.filter(file => {
+        // Accept common video formats including iOS formats
         const isValidType = file.type.startsWith('image/') || 
                           file.type.startsWith('video/') || 
-                          file.type === 'application/octet-stream'; // Handle some video formats
+                          file.type === 'application/octet-stream' ||
+                          file.type === 'application/pdf' ||
+                          file.name.toLowerCase().endsWith('.mov') ||
+                          file.name.toLowerCase().endsWith('.mp4') ||
+                          file.name.toLowerCase().endsWith('.m4v') ||
+                          file.name.toLowerCase().endsWith('.pdf');
         
         if (!isValidType) {
-          alert(`File "${file.name}" is not a valid image or video file.`);
+          alert(`"${file.name}" is not a supported file type. Please upload only photos, videos, or PDFs.`);
           return false;
         }
         
         return true;
       });
 
+      // Process videos
+      const processedFiles = await Promise.all(
+        validFiles.map(async (file) => {
+          if (file.type.startsWith('video/') || 
+              file.name.toLowerCase().endsWith('.mov') || 
+              file.name.toLowerCase().endsWith('.mp4') || 
+              file.name.toLowerCase().endsWith('.m4v')) {
+            setIsCompressing(true);
+            try {
+              const compressedFile = await compressVideo(file);
+              return compressedFile;
+            } catch (error) {
+              console.error('Error compressing video:', error);
+              alert(`We couldn't compress the video "${file.name}". The original file will be uploaded instead.`);
+              return file;
+            } finally {
+              setIsCompressing(false);
+              setCompressionProgress(0);
+            }
+          }
+          return file;
+        })
+      );
+
       setFormData(prev => ({
         ...prev,
-        files: [...prev.files, ...validFiles]
+        files: [...prev.files, ...processedFiles]
       }));
     }
   };
@@ -179,7 +261,7 @@ export default function AssessmentForm() {
     // Check total file size before submission
     const totalSize = formData.files.reduce((sum, file) => sum + file.size, 0);
     if (totalSize > 100 * 1024 * 1024) {
-      setSubmitError('Total file size exceeds 100MB limit. Please select smaller files or fewer files.');
+      setSubmitError('The total size of all files exceeds 100MB. Please select smaller files or fewer files.');
       setIsSubmitting(false);
       return;
     }
@@ -192,17 +274,21 @@ export default function AssessmentForm() {
             const base64 = await new Promise<string>((resolve, reject) => {
               const reader = new FileReader();
               reader.onloadend = () => resolve(reader.result as string);
-              reader.onerror = reject;
+              reader.onerror = (error) => {
+                console.error('FileReader error:', error);
+                reject(new Error(`Unable to process "${file.name}". Please try uploading it again.`));
+              };
               reader.readAsDataURL(file);
             });
+
             return {
               name: file.name,
-              type: file.type,
-              base64: base64.split(',')[1] // Remove data URL prefix
+              type: file.type || 'application/octet-stream',
+              base64: base64.split(',')[1]
             };
           } catch (error) {
             console.error(`Error processing file ${file.name}:`, error);
-            throw new Error(`Failed to process file ${file.name}. Please try again.`);
+            throw new Error(`Unable to process "${file.name}". Please try uploading it again.`);
           }
         })
       );
@@ -249,11 +335,12 @@ export default function AssessmentForm() {
           textConsent: ''
         });
       } else {
-        setSubmitError(result.message || 'Failed to submit form. Please try again.');
+        console.error('Server response error:', result);
+        setSubmitError('We encountered an issue submitting your form. Please try again or contact us if the problem persists.');
       }
     } catch (error) {
       console.error('Error submitting form:', error);
-      setSubmitError(error instanceof Error ? error.message : 'Failed to submit form. Please try again.');
+      setSubmitError('We encountered an issue submitting your form. Please try again or contact us if the problem persists.');
     } finally {
       setIsSubmitting(false);
     }
@@ -447,13 +534,13 @@ export default function AssessmentForm() {
           {/* File Upload Section */}
           <div className="mt-6">
             <label className="block text-sm font-medium text-gray-700">
-              Upload Photos or Videos (Optional)
+              Upload Photos, Videos, or PDFs (Optional)
             </label>
             <div className="mt-2">
               <input
                 type="file"
                 multiple
-                accept="image/*,video/*"
+                accept="image/*,video/*,.pdf"
                 onChange={handleFileChange}
                 className="block w-full text-sm text-gray-500
                   file:mr-4 file:py-2 file:px-4
@@ -730,6 +817,28 @@ export default function AssessmentForm() {
           </div>
         </form>
       </div>
+
+      {/* Add compression progress indicator */}
+      {isCompressing && (
+        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
+          <div className="bg-white p-6 rounded-lg shadow-xl max-w-md w-full mx-4">
+            <div className="text-center">
+              <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-[#CD2028] mx-auto mb-4"></div>
+              <h3 className="text-lg font-medium text-gray-900 mb-2">Compressing Video</h3>
+              <p className="text-sm text-gray-500 mb-4">
+                This may take a few minutes depending on the video size...
+              </p>
+              <div className="w-full bg-gray-200 rounded-full h-2.5">
+                <div 
+                  className="bg-[#CD2028] h-2.5 rounded-full transition-all duration-300"
+                  style={{ width: `${compressionProgress}%` }}
+                ></div>
+              </div>
+              <p className="text-sm text-gray-600 mt-2">{compressionProgress}% complete</p>
+            </div>
+          </div>
+        </div>
+      )}
     </section>
   );
 }
