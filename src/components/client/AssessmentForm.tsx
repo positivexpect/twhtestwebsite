@@ -215,79 +215,44 @@ export default function AssessmentForm() {
     setFormData(prev => ({ ...prev, preferredTimes: newTimes }));
   };
 
-  const handleFileChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
-    if (e.target.files) {
-      const newFiles = Array.from(e.target.files);
-      
-      // Calculate total size including existing files
-      const totalSize = [...formData.files, ...newFiles].reduce((sum, file) => sum + file.size, 0);
-      
-      if (totalSize > 50 * 1024 * 1024) { // Reduced from 100MB to 50MB
-        setSubmitError('The total size of all files exceeds 50MB. Please select smaller files or fewer files.');
-        return;
-      }
+  const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const files = e.target.files;
+    if (!files) return;
 
-      // Check individual file sizes
-      const largeFiles = newFiles.filter(file => file.size > 25 * 1024 * 1024); // Reduced from 50MB to 25MB
-      if (largeFiles.length > 0) {
-        setSubmitError('Some files are too large. Please compress videos before uploading or select smaller files.');
-        return;
-      }
-      
-      // Validate file types
-      const validFiles = newFiles.filter(file => {
-        // Accept common video formats including iOS formats
-        const isValidType = file.type.startsWith('image/') || 
-                          file.type.startsWith('video/') || 
-                          file.type === 'application/octet-stream' ||
-                          file.type === 'application/pdf' ||
-                          file.name.toLowerCase().endsWith('.mov') ||
-                          file.name.toLowerCase().endsWith('.mp4') ||
-                          file.name.toLowerCase().endsWith('.m4v') ||
-                          file.name.toLowerCase().endsWith('.pdf');
-        
-        if (!isValidType) {
-          setSubmitError(`"${file.name}" is not a supported file type. Please upload only photos, videos, or PDFs.`);
-          return false;
-        }
-        
-        return true;
-      });
-
-      // Process videos
-      const processedFiles = await Promise.all(
-        validFiles.map(async (file) => {
-          if (file.type.startsWith('video/') || 
-              file.name.toLowerCase().endsWith('.mov') || 
-              file.name.toLowerCase().endsWith('.mp4') || 
-              file.name.toLowerCase().endsWith('.m4v')) {
-            setIsCompressing(true);
-            try {
-              if (!ffmpegRef.current) {
-                console.log('Video compression not available, uploading original file');
-                setSubmitError('Video compression is temporarily unavailable. Your video will be uploaded in its original format.');
-                return file;
-              }
-              const compressedFile = await compressVideo(file);
-              return compressedFile;
-            } catch (error) {
-              console.error('Error compressing video:', error);
-              setSubmitError('Video compression is temporarily unavailable. Your video will be uploaded in its original format.');
-              return file;
-            } finally {
-              setIsCompressing(false);
-              setCompressionProgress(0);
-            }
-          }
-          return file;
-        })
-      );
-
-      setFormData(prev => ({
-        ...prev,
-        files: [...prev.files, ...processedFiles]
-      }));
+    // Check total file size before adding new files
+    const currentTotalSize = formData.files.reduce((sum, file) => sum + file.size, 0);
+    const newFilesTotalSize = Array.from(files).reduce((sum, file) => sum + file.size, 0);
+    
+    if (currentTotalSize + newFilesTotalSize > 50 * 1024 * 1024) {
+      alert('The total size of all files cannot exceed 50MB. Please select smaller files or fewer files.');
+      return;
     }
+
+    // Check individual file sizes
+    const oversizedFiles = Array.from(files).filter(file => file.size > 25 * 1024 * 1024);
+    if (oversizedFiles.length > 0) {
+      alert('Some files are too large. Each file must be under 25MB. Please compress your videos or select smaller files.');
+      return;
+    }
+
+    // Check file types
+    const invalidFiles = Array.from(files).filter(file => {
+      const type = file.type.toLowerCase();
+      return !type.startsWith('image/') && 
+             !type.startsWith('video/') && 
+             type !== 'application/pdf' &&
+             !file.name.match(/\.(jpg|jpeg|png|gif|mp4|mov|m4v|pdf)$/i);
+    });
+
+    if (invalidFiles.length > 0) {
+      alert('Some files are not supported. Please only upload images (JPG, PNG, GIF), videos (MP4, MOV, M4V), or PDFs.');
+      return;
+    }
+
+    setFormData(prev => ({
+      ...prev,
+      files: [...prev.files, ...Array.from(files)]
+    }));
   };
 
   const removeFile = (index: number) => {
@@ -595,62 +560,93 @@ export default function AssessmentForm() {
           </div>
 
           {/* File Upload Section */}
-          <div className="mt-6">
-            <label className="block text-sm font-medium text-gray-700">
-              Upload Photos, Videos, or PDFs (Optional)
-            </label>
-            <div className="mt-2 space-y-4">
-              {/* Desktop file input */}
-              <input
-                type="file"
-                multiple
-                accept="image/*,video/*,.pdf,.mov,.m4v"
-                onChange={handleFileChange}
-                className="hidden md:block w-full text-sm text-gray-500
-                  file:mr-4 file:py-2 file:px-4
-                  file:rounded-md file:border-0
-                  file:text-sm file:font-semibold
-                  file:bg-[#CD2028] file:text-white
-                  hover:file:bg-[#B01B22]"
-              />
-              {/* Mobile file input */}
-              <input
-                type="file"
-                multiple
-                accept="image/*,video/*,.pdf,.mov,.m4v"
-                capture="environment"
-                onChange={handleFileChange}
-                className="md:hidden block w-full text-sm text-gray-500
-                  file:mr-4 file:py-2 file:px-4
-                  file:rounded-md file:border-0
-                  file:text-sm file:font-semibold
-                  file:bg-[#CD2028] file:text-white
-                  hover:file:bg-[#B01B22]"
-              />
+          <div className="space-y-4">
+            <div>
+              <label className="block text-sm font-medium text-gray-700 mb-2">
+                Upload Photos/Videos/PDFs
+              </label>
+              <div className="space-y-4">
+                {/* Desktop File Input */}
+                <div className="hidden md:block">
+                  <input
+                    type="file"
+                    accept="image/*,video/*,.pdf"
+                    multiple
+                    onChange={handleFileChange}
+                    className="block w-full text-sm text-gray-500
+                      file:mr-4 file:py-2 file:px-4
+                      file:rounded-md file:border-0
+                      file:text-sm file:font-semibold
+                      file:bg-red-700 file:text-white
+                      hover:file:bg-red-800
+                      cursor-pointer"
+                  />
+                </div>
+
+                {/* Mobile File Input */}
+                <div className="md:hidden space-y-4">
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700 mb-2">
+                      Take Photo/Video
+                    </label>
+                    <input
+                      type="file"
+                      accept="image/*,video/*"
+                      capture="environment"
+                      onChange={handleFileChange}
+                      className="block w-full text-sm text-gray-500
+                        file:mr-4 file:py-2 file:px-4
+                        file:rounded-md file:border-0
+                        file:text-sm file:font-semibold
+                        file:bg-red-700 file:text-white
+                        hover:file:bg-red-800
+                        cursor-pointer"
+                    />
+                  </div>
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700 mb-2">
+                      Choose from Library
+                    </label>
+                    <input
+                      type="file"
+                      accept="image/*,video/*,.pdf"
+                      multiple
+                      onChange={handleFileChange}
+                      className="block w-full text-sm text-gray-500
+                        file:mr-4 file:py-2 file:px-4
+                        file:rounded-md file:border-0
+                        file:text-sm file:font-semibold
+                        file:bg-red-700 file:text-white
+                        hover:file:bg-red-800
+                        cursor-pointer"
+                    />
+                  </div>
+                </div>
+
+                <p className="text-sm text-gray-500">
+                  Supported formats: Images (JPG, PNG, GIF), Videos (MP4, MOV, M4V), PDFs. Max 25MB per file, 50MB total.
+                </p>
+              </div>
             </div>
-            <p className="mt-2 text-sm text-gray-500">
-              Supported formats: Photos (JPG, PNG), Videos (MP4, MOV, M4V), PDFs
-            </p>
+
+            {/* File List */}
             {formData.files.length > 0 && (
-              <div className="mt-4 space-y-2">
-                <p className="text-sm text-gray-500">Selected files:</p>
+              <div className="mt-4">
+                <h3 className="text-sm font-medium text-gray-700 mb-2">Selected Files:</h3>
                 <ul className="space-y-2">
                   {formData.files.map((file, index) => (
-                    <li key={index} className="flex items-center justify-between text-sm bg-gray-50 p-2 rounded-md">
-                      <span className="text-gray-700">{file.name}</span>
+                    <li key={index} className="flex items-center justify-between text-sm">
+                      <span className="truncate">{file.name}</span>
                       <button
                         type="button"
                         onClick={() => removeFile(index)}
-                        className="text-red-600 hover:text-red-800"
+                        className="text-red-700 hover:text-red-800"
                       >
                         Remove
                       </button>
                     </li>
                   ))}
                 </ul>
-                <p className="text-sm text-gray-500 mt-2">
-                  You can add more files by selecting them again
-                </p>
               </div>
             )}
           </div>
