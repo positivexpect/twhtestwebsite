@@ -1,6 +1,7 @@
 'use client';
 
 import { useState } from 'react';
+import CaptchaWrapper from './shared/CaptchaWrapper';
 
 type FormData = {
   name: string;
@@ -35,9 +36,14 @@ export default function AssessmentForm() {
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [submitSuccess, setSubmitSuccess] = useState(false);
   const [submitError, setSubmitError] = useState('');
+  const [captchaToken, setCaptchaToken] = useState<string | null>(null);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+    if (!captchaToken) {
+      setSubmitError('Please complete the captcha verification');
+      return;
+    }
     setIsSubmitting(true);
     setSubmitError('');
 
@@ -47,7 +53,10 @@ export default function AssessmentForm() {
         headers: {
           'Content-Type': 'application/json',
         },
-        body: JSON.stringify(formData),
+        body: JSON.stringify({
+          ...formData,
+          captchaToken
+        }),
       });
 
       const result = await response.json();
@@ -63,6 +72,7 @@ export default function AssessmentForm() {
           replacementQuote: '',
           message: '',
         });
+        setCaptchaToken(null);
       } else {
         setSubmitError(result.message || 'Failed to submit form. Please try again.');
       }
@@ -189,7 +199,7 @@ export default function AssessmentForm() {
 
           <div>
             <label htmlFor="issueType" className="block text-sm font-medium text-gray-700">
-              Window Issue
+              Type of Issue
             </label>
             <div className="mt-1">
               <select
@@ -201,7 +211,7 @@ export default function AssessmentForm() {
                 className="block w-full shadow-sm sm:text-sm focus:ring-[#CD2028] focus:border-[#CD2028] border-gray-300 rounded-md text-gray-900"
               >
                 <option value="">Select an issue</option>
-                {WINDOW_ISSUES.map(issue => (
+                {WINDOW_ISSUES.map((issue) => (
                   <option key={issue.value} value={issue.value}>
                     {issue.label}
                   </option>
@@ -212,22 +222,19 @@ export default function AssessmentForm() {
 
           <div className="sm:col-span-2">
             <label htmlFor="replacementQuote" className="block text-sm font-medium text-gray-700">
-              Replacement Quote (if any)
+              Do you have a replacement quote? (Optional)
             </label>
             <div className="mt-1">
               <input
                 type="text"
                 name="replacementQuote"
                 id="replacementQuote"
-                placeholder="$"
                 value={formData.replacementQuote}
                 onChange={handleChange}
                 className="block w-full shadow-sm sm:text-sm focus:ring-[#CD2028] focus:border-[#CD2028] border-gray-300 rounded-md text-gray-900"
+                placeholder="Enter amount if you have a quote"
               />
             </div>
-            <p className="mt-2 text-sm text-gray-500">
-              If you've received a window replacement quote, enter it here and we'll show you how much you could save
-            </p>
           </div>
 
           <div className="sm:col-span-2">
@@ -247,11 +254,15 @@ export default function AssessmentForm() {
           </div>
 
           <div className="sm:col-span-2">
+            <CaptchaWrapper onVerify={setCaptchaToken} />
+          </div>
+
+          <div className="sm:col-span-2">
             <button
               type="submit"
-              disabled={isSubmitting}
+              disabled={isSubmitting || !captchaToken}
               className={`w-full inline-flex justify-center py-3 px-6 border border-transparent shadow-sm text-base font-medium rounded-md text-white ${
-                isSubmitting 
+                isSubmitting || !captchaToken
                   ? 'bg-gray-400 cursor-not-allowed'
                   : 'bg-[#CD2028] hover:bg-[#B01B22] focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-[#CD2028]'
               }`}

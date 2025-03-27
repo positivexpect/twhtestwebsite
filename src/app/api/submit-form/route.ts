@@ -83,26 +83,48 @@ transporter.verify(function(error, success) {
   }
 });
 
+async function verifyCaptcha(token: string) {
+  const response = await fetch('https://api.hcaptcha.com/siteverify', {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/x-www-form-urlencoded',
+    },
+    body: `response=${token}&secret=${process.env.HCAPTCHA_SECRET_KEY}`,
+  });
+
+  const data = await response.json();
+  return data.success;
+}
+
 export async function POST(request: Request) {
   try {
     // Ensure bucket exists before processing
     await ensureBucketExists();
 
-    const data = await request.json();
-    const formType = data.formType || 'assessment';
-    
+    const body = await request.json();
+    const { captchaToken, ...formData } = body;
+
+    // Verify captcha
+    const isValidCaptcha = await verifyCaptcha(captchaToken);
+    if (!isValidCaptcha) {
+      return NextResponse.json(
+        { success: false, message: 'Captcha verification failed' },
+        { status: 400 }
+      );
+    }
+
     // Log the received data
     console.log('Received form submission:', {
-      formType,
-      name: data.name,
-      email: data.email,
-      hasFiles: data.files?.length > 0
+      formType: formData.formType,
+      name: formData.name,
+      email: formData.email,
+      hasFiles: formData.files?.length > 0
     });
 
     // Handle file uploads if present
     let fileReferences = [];
-    if (data.files && data.files.length > 0) {
-      for (const file of data.files) {
+    if (formData.files && formData.files.length > 0) {
+      for (const file of formData.files) {
         try {
           // Combine chunks if they exist
           const fileBuffer = file.chunks 
@@ -156,12 +178,12 @@ export async function POST(request: Request) {
     const { data: submission, error: dbError } = await supabase
       .from('form_submissions')
       .insert({
-        form_type: formType,
-        name: data.name,
-        email: data.email,
-        phone: data.phone,
-        address: data.address,
-        form_data: data,
+        form_type: formData.formType,
+        name: formData.name,
+        email: formData.email,
+        phone: formData.phone,
+        address: formData.address,
+        form_data: formData,
         files: fileReferences
       })
       .select()
@@ -184,28 +206,28 @@ export async function POST(request: Request) {
     const adminEmailHtml = `
       <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto;">
         <img src="https://thewindowhospital.com/images/fulllogo_transparent_nobuffer.png" alt="The Window Hospital" style="width: 200px; margin-bottom: 20px;" />
-        <h2 style="color: #CD2028;">New ${formType.charAt(0).toUpperCase() + formType.slice(1)} Request</h2>
+        <h2 style="color: #CD2028;">New ${formData.formType.charAt(0).toUpperCase() + formData.formType.slice(1)} Request</h2>
         <div style="background: #f5f5f5; padding: 20px; border-radius: 5px;">
-          <p><strong>Name:</strong> ${data.name}</p>
-          <p><strong>Email:</strong> ${data.email}</p>
-          <p><strong>Phone:</strong> ${data.phone}</p>
-          ${data.address ? `
+          <p><strong>Name:</strong> ${formData.name}</p>
+          <p><strong>Email:</strong> ${formData.email}</p>
+          <p><strong>Phone:</strong> ${formData.phone}</p>
+          ${formData.address ? `
           <p><strong>Address:</strong><br/>
-            ${data.address.street}<br/>
-            ${data.address.city}, ${data.address.state} ${data.address.zip}
+            ${formData.address.street}<br/>
+            ${formData.address.city}, ${formData.address.state} ${formData.address.zip}
           </p>
           ` : ''}
-          ${data.zipCode ? `<p><strong>ZIP Code:</strong> ${data.zipCode}</p>` : ''}
-          ${data.issueTypes ? `<p><strong>Issues:</strong> ${data.issueTypes.join(', ')}</p>` : ''}
-          ${data.issueType ? `<p><strong>Issue Type:</strong> ${data.issueType}</p>` : ''}
-          ${data.customerType ? `<p><strong>Customer Type:</strong> ${data.customerType}</p>` : ''}
-          ${data.serviceType ? `<p><strong>Service Type:</strong> ${data.serviceType}</p>` : ''}
-          ${data.urgency ? `<p><strong>Urgency:</strong> ${data.urgency}</p>` : ''}
-          ${data.needByDate ? `<p><strong>Need by Date:</strong> ${data.needByDate}</p>` : ''}
-          ${data.textConsent ? `<p><strong>SMS Consent:</strong> ${data.textConsent}</p>` : ''}
-          ${data.message ? `
+          ${formData.zipCode ? `<p><strong>ZIP Code:</strong> ${formData.zipCode}</p>` : ''}
+          ${formData.issueTypes ? `<p><strong>Issues:</strong> ${formData.issueTypes.join(', ')}</p>` : ''}
+          ${formData.issueType ? `<p><strong>Issue Type:</strong> ${formData.issueType}</p>` : ''}
+          ${formData.customerType ? `<p><strong>Customer Type:</strong> ${formData.customerType}</p>` : ''}
+          ${formData.serviceType ? `<p><strong>Service Type:</strong> ${formData.serviceType}</p>` : ''}
+          ${formData.urgency ? `<p><strong>Urgency:</strong> ${formData.urgency}</p>` : ''}
+          ${formData.needByDate ? `<p><strong>Need by Date:</strong> ${formData.needByDate}</p>` : ''}
+          ${formData.textConsent ? `<p><strong>SMS Consent:</strong> ${formData.textConsent}</p>` : ''}
+          ${formData.message ? `
           <h3 style="color: #333; margin-top: 20px;">Additional Information:</h3>
-          <p>${data.message}</p>
+          <p>${formData.message}</p>
           ` : ''}
           ${fileReferences.length > 0 ? `
           <h3 style="color: #333; margin-top: 20px;">Attached Files:</h3>
@@ -231,7 +253,7 @@ export async function POST(request: Request) {
           address: process.env.CUSTOMER_SMTP_FROM_EMAIL!
         },
         to: process.env.ADMIN_EMAIL!,
-        subject: `New ${formType} Request from ${data.name}`,
+        subject: `New ${formData.formType} Request from ${formData.name}`,
         html: adminEmailHtml
       });
       console.log('Admin email sent successfully');
@@ -250,13 +272,13 @@ export async function POST(request: Request) {
     }
 
     // Send auto-reply to the customer if email is provided
-    if (data.email) {
+    if (formData.email) {
       try {
         const autoReplyHtml = `
           <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto;">
             <img src="https://thewindowhospital.com/images/fulllogo_transparent_nobuffer.png" alt="The Window Hospital" style="width: 200px; margin-bottom: 20px;" />
             <h2 style="color: #CD2028;">Thank You for Your Request</h2>
-            <p>Dear ${data.name},</p>
+            <p>Dear ${formData.name},</p>
             <p>We have received your request and will contact you shortly to discuss your needs.</p>
             <p>Best regards,<br/>The Window Hospital Team</p>
           </div>
@@ -267,7 +289,7 @@ export async function POST(request: Request) {
             name: 'The Window Hospital',
             address: process.env.CUSTOMER_SMTP_FROM_EMAIL!
           },
-          to: data.email,
+          to: formData.email,
           subject: 'Thank You for Your Request',
           html: autoReplyHtml
         });

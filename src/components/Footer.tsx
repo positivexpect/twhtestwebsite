@@ -71,6 +71,11 @@ export default function Footer() {
                   Contact
                 </Link>
               </li>
+              <li>
+                <Link href="/campaigns" className="text-gray-300 hover:text-white transition-colors">
+                  Special Offers
+                </Link>
+              </li>
             </ul>
           </div>
 

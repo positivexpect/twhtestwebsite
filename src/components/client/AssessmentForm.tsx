@@ -7,6 +7,7 @@ import Link from 'next/link';
 import { FFmpeg } from '@ffmpeg/ffmpeg';
 import { fetchFile } from '@ffmpeg/util';
 import { toBlobURL } from '@ffmpeg/util';
+import CaptchaWrapper from '../shared/CaptchaWrapper';
 
 type FormData = {
   name: string;
@@ -98,6 +99,7 @@ export default function AssessmentForm() {
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [submitSuccess, setSubmitSuccess] = useState(false);
   const [submitError, setSubmitError] = useState('');
+  const [captchaToken, setCaptchaToken] = useState<string | null>(null);
   const errorRef = useRef<HTMLDivElement>(null);
   const successRef = useRef<HTMLDivElement>(null);
   const [isCompressing, setIsCompressing] = useState(false);
@@ -264,6 +266,10 @@ export default function AssessmentForm() {
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+    if (!captchaToken) {
+      setSubmitError('Please complete the captcha verification');
+      return;
+    }
     setIsSubmitting(true);
     setSubmitError('');
 
@@ -320,7 +326,8 @@ export default function AssessmentForm() {
         body: JSON.stringify({
           ...formData,
           formType: 'assessment',
-          files: filesWithBase64
+          files: filesWithBase64,
+          captchaToken
         }),
       });
 
@@ -869,12 +876,17 @@ export default function AssessmentForm() {
             </div>
           </div>
 
+          {/* Add captcha before the submit button */}
+          <div className="sm:col-span-2">
+            <CaptchaWrapper onVerify={setCaptchaToken} />
+          </div>
+
           <div>
             <button
               type="submit"
-              disabled={isSubmitting}
+              disabled={isSubmitting || !captchaToken}
               className={`w-full flex justify-center py-3 px-4 border border-transparent rounded-md shadow-sm text-sm font-medium text-white ${
-                isSubmitting 
+                isSubmitting || !captchaToken
                   ? 'bg-gray-400 cursor-not-allowed'
                   : 'bg-[#CD2028] hover:bg-[#B01B22] focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-[#CD2028]'
               }`}
