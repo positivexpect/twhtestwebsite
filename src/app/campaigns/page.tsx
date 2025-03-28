@@ -22,7 +22,7 @@ export default function CampaignsPage() {
         </div>
 
         {/* Tab Navigation */}
-        <div className="flex flex-wrap justify-center gap-4 mb-8">
+        <div className="flex justify-center space-x-4 mb-8">
           <button
             onClick={() => setActiveTab('video')}
             className={`px-4 py-2 rounded-md ${
@@ -56,7 +56,7 @@ export default function CampaignsPage() {
         </div>
 
         {/* Tab Content */}
-        <div className="bg-white rounded-lg shadow-lg p-8">
+        <div className="bg-white rounded-lg shadow-lg p-6">
           {activeTab === 'video' && (
             <div>
               <h2 className="text-2xl font-semibold mb-4">Video Testimonials</h2>

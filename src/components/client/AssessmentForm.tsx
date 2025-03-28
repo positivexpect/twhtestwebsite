@@ -225,15 +225,15 @@ export default function AssessmentForm() {
     const currentTotalSize = formData.files.reduce((sum, file) => sum + file.size, 0);
     const newFilesTotalSize = Array.from(files).reduce((sum, file) => sum + file.size, 0);
     
-    if (currentTotalSize + newFilesTotalSize > 50 * 1024 * 1024) {
-      alert('The total size of all files cannot exceed 50MB. Please select smaller files or fewer files.');
+    if (currentTotalSize + newFilesTotalSize > 150 * 1024 * 1024) {
+      alert('The total size of all files cannot exceed 150MB. Please select smaller files or fewer files.');
       return;
     }
 
     // Check individual file sizes
-    const oversizedFiles = Array.from(files).filter(file => file.size > 25 * 1024 * 1024);
+    const oversizedFiles = Array.from(files).filter(file => file.size > 150 * 1024 * 1024);
     if (oversizedFiles.length > 0) {
-      alert('Some files are too large. Each file must be under 25MB. Please compress your videos or select smaller files.');
+      alert('Some files are too large. Each file must be under 150MB. Please compress your videos or select smaller files.');
       return;
     }
 
@@ -275,8 +275,8 @@ export default function AssessmentForm() {
 
     // Check total file size before submission
     const totalSize = formData.files.reduce((sum, file) => sum + file.size, 0);
-    if (totalSize > 50 * 1024 * 1024) { // Reduced from 100MB to 50MB
-      setSubmitError('The total size of all files exceeds 50MB. Please select smaller files or fewer files.');
+    if (totalSize > 150 * 1024 * 1024) { // Reduced from 100MB to 50MB
+      setSubmitError('The total size of all files exceeds 150MB. Please select smaller files or fewer files.');
       setIsSubmitting(false);
       return;
     }
@@ -631,7 +631,7 @@ export default function AssessmentForm() {
                 </div>
 
                 <p className="text-sm text-gray-500">
-                  Supported formats: Images (JPG, PNG, GIF), Videos (MP4, MOV, M4V), PDFs. Max 25MB per file, 50MB total.
+                  Supported formats: Images (JPG, PNG, GIF), Videos (MP4, MOV, M4V), PDFs. Max 150MB per file, 150MB total.
                 </p>
               </div>
             </div>
