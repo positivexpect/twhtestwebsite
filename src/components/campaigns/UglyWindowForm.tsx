@@ -2,9 +2,10 @@
 
 import { useState, useEffect } from 'react';
 import { supabase } from '@/utils/supabase';
-import { uploadFile, getFileUrl } from '@/utils/fileUpload';
+import { getFileUrl } from '@/utils/fileUpload';
 import Image from 'next/image';
 import CaptchaWrapper from '../shared/CaptchaWrapper';
+import FileUpload from '../shared/FileUpload';
 
 interface UglyWindow {
   id: string;
@@ -15,10 +16,11 @@ interface UglyWindow {
 }
 
 export default function UglyWindowForm() {
-  const [file, setFile] = useState<File | null>(null);
+  const [photoFilePath, setPhotoFilePath] = useState<string | null>(null);
   const [contactInfo, setContactInfo] = useState('');
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [submitStatus, setSubmitStatus] = useState<'idle' | 'success' | 'error'>('idle');
+  const [errorMessage, setErrorMessage] = useState('');
   const [submissions, setSubmissions] = useState<UglyWindow[]>([]);
   const [totalSubmissions, setTotalSubmissions] = useState(0);
   const [captchaToken, setCaptchaToken] = useState<string | null>(null);
@@ -42,40 +44,41 @@ export default function UglyWindowForm() {
     setTotalSubmissions(data?.length || 0);
   };
 
-  const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    if (e.target.files && e.target.files[0]) {
-      setFile(e.target.files[0]);
-    }
+  const handleUploadComplete = (filePath: string) => {
+    setPhotoFilePath(filePath);
+    setErrorMessage('');
+  };
+
+  const handleUploadError = (error: string) => {
+    setErrorMessage(error);
+    setPhotoFilePath(null);
   };
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (!file || !captchaToken) return;
+    if (!photoFilePath || !captchaToken) return;
 
     setIsSubmitting(true);
     setSubmitStatus('idle');
+    setErrorMessage('');
 
     try {
-      // Upload file to Supabase storage
-      const { filePath, error: uploadError } = await uploadFile(file, 'ugly-windows');
-      if (uploadError) throw uploadError;
-
-      // Insert record into database
-      const { error: dbError } = await supabase.from('ugly_windows').insert({
-        photo_file_path: filePath,
+      const { error } = await supabase.from('ugly_windows').insert({
+        photo_file_path: photoFilePath,
         contact_info: contactInfo,
       });
 
-      if (dbError) throw dbError;
+      if (error) throw error;
 
       setSubmitStatus('success');
-      setFile(null);
+      setPhotoFilePath(null);
       setContactInfo('');
       setCaptchaToken(null);
       fetchSubmissions(); // Refresh the list
     } catch (error) {
       console.error('Error submitting photo:', error);
       setSubmitStatus('error');
+      setErrorMessage('Failed to submit photo. Please try again.');
     } finally {
       setIsSubmitting(false);
     }
@@ -83,7 +86,7 @@ export default function UglyWindowForm() {
 
   const handleVote = async (id: string) => {
     if (!captchaToken) {
-      alert('Please complete the captcha before voting');
+      setErrorMessage('Please complete the captcha before voting');
       return;
     }
 
@@ -94,6 +97,7 @@ export default function UglyWindowForm() {
       fetchSubmissions(); // Refresh the list
     } catch (error) {
       console.error('Error voting:', error);
+      setErrorMessage('Failed to vote. Please try again.');
     }
   };
 
@@ -110,29 +114,15 @@ export default function UglyWindowForm() {
       </div>
 
       <form onSubmit={handleSubmit} className="space-y-6">
-        <div>
-          <label htmlFor="photo" className="block text-sm font-medium text-gray-700">
-            Upload Photo
-          </label>
-          <input
-            type="file"
-            id="photo"
-            accept="image/*"
-            onChange={handleFileChange}
-            required
-            className="mt-1 block w-full text-sm text-gray-500
-              file:mr-4 file:py-2 file:px-4
-              file:rounded-md file:border-0
-              file:text-sm file:font-semibold
-              file:bg-blue-50 file:text-blue-700
-              hover:file:bg-blue-100"
-          />
-          {file && (
-            <p className="mt-1 text-sm text-gray-500">
-              Selected file: {file.name}
-            </p>
-          )}
-        </div>
+        <FileUpload
+          bucket="ugly-windows"
+          accept="image/*"
+          maxSize={10 * 1024 * 1024} // 10MB
+          onUploadComplete={handleUploadComplete}
+          onUploadError={handleUploadError}
+          label="Upload Photo"
+          required
+        />
 
         <div>
           <label htmlFor="contactInfo" className="block text-sm font-medium text-gray-700">
@@ -151,11 +141,17 @@ export default function UglyWindowForm() {
 
         <CaptchaWrapper onVerify={setCaptchaToken} />
 
+        {errorMessage && (
+          <div className="text-red-600 text-sm">
+            {errorMessage}
+          </div>
+        )}
+
         <button
           type="submit"
-          disabled={isSubmitting || totalSubmissions >= 100 || !captchaToken}
+          disabled={isSubmitting || totalSubmissions >= 100 || !captchaToken || !photoFilePath}
           className={`w-full flex justify-center py-2 px-4 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 ${
-            (isSubmitting || totalSubmissions >= 100 || !captchaToken) ? 'opacity-50 cursor-not-allowed' : ''
+            (isSubmitting || totalSubmissions >= 100 || !captchaToken || !photoFilePath) ? 'opacity-50 cursor-not-allowed' : ''
           }`}
         >
           {isSubmitting ? 'Submitting...' : 'Submit Photo'}
@@ -174,34 +170,36 @@ export default function UglyWindowForm() {
         )}
       </form>
 
-      <div className="mt-8">
-        <h3 className="text-xl font-semibold mb-4">Current Submissions</h3>
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-          {submissions.map((submission) => (
-            <div key={submission.id} className="bg-white rounded-lg shadow-md overflow-hidden">
-              <div className="relative h-48">
-                <Image
-                  src={getFileUrl('ugly-windows', submission.photo_file_path)}
-                  alt="Ugly window submission"
-                  fill
-                  className="object-cover"
-                />
-              </div>
-              <div className="p-4">
-                <div className="flex justify-between items-center">
-                  <span className="text-sm text-gray-500">Votes: {submission.votes}</span>
-                  <button
-                    onClick={() => handleVote(submission.id)}
-                    className="text-blue-600 hover:text-blue-800"
-                  >
-                    Vote
-                  </button>
+      {submissions.length > 0 && (
+        <div>
+          <h3 className="text-xl font-semibold mb-4">Current Submissions</h3>
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+            {submissions.map((submission) => (
+              <div key={submission.id} className="bg-white rounded-lg shadow-md overflow-hidden">
+                <div className="relative h-48">
+                  <Image
+                    src={getFileUrl('ugly-windows', submission.photo_file_path)}
+                    alt="Ugly window submission"
+                    fill
+                    className="object-cover"
+                  />
+                </div>
+                <div className="p-4">
+                  <div className="flex justify-between items-center">
+                    <span className="text-sm text-gray-500">Votes: {submission.votes}</span>
+                    <button
+                      onClick={() => handleVote(submission.id)}
+                      className="text-blue-600 hover:text-blue-800"
+                    >
+                      Vote
+                    </button>
+                  </div>
                 </div>
               </div>
-            </div>
-          ))}
+            ))}
+          </div>
         </div>
-      </div>
+      )}
     </div>
   );
 } 

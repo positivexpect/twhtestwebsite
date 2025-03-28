@@ -2,41 +2,38 @@
 
 import { useState } from 'react';
 import { supabase } from '@/utils/supabase';
-import { uploadFile } from '@/utils/fileUpload';
 import CaptchaWrapper from '../shared/CaptchaWrapper';
+import FileUpload from '../shared/FileUpload';
 
 export default function VideoTestimonialForm() {
   const [videoUrl, setVideoUrl] = useState('');
-  const [videoFile, setVideoFile] = useState<File | null>(null);
+  const [videoFilePath, setVideoFilePath] = useState<string | null>(null);
   const [contactInfo, setContactInfo] = useState('');
   const [socialLinks, setSocialLinks] = useState('');
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [submitStatus, setSubmitStatus] = useState<'idle' | 'success' | 'error'>('idle');
+  const [errorMessage, setErrorMessage] = useState('');
   const [captchaToken, setCaptchaToken] = useState<string | null>(null);
 
-  const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    if (e.target.files && e.target.files[0]) {
-      setVideoFile(e.target.files[0]);
-    }
+  const handleUploadComplete = (filePath: string) => {
+    setVideoFilePath(filePath);
+    setErrorMessage('');
+  };
+
+  const handleUploadError = (error: string) => {
+    setErrorMessage(error);
+    setVideoFilePath(null);
   };
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    if ((!videoUrl && !videoFile) || !captchaToken) return;
+    if ((!videoUrl && !videoFilePath) || !captchaToken) return;
 
     setIsSubmitting(true);
     setSubmitStatus('idle');
+    setErrorMessage('');
 
     try {
-      let videoFilePath = null;
-      
-      // If a file was uploaded, store it
-      if (videoFile) {
-        const { filePath, error: uploadError } = await uploadFile(videoFile, 'video-testimonials');
-        if (uploadError) throw uploadError;
-        videoFilePath = filePath;
-      }
-
       const { error } = await supabase.from('video_testimonials').insert({
         video_url: videoUrl,
         video_file_path: videoFilePath,
@@ -48,13 +45,14 @@ export default function VideoTestimonialForm() {
 
       setSubmitStatus('success');
       setVideoUrl('');
-      setVideoFile(null);
+      setVideoFilePath(null);
       setContactInfo('');
       setSocialLinks('');
       setCaptchaToken(null);
     } catch (error) {
       console.error('Error submitting testimonial:', error);
       setSubmitStatus('error');
+      setErrorMessage('Failed to submit testimonial. Please try again.');
     } finally {
       setIsSubmitting(false);
     }
@@ -77,23 +75,16 @@ export default function VideoTestimonialForm() {
         <p className="mt-1 text-sm text-gray-500">
           Or upload your video file directly:
         </p>
-        <input
-          type="file"
-          id="videoFile"
+        
+        <FileUpload
+          bucket="video-testimonials"
           accept="video/*"
-          onChange={handleFileChange}
-          className="mt-1 block w-full text-sm text-gray-500
-            file:mr-4 file:py-2 file:px-4
-            file:rounded-md file:border-0
-            file:text-sm file:font-semibold
-            file:bg-blue-50 file:text-blue-700
-            hover:file:bg-blue-100"
+          maxSize={500 * 1024 * 1024} // 500MB
+          onUploadComplete={handleUploadComplete}
+          onUploadError={handleUploadError}
+          label="Upload Video"
+          required={!videoUrl}
         />
-        {videoFile && (
-          <p className="mt-1 text-sm text-gray-500">
-            Selected file: {videoFile.name}
-          </p>
-        )}
       </div>
 
       <div>
@@ -127,11 +118,17 @@ export default function VideoTestimonialForm() {
 
       <CaptchaWrapper onVerify={setCaptchaToken} />
 
+      {errorMessage && (
+        <div className="text-red-600 text-sm">
+          {errorMessage}
+        </div>
+      )}
+
       <button
         type="submit"
-        disabled={isSubmitting || (!videoUrl && !videoFile) || !captchaToken}
+        disabled={isSubmitting || (!videoUrl && !videoFilePath) || !captchaToken}
         className={`w-full flex justify-center py-2 px-4 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 ${
-          (isSubmitting || (!videoUrl && !videoFile) || !captchaToken) ? 'opacity-50 cursor-not-allowed' : ''
+          (isSubmitting || (!videoUrl && !videoFilePath) || !captchaToken) ? 'opacity-50 cursor-not-allowed' : ''
         }`}
       >
         {isSubmitting ? 'Submitting...' : 'Submit Testimonial'}
