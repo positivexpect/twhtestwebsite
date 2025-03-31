@@ -2,6 +2,7 @@
 
 import { useState } from 'react';
 import Link from 'next/link';
+import Image from 'next/image';
 import VideoTestimonialForm from '@/components/campaigns/VideoTestimonialForm';
 import UglyWindowForm from '@/components/campaigns/UglyWindowForm';
 import AnonymousTipForm from '@/components/campaigns/AnonymousTipForm';
@@ -64,33 +65,69 @@ export default function CampaignsPage() {
         <div className="bg-white rounded-lg shadow-lg p-6">
           {activeTab === 'video' && (
             <div>
-              <h2 className="text-2xl font-semibold mb-4">Video Testimonials</h2>
-              <p className="text-gray-600 mb-6">
-                Share your story about how Window Hospital helped you avoid unnecessary window replacement.
-                Get a free part in exchange for your video testimonial!
-              </p>
+              <div className="flex items-center justify-between mb-6">
+                <div className="flex-1">
+                  <h2 className="text-2xl font-semibold mb-4">Video Testimonials</h2>
+                  <p className="text-gray-600">
+                    Share your story about how Window Hospital helped you avoid unnecessary window replacement.
+                    Get a free part in exchange for your video testimonial!
+                  </p>
+                </div>
+                <div className="relative w-64 h-48 ml-6">
+                  <Image
+                    src="/images/campaigns/pastelhappy.jpg"
+                    alt="Happy customer with repaired window"
+                    fill
+                    className="object-cover rounded-lg shadow-md"
+                  />
+                </div>
+              </div>
               <VideoTestimonialForm />
             </div>
           )}
 
           {activeTab === 'ugly' && (
             <div>
-              <h2 className="text-2xl font-semibold mb-4">Ugly Window Contest</h2>
-              <p className="text-gray-600 mb-6">
-                Submit a photo of your ugliest window for a chance to win free glass!
-                We'll select a winner once we reach 100 submissions.
-              </p>
+              <div className="flex items-center justify-between mb-6">
+                <div className="flex-1">
+                  <h2 className="text-2xl font-semibold mb-4">Ugly Window Contest</h2>
+                  <p className="text-gray-600">
+                    Submit a photo of your ugliest window for a chance to win free glass!
+                    We'll select a winner once we reach 100 submissions.
+                  </p>
+                </div>
+                <div className="relative w-64 h-48 ml-6">
+                  <Image
+                    src="/images/campaigns/uglywindow.jpg"
+                    alt="Example of a foggy window needing repair"
+                    fill
+                    className="object-cover rounded-lg shadow-md"
+                  />
+                </div>
+              </div>
               <UglyWindowForm />
             </div>
           )}
 
           {activeTab === 'tip' && (
             <div>
-              <h2 className="text-2xl font-semibold mb-4">Anonymous Tip Center</h2>
-              <p className="text-gray-600 mb-6">
-                Know someone in need? Submit an anonymous tip about someone who could benefit
-                from our free repair services.
-              </p>
+              <div className="flex items-center justify-between mb-6">
+                <div className="flex-1">
+                  <h2 className="text-2xl font-semibold mb-4">Anonymous Tip Center</h2>
+                  <p className="text-gray-600">
+                    Know someone in need? Submit an anonymous tip about someone who could benefit
+                    from our free repair services.
+                  </p>
+                </div>
+                <div className="relative w-64 h-48 ml-6">
+                  <Image
+                    src="/images/campaigns/helpneeded.jpg"
+                    alt="Help needed sign in window"
+                    fill
+                    className="object-cover rounded-lg shadow-md"
+                  />
+                </div>
+              </div>
               <AnonymousTipForm />
             </div>
           )}
