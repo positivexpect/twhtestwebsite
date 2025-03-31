@@ -1,6 +1,7 @@
 'use client';
 
 import VideoTestimonialForm from '@/components/campaigns/VideoTestimonialForm';
+import Image from 'next/image';
 
 export default function VideoTestimonialPage() {
   return (
@@ -17,6 +18,22 @@ export default function VideoTestimonialPage() {
         </div>
 
         <div className="bg-white rounded-lg shadow-lg p-6">
+          <div className="flex items-center justify-between mb-6">
+            <div className="flex-1 pr-6">
+              <p className="text-gray-600">
+                Your experience matters! Share your Window Hospital success story through a video testimonial
+                and receive a free window part as our way of saying thank you.
+              </p>
+            </div>
+            <div className="relative w-64 h-48 flex-shrink-0">
+              <Image
+                src="/images/campaigns/pastelhappy.jpg"
+                alt="Happy customer with repaired window"
+                fill
+                className="object-cover rounded-lg shadow-md"
+              />
+            </div>
+          </div>
           <VideoTestimonialForm />
         </div>
       </div>
