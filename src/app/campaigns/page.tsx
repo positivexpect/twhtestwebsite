@@ -1,7 +1,7 @@
 'use client';
 
 import { useState } from 'react';
-import { supabase } from '@/utils/supabase';
+import Link from 'next/link';
 import VideoTestimonialForm from '@/components/campaigns/VideoTestimonialForm';
 import UglyWindowForm from '@/components/campaigns/UglyWindowForm';
 import AnonymousTipForm from '@/components/campaigns/AnonymousTipForm';
@@ -54,6 +54,11 @@ export default function CampaignsPage() {
             Anonymous Tip Center
           </button>
         </div>
+
+        {/* Direct Links - Hidden but functional */}
+        <Link href="/campaigns/video-testimonial" className="hidden" />
+        <Link href="/campaigns/ugly-window" className="hidden" />
+        <Link href="/campaigns/anonymous-tip" className="hidden" />
 
         {/* Tab Content */}
         <div className="bg-white rounded-lg shadow-lg p-6">

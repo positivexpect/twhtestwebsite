@@ -6,7 +6,15 @@ import CaptchaWrapper from '../shared/CaptchaWrapper';
 
 export default function AnonymousTipForm() {
   const [personInfo, setPersonInfo] = useState('');
-  const [tipperInfo, setTipperInfo] = useState('');
+  const [name, setName] = useState('');
+  const [email, setEmail] = useState('');
+  const [phone, setPhone] = useState('');
+  const [address, setAddress] = useState({
+    street: '',
+    city: '',
+    state: '',
+    zipCode: ''
+  });
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [submitStatus, setSubmitStatus] = useState<'idle' | 'success' | 'error'>('idle');
   const [captchaToken, setCaptchaToken] = useState<string | null>(null);
@@ -19,16 +27,32 @@ export default function AnonymousTipForm() {
     setSubmitStatus('idle');
 
     try {
-      const { error } = await supabase.from('anonymous_tips').insert({
-        person_in_need_info: personInfo,
-        tipper_info: tipperInfo || null,
+      const { error } = await supabase.from('form_submissions').insert({
+        form_type: 'anonymous_tip',
+        name,
+        email,
+        phone,
+        address: Object.values(address).some(val => val) ? address : null,
+        form_data: {
+          message: personInfo
+        },
+        files: [],
+        status: 'pending'
       });
 
       if (error) throw error;
 
       setSubmitStatus('success');
       setPersonInfo('');
-      setTipperInfo('');
+      setName('');
+      setEmail('');
+      setPhone('');
+      setAddress({
+        street: '',
+        city: '',
+        state: '',
+        zipCode: ''
+      });
       setCaptchaToken(null);
     } catch (error) {
       console.error('Error submitting tip:', error);
@@ -55,21 +79,109 @@ export default function AnonymousTipForm() {
         />
       </div>
 
-      <div>
-        <label htmlFor="tipperInfo" className="block text-sm font-medium text-gray-700">
-          Your Contact Information (Optional)
-        </label>
-        <input
-          type="text"
-          id="tipperInfo"
-          value={tipperInfo}
-          onChange={(e) => setTipperInfo(e.target.value)}
-          className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500"
-          placeholder="Name, Email, Phone (optional)"
-        />
-        <p className="mt-1 text-sm text-gray-500">
+      <div className="space-y-4">
+        <h3 className="text-sm font-medium text-gray-700">Your Contact Information (Optional)</h3>
+        <p className="text-sm text-gray-500 mb-4">
           Your information is optional and will be kept confidential
         </p>
+
+        <div className="grid grid-cols-1 gap-6 sm:grid-cols-2">
+          <div>
+            <label htmlFor="name" className="block text-sm font-medium text-gray-700">
+              Name
+            </label>
+            <input
+              type="text"
+              id="name"
+              value={name}
+              onChange={(e) => setName(e.target.value)}
+              className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500"
+            />
+          </div>
+
+          <div>
+            <label htmlFor="email" className="block text-sm font-medium text-gray-700">
+              Email
+            </label>
+            <input
+              type="email"
+              id="email"
+              value={email}
+              onChange={(e) => setEmail(e.target.value)}
+              className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500"
+            />
+          </div>
+
+          <div>
+            <label htmlFor="phone" className="block text-sm font-medium text-gray-700">
+              Phone
+            </label>
+            <input
+              type="tel"
+              id="phone"
+              value={phone}
+              onChange={(e) => setPhone(e.target.value)}
+              className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500"
+            />
+          </div>
+        </div>
+
+        <div className="space-y-4">
+          <h3 className="text-sm font-medium text-gray-700">Address (Optional)</h3>
+          <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
+            <div className="sm:col-span-2">
+              <label htmlFor="street" className="block text-sm font-medium text-gray-700">
+                Street Address
+              </label>
+              <input
+                type="text"
+                id="street"
+                value={address.street}
+                onChange={(e) => setAddress({ ...address, street: e.target.value })}
+                className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500"
+              />
+            </div>
+
+            <div>
+              <label htmlFor="city" className="block text-sm font-medium text-gray-700">
+                City
+              </label>
+              <input
+                type="text"
+                id="city"
+                value={address.city}
+                onChange={(e) => setAddress({ ...address, city: e.target.value })}
+                className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500"
+              />
+            </div>
+
+            <div>
+              <label htmlFor="state" className="block text-sm font-medium text-gray-700">
+                State
+              </label>
+              <input
+                type="text"
+                id="state"
+                value={address.state}
+                onChange={(e) => setAddress({ ...address, state: e.target.value })}
+                className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500"
+              />
+            </div>
+
+            <div>
+              <label htmlFor="zipCode" className="block text-sm font-medium text-gray-700">
+                ZIP Code
+              </label>
+              <input
+                type="text"
+                id="zipCode"
+                value={address.zipCode}
+                onChange={(e) => setAddress({ ...address, zipCode: e.target.value })}
+                className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500"
+              />
+            </div>
+          </div>
+        </div>
       </div>
 
       <CaptchaWrapper onVerify={setCaptchaToken} />

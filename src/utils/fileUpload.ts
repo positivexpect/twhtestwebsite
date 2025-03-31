@@ -1,34 +1,91 @@
 import { supabase } from './supabase';
 
+const CHUNK_SIZE = 5 * 1024 * 1024; // 5MB chunks for better reliability
+
+async function* createChunks(file: File) {
+  let offset = 0;
+  while (offset < file.size) {
+    const chunk = file.slice(offset, offset + CHUNK_SIZE);
+    offset += chunk.size;
+    yield chunk;
+  }
+}
+
 export async function uploadFile(
   file: File,
-  bucket: 'video-testimonials' | 'ugly-windows'
+  bucket: 'form-uploads',
+  onProgress?: (progress: number) => void
 ): Promise<{ filePath: string; error: Error | null }> {
   try {
-    const fileExt = file.name.split('.').pop();
-    const fileName = `${Date.now()}-${Math.random().toString(36).substring(2)}.${fileExt}`;
-    const filePath = `${fileName}`;
+    console.log('Attempting to upload file:', {
+      name: file.name,
+      type: file.type,
+      size: file.size,
+      bucket: bucket
+    });
 
-    // Upload with chunking for large files
-    const { error: uploadError } = await supabase.storage
-      .from(bucket)
-      .upload(filePath, file, {
-        cacheControl: '3600',
-        upsert: false,
-        contentType: file.type,
+    const fileName = `${Date.now()}-${file.name}`;
+    let uploadedChunks = 0;
+    const totalChunks = Math.ceil(file.size / CHUNK_SIZE);
+
+    for await (const chunk of createChunks(file)) {
+      uploadedChunks++;
+      console.log(`Uploading chunk ${uploadedChunks}/${totalChunks} (${Math.round(chunk.size / 1024 / 1024)}MB)`);
+
+      const formData = new FormData();
+      formData.append('file', chunk);
+      formData.append('fileName', fileName);
+      formData.append('contentType', file.type);
+      formData.append('chunkIndex', uploadedChunks.toString());
+      formData.append('totalChunks', totalChunks.toString());
+      formData.append('totalSize', file.size.toString());
+
+      const response = await fetch('/api/upload', {
+        method: 'POST',
+        body: formData,
       });
 
-    if (uploadError) {
-      throw uploadError;
+      const data = await response.json();
+
+      if (!response.ok) {
+        console.error('Upload error:', data);
+        throw new Error(data.error || 'Upload failed');
+      }
+
+      // Update progress
+      if (data.progress && onProgress) {
+        onProgress(data.progress);
+      }
+
+      // If this is the last chunk, verify the upload
+      if (uploadedChunks === totalChunks) {
+        console.log('Final chunk uploaded, verifying file...');
+        
+        // Verify the file exists in the bucket
+        const { data: files } = await supabase
+          .storage
+          .from(bucket)
+          .list();
+        
+        const uploadedFile = files?.find(f => f.name === fileName);
+        if (!uploadedFile) {
+          throw new Error('File not found in bucket after upload');
+        }
+
+        console.log('Upload successful:', {
+          path: data.path,
+          url: data.url,
+          size: uploadedFile.metadata?.size
+        });
+
+        return { filePath: data.path, error: null };
+      }
     }
 
-    return { filePath, error: null };
+    throw new Error('Upload incomplete');
   } catch (error) {
-    console.error('Error uploading file:', error);
-    return { 
-      filePath: '', 
-      error: error instanceof Error ? error : new Error('Failed to upload file') 
-    };
+    console.error('Upload error:', error);
+    return { filePath: '', error: error as Error };
   }
 }
 

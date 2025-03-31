@@ -17,13 +17,22 @@ interface UglyWindow {
 
 export default function UglyWindowForm() {
   const [photoFilePath, setPhotoFilePath] = useState<string | null>(null);
-  const [contactInfo, setContactInfo] = useState('');
+  const [name, setName] = useState('');
+  const [email, setEmail] = useState('');
+  const [phone, setPhone] = useState('');
+  const [address, setAddress] = useState({
+    street: '',
+    city: '',
+    state: '',
+    zipCode: ''
+  });
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [submitStatus, setSubmitStatus] = useState<'idle' | 'success' | 'error'>('idle');
   const [errorMessage, setErrorMessage] = useState('');
   const [submissions, setSubmissions] = useState<UglyWindow[]>([]);
   const [totalSubmissions, setTotalSubmissions] = useState(0);
   const [captchaToken, setCaptchaToken] = useState<string | null>(null);
+  const [socialLinks, setSocialLinks] = useState('');
 
   useEffect(() => {
     fetchSubmissions();
@@ -63,17 +72,37 @@ export default function UglyWindowForm() {
     setErrorMessage('');
 
     try {
-      const { error } = await supabase.from('ugly_windows').insert({
-        photo_file_path: photoFilePath,
-        contact_info: contactInfo,
+      const { error } = await supabase.from('form_submissions').insert({
+        form_type: 'ugly_window_contest',
+        name,
+        email,
+        phone,
+        address: Object.values(address).some(val => val) ? address : null,
+        form_data: {
+          social_media_links: socialLinks.split(',').map(link => link.trim()).filter(Boolean)
+        },
+        files: photoFilePath ? [{
+          path: photoFilePath,
+          bucket: 'form-uploads'
+        }] : [],
+        status: 'pending'
       });
 
       if (error) throw error;
 
       setSubmitStatus('success');
       setPhotoFilePath(null);
-      setContactInfo('');
+      setName('');
+      setEmail('');
+      setPhone('');
+      setAddress({
+        street: '',
+        city: '',
+        state: '',
+        zipCode: ''
+      });
       setCaptchaToken(null);
+      setSocialLinks('');
       fetchSubmissions(); // Refresh the list
     } catch (error) {
       console.error('Error submitting photo:', error);
@@ -115,28 +144,117 @@ export default function UglyWindowForm() {
 
       <form onSubmit={handleSubmit} className="space-y-6">
         <FileUpload
-          bucket="ugly-windows"
+          onUploadComplete={(filePath) => {
+            setPhotoFilePath(filePath);
+            setErrorMessage('');
+          }}
+          onUploadError={(error) => {
+            setErrorMessage(error.message);
+            setPhotoFilePath(null);
+          }}
           accept="image/*"
-          maxSize={10 * 1024 * 1024} // 10MB
-          onUploadComplete={handleUploadComplete}
-          onUploadError={handleUploadError}
-          label="Upload Photo"
-          required
+          className="mb-4"
         />
 
-        <div>
-          <label htmlFor="contactInfo" className="block text-sm font-medium text-gray-700">
-            Contact Information
-          </label>
-          <input
-            type="text"
-            id="contactInfo"
-            value={contactInfo}
-            onChange={(e) => setContactInfo(e.target.value)}
-            required
-            className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500"
-            placeholder="Name, Email, Phone"
-          />
+        <div className="grid grid-cols-1 gap-6 sm:grid-cols-2">
+          <div>
+            <label htmlFor="name" className="block text-sm font-medium text-gray-700">
+              Name
+            </label>
+            <input
+              type="text"
+              id="name"
+              value={name}
+              onChange={(e) => setName(e.target.value)}
+              required
+              className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500"
+            />
+          </div>
+
+          <div>
+            <label htmlFor="email" className="block text-sm font-medium text-gray-700">
+              Email
+            </label>
+            <input
+              type="email"
+              id="email"
+              value={email}
+              onChange={(e) => setEmail(e.target.value)}
+              required
+              className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500"
+            />
+          </div>
+
+          <div>
+            <label htmlFor="phone" className="block text-sm font-medium text-gray-700">
+              Phone
+            </label>
+            <input
+              type="tel"
+              id="phone"
+              value={phone}
+              onChange={(e) => setPhone(e.target.value)}
+              required
+              className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500"
+            />
+          </div>
+        </div>
+
+        <div className="space-y-4">
+          <h3 className="text-sm font-medium text-gray-700">Address (Optional)</h3>
+          <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
+            <div className="sm:col-span-2">
+              <label htmlFor="street" className="block text-sm font-medium text-gray-700">
+                Street Address
+              </label>
+              <input
+                type="text"
+                id="street"
+                value={address.street}
+                onChange={(e) => setAddress({ ...address, street: e.target.value })}
+                className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500"
+              />
+            </div>
+
+            <div>
+              <label htmlFor="city" className="block text-sm font-medium text-gray-700">
+                City
+              </label>
+              <input
+                type="text"
+                id="city"
+                value={address.city}
+                onChange={(e) => setAddress({ ...address, city: e.target.value })}
+                className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500"
+              />
+            </div>
+
+            <div>
+              <label htmlFor="state" className="block text-sm font-medium text-gray-700">
+                State
+              </label>
+              <input
+                type="text"
+                id="state"
+                value={address.state}
+                onChange={(e) => setAddress({ ...address, state: e.target.value })}
+                className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500"
+              />
+            </div>
+
+            <div>
+              <label htmlFor="zipCode" className="block text-sm font-medium text-gray-700">
+                ZIP Code
+              </label>
+              <input
+                type="text"
+                id="zipCode"
+                value={address.zipCode}
+                onChange={(e) => setAddress({ ...address, zipCode: e.target.value })}
+                className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500"
+              />
+            </div>
+          </div>
         </div>
 
         <CaptchaWrapper onVerify={setCaptchaToken} />

@@ -1,25 +1,22 @@
 'use client';
 
+import { ReactNode } from 'react';
 import HCaptcha from '@hcaptcha/react-hcaptcha';
 
 interface CaptchaWrapperProps {
   onVerify: (token: string | null) => void;
+  children?: ReactNode;
 }
 
-export default function CaptchaWrapper({ onVerify }: CaptchaWrapperProps) {
+export default function CaptchaWrapper({ onVerify, children }: CaptchaWrapperProps) {
   return (
-    <div 
-      className="flex justify-center my-4 touch-none" 
-      style={{ touchAction: 'none' }}
-    >
+    <div className="space-y-4">
       <HCaptcha
-        sitekey={process.env.NEXT_PUBLIC_HCAPTCHA_SITE_KEY || ''}
-        onVerify={(token) => onVerify(token)}
+        sitekey={process.env.NEXT_PUBLIC_HCAPTCHA_SITE_KEY!}
+        onVerify={onVerify}
         onExpire={() => onVerify(null)}
-        onError={() => onVerify(null)}
-        theme="light"
-        size="normal"
       />
+      {children}
     </div>
   );
 } 

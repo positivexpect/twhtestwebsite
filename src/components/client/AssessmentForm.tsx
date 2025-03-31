@@ -8,6 +8,8 @@ import { FFmpeg } from '@ffmpeg/ffmpeg';
 import { fetchFile } from '@ffmpeg/util';
 import { toBlobURL } from '@ffmpeg/util';
 import CaptchaWrapper from '../shared/CaptchaWrapper';
+import { uploadFile } from '@/utils/fileUpload';
+import FileUpload from '../shared/FileUpload';
 
 type FormData = {
   name: string;
@@ -217,7 +219,7 @@ export default function AssessmentForm() {
     setFormData(prev => ({ ...prev, preferredTimes: newTimes }));
   };
 
-  const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+  const handleFileChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const files = e.target.files;
     if (!files) return;
 
@@ -225,15 +227,15 @@ export default function AssessmentForm() {
     const currentTotalSize = formData.files.reduce((sum, file) => sum + file.size, 0);
     const newFilesTotalSize = Array.from(files).reduce((sum, file) => sum + file.size, 0);
     
-    if (currentTotalSize + newFilesTotalSize > 150 * 1024 * 1024) {
-      alert('The total size of all files cannot exceed 150MB. Please select smaller files or fewer files.');
+    if (currentTotalSize + newFilesTotalSize > 1024 * 1024 * 1024) {
+      alert('The total size of all files cannot exceed 1GB. Please select smaller files or fewer files.');
       return;
     }
 
     // Check individual file sizes
-    const oversizedFiles = Array.from(files).filter(file => file.size > 150 * 1024 * 1024);
+    const oversizedFiles = Array.from(files).filter(file => file.size > 1024 * 1024 * 1024);
     if (oversizedFiles.length > 0) {
-      alert('Some files are too large. Each file must be under 150MB. Please compress your videos or select smaller files.');
+      alert('Some files are too large. Each file must be under 1GB. Please compress your videos or select smaller files.');
       return;
     }
 
@@ -251,10 +253,24 @@ export default function AssessmentForm() {
       return;
     }
 
-    setFormData(prev => ({
-      ...prev,
-      files: [...prev.files, ...Array.from(files)]
-    }));
+    // Upload each file to Supabase
+    try {
+      const uploadedFiles = await Promise.all(
+        Array.from(files).map(async (file) => {
+          const { filePath, error } = await uploadFile(file, 'form-uploads');
+          if (error) throw error;
+          return file;
+        })
+      );
+
+      setFormData(prev => ({
+        ...prev,
+        files: [...prev.files, ...uploadedFiles]
+      }));
+    } catch (error) {
+      console.error('Error uploading files:', error);
+      alert('Failed to upload one or more files. Please try again.');
+    }
   };
 
   const removeFile = (index: number) => {
@@ -275,8 +291,8 @@ export default function AssessmentForm() {
 
     // Check total file size before submission
     const totalSize = formData.files.reduce((sum, file) => sum + file.size, 0);
-    if (totalSize > 150 * 1024 * 1024) { // Reduced from 100MB to 50MB
-      setSubmitError('The total size of all files exceeds 150MB. Please select smaller files or fewer files.');
+    if (totalSize > 1024 * 1024 * 1024) {
+      setSubmitError('The total size of all files exceeds 1GB. Please select smaller files or fewer files.');
       setIsSubmitting(false);
       return;
     }
@@ -566,97 +582,50 @@ export default function AssessmentForm() {
             </div>
           </div>
 
-          {/* File Upload Section */}
-          <div className="space-y-4">
-            <div>
-              <label className="block text-sm font-medium text-gray-700 mb-2">
-                Upload Photos/Videos/PDFs
-              </label>
-              <div className="space-y-4">
-                {/* Desktop File Input */}
-                <div className="hidden md:block">
-                  <input
-                    type="file"
-                    accept="image/*,video/*,.pdf"
-                    multiple
-                    onChange={handleFileChange}
-                    className="block w-full text-sm text-gray-500
-                      file:mr-4 file:py-2 file:px-4
-                      file:rounded-md file:border-0
-                      file:text-sm file:font-semibold
-                      file:bg-red-700 file:text-white
-                      hover:file:bg-red-800
-                      cursor-pointer"
-                  />
-                </div>
-
-                {/* Mobile File Input */}
-                <div className="md:hidden space-y-4">
-                  <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-2">
-                      Take Photo/Video
-                    </label>
-                    <input
-                      type="file"
-                      accept="image/*,video/*"
-                      capture="environment"
-                      onChange={handleFileChange}
-                      className="block w-full text-sm text-gray-500
-                        file:mr-4 file:py-2 file:px-4
-                        file:rounded-md file:border-0
-                        file:text-sm file:font-semibold
-                        file:bg-red-700 file:text-white
-                        hover:file:bg-red-800
-                        cursor-pointer"
-                    />
-                  </div>
-                  <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-2">
-                      Choose from Library
-                    </label>
-                    <input
-                      type="file"
-                      accept="image/*,video/*,.pdf"
-                      multiple
-                      onChange={handleFileChange}
-                      className="block w-full text-sm text-gray-500
-                        file:mr-4 file:py-2 file:px-4
-                        file:rounded-md file:border-0
-                        file:text-sm file:font-semibold
-                        file:bg-red-700 file:text-white
-                        hover:file:bg-red-800
-                        cursor-pointer"
-                    />
-                  </div>
-                </div>
-
-                <p className="text-sm text-gray-500">
-                  Supported formats: Images (JPG, PNG, GIF), Videos (MP4, MOV, M4V), PDFs. Max 150MB per file, 150MB total.
-                </p>
-              </div>
+          {/* File Upload */}
+          <div className="mt-6">
+            <label className="block text-sm font-medium text-gray-700">
+              Upload Photos or Videos (Optional)
+            </label>
+            <div className="mt-2">
+              <FileUpload
+                onUploadComplete={(filePath) => {
+                  const newFiles = [...formData.files];
+                  newFiles.push(new File([], filePath));
+                  setFormData(prev => ({ ...prev, files: newFiles }));
+                }}
+                onUploadError={(error) => {
+                  setSubmitError(error.message);
+                }}
+                accept="image/*,video/*"
+                className="mb-4"
+              />
             </div>
-
-            {/* File List */}
-            {formData.files.length > 0 && (
-              <div className="mt-4">
-                <h3 className="text-sm font-medium text-gray-700 mb-2">Selected Files:</h3>
-                <ul className="space-y-2">
-                  {formData.files.map((file, index) => (
-                    <li key={index} className="flex items-center justify-between text-sm">
-                      <span className="truncate">{file.name}</span>
-                      <button
-                        type="button"
-                        onClick={() => removeFile(index)}
-                        className="text-red-700 hover:text-red-800"
-                      >
-                        Remove
-                      </button>
-                    </li>
-                  ))}
-                </ul>
-              </div>
-            )}
+            <p className="mt-2 text-sm text-gray-500">
+              Upload photos or videos of your window issues to help us better understand your needs.
+            </p>
           </div>
+
+          {/* File List */}
+          {formData.files.length > 0 && (
+            <div className="mt-4">
+              <h3 className="text-sm font-medium text-gray-700 mb-2">Selected Files:</h3>
+              <ul className="space-y-2">
+                {formData.files.map((file, index) => (
+                  <li key={index} className="flex items-center justify-between text-sm">
+                    <span className="truncate">{file.name}</span>
+                    <button
+                      type="button"
+                      onClick={() => removeFile(index)}
+                      className="text-red-700 hover:text-red-800"
+                    >
+                      Remove
+                    </button>
+                  </li>
+                ))}
+              </ul>
+            </div>
+          )}
 
           {/* Optional Details Section */}
           <div className="border rounded-md">
