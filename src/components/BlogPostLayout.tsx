@@ -66,7 +66,15 @@ export default function BlogPostLayout({ post }: BlogPostLayoutProps) {
         </header>
 
         <div className="prose prose-lg max-w-none">
-          <ReactMarkdown>{post.content}</ReactMarkdown>
+          <ReactMarkdown
+            components={{
+              h1: ({ children }) => <h2 className="text-3xl font-bold mt-8 mb-4">{children}</h2>,
+              h2: ({ children }) => <h3 className="text-2xl font-bold mt-6 mb-3">{children}</h3>,
+              h3: ({ children }) => <h4 className="text-xl font-bold mt-4 mb-2">{children}</h4>,
+            }}
+          >
+            {post.content}
+          </ReactMarkdown>
         </div>
 
         <div className="mt-12 border-t border-gray-200 pt-8">

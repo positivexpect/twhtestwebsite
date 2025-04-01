@@ -10,6 +10,9 @@ const FAQPage = () => {
   return (
     <div className="min-h-screen bg-white">
       <main className="max-w-4xl mx-auto px-4 py-8">
+        <h1 className="text-4xl font-bold text-gray-900 mb-8 text-center">
+          Window Repair FAQ: Expert Answers from The Window Hospital
+        </h1>
         <FAQSection
           faqs={faqData}
           title="Frequently Asked Questions"

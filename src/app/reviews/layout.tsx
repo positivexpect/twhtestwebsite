@@ -2,8 +2,8 @@ import { Metadata } from 'next';
 import ReviewsPage from './page';
 
 export const metadata: Metadata = {
-  title: 'Window Repair vs Replacement | Save 50-80% | The Window Hospital Inc. | Fredericksburg, VA',
-  description: '85% of windows can be repaired, not replaced! Save thousands with The Window Hospital Inc. Expert window repair services in Fredericksburg, VA. 4.88/5 star rating from 300+ customers. Free assessment!',
+  title: 'Window Repair vs Replacement | Save 50-80% | The Window Hospital',
+  description: 'Read customer reviews and see why homeowners choose window repair over replacement. Save 50-80% with The Window Hospital.',
   keywords: [
     // Primary Keywords
     'window repair vs replacement',

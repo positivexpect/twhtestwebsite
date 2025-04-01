@@ -16,9 +16,9 @@ export const viewport: Viewport = {
 };
 
 export const metadata: Metadata = {
+  title: 'Window Repair vs Replacement | Save 50-80% | The Window Hospital',
+  description: 'Save 50-80% on window repairs vs replacement. Expert window repair services in Fredericksburg, VA. Free assessment and same-day service available.',
   metadataBase: new URL('https://thewindowhospital.com'),
-  title: 'The Window Hospital',
-  description: 'Expert window repair services in Fredericksburg, VA. Save 50-80% compared to replacement.',
   icons: {
     icon: [
       {
@@ -75,21 +75,14 @@ export const metadata: Metadata = {
 
 export default function RootLayout({
   children,
-}: Readonly<{
+}: {
   children: React.ReactNode;
-}>) {
+}) {
   return (
     <html lang="en" className={inter.variable}>
-      <head>
-        <link rel="icon" type="image/png" sizes="32x32" href="/images/icononly_transparent_nobuffer.png" />
-        <link rel="icon" type="image/png" sizes="16x16" href="/images/icononly_transparent_nobuffer.png" />
-        <link rel="apple-touch-icon" sizes="180x180" href="/images/icononly_transparent_nobuffer.png" />
-        <link rel="mask-icon" href="/images/icononly_transparent_nobuffer.png" color="#CD2028" />
-        <meta name="theme-color" content="#CD2028" />
-      </head>
-      <body className={`${inter.variable} font-sans antialiased bg-white min-h-screen flex flex-col`}>
+      <body>
         <Navigation />
-        <main className="flex-grow">{children}</main>
+        <main>{children}</main>
         <Footer />
         <ChatBot />
         <ExitIntentPopup />
