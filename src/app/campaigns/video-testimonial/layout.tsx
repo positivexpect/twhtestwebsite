@@ -2,10 +2,14 @@ import { Metadata } from 'next';
 import VideoTestimonialPage from './page';
 
 export const metadata: Metadata = {
-  title: 'Video Testimonial Campaign | Share Your Window Repair Experience | The Window Hospital',
-  description: 'Share your window repair experience through a video testimonial. Get a free part in exchange for your story with The Window Hospital.',
+  title: 'Share Your Window Repair Story | The Window Hospital',
+  description: 'Share your window repair experience and get a free part. Join our customer testimonial program.',
 };
 
-export default function VideoTestimonialLayout() {
-  return <VideoTestimonialPage />;
+export default function VideoTestimonialLayout({
+  children,
+}: {
+  children: React.ReactNode
+}) {
+  return children
 } 

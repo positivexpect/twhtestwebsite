@@ -15,7 +15,7 @@ export default function CampaignsPage() {
       <div className="max-w-7xl mx-auto">
         <div className="text-center">
           <h1 className="text-4xl font-bold text-gray-900 mb-4">
-            Window Hospital Community Initiatives
+            Special Offers & Community Programs at The Window Hospital
           </h1>
           <p className="text-xl text-gray-600 mb-8">
             Join our community programs and make a difference

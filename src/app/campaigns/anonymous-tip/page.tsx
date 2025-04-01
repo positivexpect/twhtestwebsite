@@ -9,7 +9,7 @@ export default function AnonymousTipPage() {
       <div className="max-w-7xl mx-auto">
         <div className="text-center">
           <h1 className="text-4xl font-bold text-gray-900 mb-4">
-            Anonymous Tip Center
+            Help Your Community: Anonymous Window Repair Tips
           </h1>
           <p className="text-xl text-gray-600 mb-8">
             Know someone in need? Submit an anonymous tip about someone who could benefit

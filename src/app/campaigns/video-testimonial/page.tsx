@@ -9,7 +9,7 @@ export default function VideoTestimonialPage() {
       <div className="max-w-7xl mx-auto">
         <div className="text-center">
           <h1 className="text-4xl font-bold text-gray-900 mb-4">
-            Video Testimonial Program
+            Share Your Window Repair Success Story
           </h1>
           <p className="text-xl text-gray-600 mb-8">
             Share your story about how Window Hospital helped you avoid unnecessary window replacement.

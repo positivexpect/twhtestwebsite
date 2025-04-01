@@ -2,10 +2,14 @@ import { Metadata } from 'next';
 import AnonymousTipPage from './page';
 
 export const metadata: Metadata = {
-  title: 'Anonymous Tip Campaign | Share Your Window Repair Story | The Window Hospital',
-  description: 'Share your window repair story anonymously and help others save money. Get a free part in exchange for your story with The Window Hospital.',
+  title: 'Submit Anonymous Window Repair Tips | The Window Hospital',
+  description: 'Help your community by anonymously referring someone in need of window repair services.',
 };
 
-export default function AnonymousTipLayout() {
-  return <AnonymousTipPage />;
+export default function AnonymousTipLayout({
+  children,
+}: {
+  children: React.ReactNode
+}) {
+  return children
 } 

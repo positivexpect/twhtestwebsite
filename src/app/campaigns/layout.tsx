@@ -2,10 +2,14 @@ import { Metadata } from 'next';
 import CampaignsPage from './page';
 
 export const metadata: Metadata = {
-  title: 'Special Offers & Promotions | The Window Hospital',
-  description: 'Take advantage of special offers and promotions from The Window Hospital. Save money on window repairs with our current deals and contests.',
+  title: 'Window Repair Special Offers & Community Programs | The Window Hospital',
+  description: 'Discover our window repair promotions, community initiatives, and special programs to save on your repairs.',
 };
 
-export default function CampaignsLayout() {
-  return <CampaignsPage />;
+export default function CampaignsLayout({
+  children,
+}: {
+  children: React.ReactNode
+}) {
+  return children
 } 
