@@ -6,16 +6,7 @@ import { v4 as uuidv4 } from 'uuid';
 // Initialize Supabase client
 const supabase = createClient(
   process.env.NEXT_PUBLIC_SUPABASE_URL!,
-  process.env.SUPABASE_SERVICE_ROLE_KEY!,
-  {
-    db: {
-      schema: 'public'
-    },
-    global: {
-      fetch: fetch.bind(globalThis),
-      headers: { 'x-statement-timeout': '30000' }
-    }
-  }
+  process.env.SUPABASE_SERVICE_ROLE_KEY!
 );
 
 // Ensure the bucket exists and is properly configured
@@ -117,27 +108,11 @@ async function verifyCaptcha(token: string) {
   }
 }
 
-interface FileReference {
-  name: string;
-  type: string;
-  size: number;
-  url: string;
-  path: string;
-}
-
-interface FormData {
-  formType: string;
-  name: string;
-  email: string;
-  phone: string;
-  zipCode?: string;
-  issueTypes?: string[];
-  message?: string;
-  files?: FileReference[];
-}
-
 export async function POST(request: Request) {
   try {
+    // Ensure bucket exists before processing
+    await ensureBucketExists();
+
     const body = await request.json();
     const { captchaToken, ...formData } = body;
 
@@ -165,69 +140,179 @@ export async function POST(request: Request) {
       hasFiles: formData.files?.length > 0
     });
 
-    // Insert into database with file references
-    const { error: dbError } = await supabase
-      .from('assessments')
+    // Handle file uploads if present
+    let fileReferences = [];
+    let failedUploads = [];
+    
+    if (formData.files && formData.files.length > 0) {
+      for (const file of formData.files) {
+        try {
+          console.log('Processing file:', {
+            name: file.name,
+            type: file.type,
+            hasChunks: !!file.chunks,
+            hasBase64: !!file.base64,
+            size: file.size || 0
+          });
+
+          // Skip empty files
+          if (!file.chunks?.length && !file.base64) {
+            console.warn(`Skipping empty file: ${file.name}`);
+            continue;
+          }
+
+          let fileBuffer;
+          try {
+            // Combine chunks if they exist
+            if (file.chunks?.length) {
+              const chunks = file.chunks.map((chunk: string, index: number) => {
+                try {
+                  const buffer = Buffer.from(chunk, 'base64');
+                  console.log(`Processed chunk ${index + 1}/${file.chunks.length} for ${file.name}: ${buffer.length} bytes`);
+                  return buffer;
+                } catch (e) {
+                  console.error(`Error decoding chunk ${index + 1}/${file.chunks.length} for ${file.name}:`, e);
+                  throw new Error(`Failed to decode chunk for ${file.name}`);
+                }
+              });
+              fileBuffer = Buffer.concat(chunks);
+            } else if (file.base64) {
+              fileBuffer = Buffer.from(file.base64, 'base64');
+            } else {
+              throw new Error(`No valid data found for ${file.name}`);
+            }
+          } catch (e) {
+            console.error('Error processing file buffer:', e);
+            throw new Error(`Failed to process file data for ${file.name}`);
+          }
+
+          // Only proceed if we have actual data
+          if (fileBuffer.length === 0) {
+            console.warn(`Empty file buffer for ${file.name}, skipping`);
+            continue;
+          }
+
+          console.log('File buffer created:', {
+            name: file.name,
+            size: fileBuffer.length
+          });
+
+          const fileName = `${Date.now()}-${file.name}`;
+          
+          // Upload to Supabase with retries
+          let uploadAttempt = 0;
+          let uploadSuccess = false;
+          let lastError;
+
+          while (uploadAttempt < 3 && !uploadSuccess) {
+            try {
+              const { data: uploadData, error: uploadError } = await supabase
+                .storage
+                .from('form-uploads')
+                .upload(fileName, fileBuffer, {
+                  contentType: file.type || 'application/octet-stream',
+                  upsert: uploadAttempt > 0, // Allow overwrite on retry
+                  cacheControl: '3600'
+                });
+
+              if (uploadError) {
+                throw uploadError;
+              }
+              
+              // Get the public URL
+              const { data: { publicUrl } } = supabase
+                .storage
+                .from('form-uploads')
+                .getPublicUrl(uploadData.path);
+
+              console.log('File uploaded successfully:', {
+                fileName,
+                path: uploadData.path,
+                publicUrl,
+                size: fileBuffer.length,
+                attempt: uploadAttempt + 1
+              });
+              
+              fileReferences.push({
+                name: file.name,
+                path: uploadData.path,
+                type: file.type,
+                url: publicUrl,
+                size: fileBuffer.length
+              });
+
+              uploadSuccess = true;
+            } catch (error) {
+              lastError = error;
+              uploadAttempt++;
+              console.error(`Upload attempt ${uploadAttempt} failed:`, error);
+              
+              if (uploadAttempt < 3) {
+                // Wait before retrying
+                await new Promise(resolve => setTimeout(resolve, 1000 * Math.pow(2, uploadAttempt)));
+              }
+            }
+          }
+
+          if (!uploadSuccess) {
+            throw lastError || new Error(`Failed to upload ${file.name} after 3 attempts`);
+          }
+        } catch (error) {
+          console.error('Error processing file:', error);
+          failedUploads.push({
+            name: file.name,
+            error: error instanceof Error ? error.message : 'Unknown error'
+          });
+        }
+      }
+    }
+
+    // If all files failed to upload but some files were attempted, return error
+    if (formData.files?.length > 0 && fileReferences.length === 0 && failedUploads.length > 0) {
+      return NextResponse.json({
+        success: false,
+        message: 'All file uploads failed',
+        errors: failedUploads
+      }, { status: 500 });
+    }
+
+    // Store submission in database
+    const { data: submission, error: dbError } = await supabase
+      .from('form_submissions')
       .insert({
-        ...formData,
-        files: formData.files?.map((file: FileReference) => ({
-          name: file.name,
-          type: file.type,
-          size: file.size,
-          url: file.url,
-          path: file.path.split('/form-uploads/')[1] // Ensure we only store the relative path
-        })) || []
+        form_type: formData.formType,
+        name: formData.name,
+        email: formData.email,
+        phone: formData.phone,
+        address: formData.address,
+        form_data: formData,
+        files: fileReferences
       })
       .select()
       .single();
 
     if (dbError) {
       console.error('Database error:', dbError);
-      return NextResponse.json(
-        { success: false, message: 'Failed to save assessment request. Please try again.' },
-        { status: 500 }
-      );
+      return NextResponse.json({
+        success: false,
+        message: 'Failed to save submission',
+        error: dbError.message
+      }, { status: 500 });
     }
 
-    // Send email notification
-    try {
-      await transporter.sendMail({
-        from: process.env.CUSTOMER_SMTP_FROM_EMAIL,
-        to: process.env.CUSTOMER_ADMIN_EMAIL,
-        subject: 'New Assessment Request',
-        html: `
-          <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto;">
-            <h2 style="color: #CD2028;">New Assessment Request</h2>
-            <div style="background: #f5f5f5; padding: 20px; border-radius: 5px;">
-              <p><strong>Name:</strong> ${formData.name}</p>
-              <p><strong>Email:</strong> ${formData.email}</p>
-              <p><strong>Phone:</strong> ${formData.phone}</p>
-              ${formData.zipCode ? `<p><strong>ZIP Code:</strong> ${formData.zipCode}</p>` : ''}
-              ${formData.issueTypes?.length ? `<p><strong>Issues:</strong> ${formData.issueTypes.join(', ')}</p>` : ''}
-              ${formData.message ? `<p><strong>Message:</strong> ${formData.message}</p>` : ''}
-              ${formData.files?.length ? `
-                <h3>Attached Files:</h3>
-                <ul>
-                  ${formData.files.map((file: FileReference) => `
-                    <li><a href="${file.url}">${file.name}</a> (${Math.round(file.size / 1024 / 1024)}MB)</li>
-                  `).join('')}
-                </ul>
-              ` : ''}
-            </div>
-          </div>
-        `
-      });
-    } catch (emailError) {
-      console.error('Error sending email:', emailError);
-      // Don't fail the request if email fails
-    }
+    // Return success with partial upload info if some files failed
+    return NextResponse.json({
+      success: true,
+      data: submission,
+      failedUploads: failedUploads.length > 0 ? failedUploads : undefined
+    });
 
-    return NextResponse.json({ success: true });
   } catch (error) {
     console.error('Server error:', error);
-    return NextResponse.json(
-      { success: false, message: 'Server error. Please try again later.' },
-      { status: 500 }
-    );
+    return NextResponse.json({
+      success: false,
+      message: 'Internal server error',
+      error: error instanceof Error ? error.message : 'Unknown error'
+    }, { status: 500 });
   }
 } 

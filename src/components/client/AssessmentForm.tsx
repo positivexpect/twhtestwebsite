@@ -56,13 +56,7 @@ type FormData = {
     height: string;
     unit: string;
   };
-  files: {
-    name: string;
-    type: string;
-    size: number;
-    url: string;
-    path: string;
-  }[];
+  files: File[];
   textConsent: 'yes' | 'no' | '';
 };
 
@@ -287,28 +281,10 @@ export default function AssessmentForm() {
   };
 
   const handleFileUploadComplete = (url: string, file: File) => {
-    // Extract the file path from the URL
-    const path = url.split('/form-uploads/')[1];
-    
-    // Check if the file is already in the list
-    const isDuplicate = formData.files.some(
-      existingFile => existingFile.path === path
-    );
-
-    if (!isDuplicate) {
-      setFormData(prev => ({
-        ...prev,
-        files: [...prev.files, {
-          name: file.name,
-          type: file.type,
-          size: file.size,
-          url: url,
-          path: path
-        }]
-      }));
-    } else {
-      console.log('File already exists in the list:', file.name);
-    }
+    setFormData(prev => ({
+      ...prev,
+      files: [...prev.files, file]
+    }));
   };
 
   const handleFileUploadError = (error: Error) => {
@@ -331,7 +307,91 @@ export default function AssessmentForm() {
     setIsSubmitting(true);
     setSubmitError('');
 
+    // Check total file size before submission
+    const totalSize = formData.files.reduce((sum, file) => sum + file.size, 0);
+    if (totalSize > 1024 * 1024 * 1024) {
+      setSubmitError('The total size of all files exceeds 1GB. Please select smaller files or fewer files.');
+      setIsSubmitting(false);
+      return;
+    }
+
     try {
+      // Process files with improved error handling
+      const filesWithBase64 = await Promise.all(
+        formData.files.map(async (file) => {
+          try {
+            // Validate file
+            if (!file || file.size === 0) {
+              console.warn(`Skipping empty file: ${file?.name || 'unknown'}`);
+              return null;
+            }
+
+            // Validate file type
+            const type = file.type.toLowerCase();
+            const validTypes = ['image/jpeg', 'image/png', 'image/gif', 'video/mp4', 'video/quicktime', 'application/pdf'];
+            const validExtensions = /\.(jpg|jpeg|png|gif|mp4|mov|pdf)$/i;
+            
+            if (!validTypes.includes(type) && !file.name.match(validExtensions)) {
+              throw new Error(`File "${file.name}" has an unsupported type. Supported types: JPG, PNG, GIF, MP4, MOV, PDF`);
+            }
+
+            // Convert file to base64 in one go for smaller files
+            if (file.size <= 5 * 1024 * 1024) { // 5MB
+              const base64 = await new Promise<string>((resolve, reject) => {
+                const reader = new FileReader();
+                reader.onload = () => resolve(reader.result as string);
+                reader.onerror = () => reject(reader.error);
+                reader.readAsDataURL(file);
+              });
+
+              return {
+                name: file.name,
+                type: file.type,
+                size: file.size,
+                base64: base64.split(',')[1]
+              };
+            }
+
+            // For larger files, use chunking
+            const chunkSize = 5 * 1024 * 1024; // 5MB chunks
+            const totalChunks = Math.ceil(file.size / chunkSize);
+            const chunks: string[] = [];
+
+            for (let i = 0; i < totalChunks; i++) {
+              const start = i * chunkSize;
+              const end = Math.min(start + chunkSize, file.size);
+              const chunk = file.slice(start, end);
+
+              const base64Chunk = await new Promise<string>((resolve, reject) => {
+                const reader = new FileReader();
+                reader.onload = () => resolve(reader.result as string);
+                reader.onerror = () => reject(reader.error);
+                reader.readAsDataURL(chunk);
+              });
+
+              chunks.push(base64Chunk.split(',')[1]);
+            }
+
+            return {
+              name: file.name,
+              type: file.type,
+              size: file.size,
+              chunks
+            };
+          } catch (error) {
+            console.error(`Error processing file ${file.name}:`, error);
+            throw new Error(`Unable to process "${file.name}". ${error instanceof Error ? error.message : 'Please try uploading it again.'}`);
+          }
+        })
+      );
+
+      // Filter out null entries (skipped files) and handle errors
+      const validFiles = filesWithBase64.filter((file): file is NonNullable<typeof file> => file !== null);
+      
+      if (formData.files.length > 0 && validFiles.length === 0) {
+        throw new Error('No valid files to upload. Please check your files and try again.');
+      }
+
       const response = await fetch('/api/submit-form', {
         method: 'POST',
         headers: {
@@ -339,54 +399,73 @@ export default function AssessmentForm() {
         },
         body: JSON.stringify({
           ...formData,
-          captchaToken,
-          // Only send file references, not the actual files
-          files: formData.files.map(file => ({
-            name: file.name,
-            type: file.type,
-            size: file.size,
-            url: file.url,
-            path: file.path
-          }))
-        })
+          formType: 'assessment',
+          files: validFiles,
+          captchaToken
+        }),
       });
 
-      if (!response.ok) {
-        const error = await response.json();
-        throw new Error(error.message || 'Server error. Please try again later or contact support if the problem persists.');
+      let result;
+      try {
+        const responseText = await response.text();
+        result = JSON.parse(responseText);
+      } catch (error) {
+        console.error('Error parsing response:', error);
+        throw new Error('Invalid response from server');
       }
 
-      // Reset form on success
-      setFormData({
-        name: '',
-        email: '',
-        phone: '',
-        address: {
-          street: '',
-          city: '',
-          state: '',
-          zip: ''
-        },
-        issueTypes: [],
-        customerType: '',
-        serviceType: '',
-        urgency: '',
-        needByDate: '',
-        preferredDates: ['', '', ''],
-        preferredTimes: ['', '', ''],
-        glassSize: {
-          width: '',
-          height: '',
-          unit: 'inches'
-        },
-        files: [],
-        textConsent: ''
-      });
-      setCaptchaToken(null);
-      setSubmitSuccess(true);
-    } catch (error) {
-      console.error('Form submission error:', error);
-      setSubmitError(error instanceof Error ? error.message : 'Server error. Please try again later.');
+      if (!response.ok) {
+        console.error('Server response error:', result);
+        
+        let errorMessage = 'We encountered an issue submitting your form.';
+        if (response.status === 413) {
+          errorMessage = 'The files are too large to upload. Please compress your videos or select smaller files.';
+        } else if (response.status === 400) {
+          errorMessage = result.message || 'Invalid form data. Please check your inputs and try again.';
+        } else if (response.status === 500) {
+          errorMessage = 'Server error. Please try again later or contact support if the problem persists.';
+        }
+        
+        throw new Error(errorMessage);
+      }
+
+      if (result.success) {
+        if (result.failedUploads?.length > 0) {
+          // Some files failed but the form was submitted
+          setSubmitError(`Form submitted but some files failed to upload: ${result.failedUploads.map((f: { name: string }) => f.name).join(', ')}`);
+        }
+        setSubmitSuccess(true);
+        setFormData({
+          name: '',
+          email: '',
+          phone: '',
+          address: {
+            street: '',
+            city: '',
+            state: '',
+            zip: ''
+          },
+          issueTypes: [],
+          customerType: '',
+          serviceType: '',
+          urgency: '',
+          needByDate: '',
+          preferredDates: ['', '', ''],
+          preferredTimes: ['', '', ''],
+          glassSize: {
+            width: '',
+            height: '',
+            unit: 'inches'
+          },
+          files: [],
+          textConsent: ''
+        });
+      } else {
+        throw new Error(result.message || 'We encountered an issue submitting your form. Please try again or contact us if the problem persists.');
+      }
+    } catch (error: any) {
+      console.error('Error submitting form:', error);
+      setSubmitError(error.message || 'We encountered an issue submitting your form. Please try again or contact us if the problem persists.');
     } finally {
       setIsSubmitting(false);
     }
