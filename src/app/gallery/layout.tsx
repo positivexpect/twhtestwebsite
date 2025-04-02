@@ -2,10 +2,14 @@ import { Metadata } from 'next';
 import GalleryPage from './page';
 
 export const metadata: Metadata = {
-  title: 'Window Repair Before & After Gallery | The Window Hospital',
-  description: 'View our window repair before and after gallery. See real examples of window repairs and transformations completed by The Window Hospital.',
+  title: 'Window Repair Before & After Gallery',
+  description: 'See our window repair transformations. Browse before and after photos of our work.',
 };
 
-export default function GalleryLayout() {
-  return <GalleryPage />;
+export default function GalleryLayout({
+  children,
+}: {
+  children: React.ReactNode
+}) {
+  return children
 } 

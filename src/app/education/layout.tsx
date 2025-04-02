@@ -2,8 +2,8 @@ import { Metadata } from 'next';
 import EducationPage from './page';
 
 export const metadata: Metadata = {
-  title: 'Window Repair Education & Tips | The Window Hospital',
-  description: 'Learn about window repair with expert tips and guides from The Window Hospital.',
+  title: 'Window Repair Education & Tips',
+  description: 'Learn about window repair with expert tips and guides. Save money with DIY maintenance advice.',
 };
 
 export default function EducationLayout({

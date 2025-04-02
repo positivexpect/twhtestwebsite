@@ -2,10 +2,14 @@ import { Metadata } from 'next';
 import PrivacyPolicy from './page';
 
 export const metadata: Metadata = {
-  title: 'Privacy Policy & Data Protection | The Window Hospital',
-  description: 'Learn about how The Window Hospital protects your privacy and handles your personal information. Our commitment to data security and customer privacy.',
+  title: 'Privacy Policy & Data Protection',
+  description: 'Our commitment to protecting your privacy and personal information.',
 };
 
-export default function PrivacyPolicyLayout() {
-  return <PrivacyPolicy />;
+export default function PrivacyPolicyLayout({
+  children,
+}: {
+  children: React.ReactNode
+}) {
+  return children
 } 

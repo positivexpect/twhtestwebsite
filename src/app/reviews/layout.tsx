@@ -2,8 +2,8 @@ import { Metadata } from 'next';
 import ReviewsPage from './page';
 
 export const metadata: Metadata = {
-  title: 'Window Repair vs Replacement | Save 50-80% | The Window Hospital',
-  description: 'Read customer reviews and see why homeowners choose window repair over replacement. Save 50-80% with The Window Hospital.',
+  title: 'Window Repair vs Replacement: Save 50-80%',
+  description: 'Read customer reviews and see why homeowners choose window repair over replacement. Save up to 80% on repairs.',
   keywords: [
     // Primary Keywords
     'window repair vs replacement',
@@ -66,6 +66,10 @@ export const metadata: Metadata = {
   }
 };
 
-export default function ReviewsLayout() {
-  return <ReviewsPage />;
+export default function ReviewsLayout({
+  children,
+}: {
+  children: React.ReactNode
+}) {
+  return children
 } 
