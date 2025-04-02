@@ -3,7 +3,7 @@ import AboutPage from './page';
 
 export const metadata: Metadata = {
   title: 'About Us: Expert Window Repair Since 2019',
-  description: 'Family-owned window repair experts helping homeowners save 50-80% on repairs in Fredericksburg.',
+  description: 'Fredericksburg\'s family-owned window repair experts. Save 50-80% on professional repairs.',
 };
 
 export default function AboutLayout({
