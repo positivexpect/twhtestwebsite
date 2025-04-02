@@ -83,8 +83,8 @@ export default function VideoTestimonialForm() {
           </label>
           <div className="mt-1 space-y-4">
             <FileUpload
-              onUploadComplete={(filePath) => {
-                setVideoFilePath(filePath);
+              onUploadComplete={(url, file) => {
+                setVideoFilePath(url);
                 setErrorMessage('');
               }}
               onUploadError={(error) => {
@@ -92,6 +92,9 @@ export default function VideoTestimonialForm() {
                 setVideoFilePath(null);
               }}
               accept="video/*"
+              maxSize={500 * 1024 * 1024} // 500MB for video files
+              multiple={false}
+              formType="video_testimonial"
               className="mb-4"
             />
             <div className="text-center text-sm text-gray-500">

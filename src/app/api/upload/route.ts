@@ -71,6 +71,7 @@ export async function POST(request: Request) {
     const file = formData.get('file') as File;
     const fileName = formData.get('fileName') as string;
     const contentType = formData.get('contentType') as string;
+    const formType = formData.get('formType') as string;
 
     if (!file || !fileName) {
       return NextResponse.json(
@@ -79,7 +80,20 @@ export async function POST(request: Request) {
       );
     }
 
-    // Validate file type
+    // Validate file type based on form type
+    const fileType = contentType.split('/')[0];
+    if (formType === 'video_testimonial' && fileType !== 'video') {
+      return NextResponse.json(
+        { error: 'Only video files are allowed for video testimonials' },
+        { status: 400 }
+      );
+    }
+    if (formType === 'ugly_window_contest' && fileType !== 'image') {
+      return NextResponse.json(
+        { error: 'Only image files are allowed for the ugly window contest' },
+        { status: 400 }
+      );
+    }
     if (!contentType.startsWith('image/') && !contentType.startsWith('video/')) {
       return NextResponse.json(
         { error: 'Only image and video files are allowed' },
@@ -87,20 +101,23 @@ export async function POST(request: Request) {
       );
     }
 
-    // Create a unique filename
+    // Create a unique filename with form type prefix if available
     const timestamp = Date.now();
     const sanitizedName = fileName
       .toLowerCase()
       .replace(/[^a-z0-9.]/g, '-')
       .replace(/-+/g, '-')
       .replace(/^-|-$/g, '');
-    const uniqueFileName = `${timestamp}-${sanitizedName}`;
+    const uniqueFileName = formType 
+      ? `${formType}/${timestamp}-${sanitizedName}`
+      : `${timestamp}-${sanitizedName}`;
 
     console.log('Processing upload:', {
       originalName: fileName,
       sanitizedName: uniqueFileName,
       contentType,
-      size: file.size
+      size: file.size,
+      formType
     });
 
     // Convert file to buffer
@@ -127,7 +144,8 @@ export async function POST(request: Request) {
 
     console.log('Upload successful:', {
       path: data.path,
-      size: buffer.length
+      size: buffer.length,
+      formType
     });
 
     // Get the public URL

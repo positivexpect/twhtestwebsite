@@ -144,8 +144,8 @@ export default function UglyWindowForm() {
 
       <form onSubmit={handleSubmit} className="space-y-6">
         <FileUpload
-          onUploadComplete={(filePath) => {
-            setPhotoFilePath(filePath);
+          onUploadComplete={(url, file) => {
+            setPhotoFilePath(url);
             setErrorMessage('');
           }}
           onUploadError={(error) => {
@@ -153,6 +153,9 @@ export default function UglyWindowForm() {
             setPhotoFilePath(null);
           }}
           accept="image/*"
+          maxSize={20 * 1024 * 1024} // 20MB for images
+          multiple={false}
+          formType="ugly_window_contest"
           className="mb-4"
         />
 

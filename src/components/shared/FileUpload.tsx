@@ -7,6 +7,7 @@ interface FileUploadProps {
   maxSize?: number;
   className?: string;
   multiple?: boolean;
+  formType?: 'video_testimonial' | 'ugly_window_contest' | 'assessment';
 }
 
 export default function FileUpload({
@@ -15,24 +16,40 @@ export default function FileUpload({
   accept = 'image/*,video/*',
   maxSize = 100 * 1024 * 1024, // 100MB default
   className = '',
-  multiple = true
+  multiple = true,
+  formType
 }: FileUploadProps) {
   const [isUploading, setIsUploading] = useState(false);
   const [uploadProgress, setUploadProgress] = useState(0);
+
+  const validateFile = (file: File): Error | null => {
+    if (file.size === 0) {
+      return new Error(`File "${file.name}" is empty`);
+    }
+
+    if (file.size > maxSize) {
+      return new Error(`File "${file.name}" exceeds size limit of ${Math.round(maxSize / 1024 / 1024)}MB`);
+    }
+
+    const fileType = file.type.split('/')[0];
+    if (formType === 'video_testimonial' && fileType !== 'video') {
+      return new Error('Only video files are allowed for video testimonials');
+    }
+    if (formType === 'ugly_window_contest' && fileType !== 'image') {
+      return new Error('Only image files are allowed for the ugly window contest');
+    }
+
+    return null;
+  };
 
   const handleFileChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const files = e.target.files;
     if (!files || files.length === 0) return;
 
     for (const file of Array.from(files)) {
-      // Basic validation
-      if (file.size === 0) {
-        onUploadError(new Error(`File "${file.name}" is empty`));
-        continue;
-      }
-
-      if (file.size > maxSize) {
-        onUploadError(new Error(`File "${file.name}" exceeds size limit of ${Math.round(maxSize / 1024 / 1024)}MB`));
+      const validationError = validateFile(file);
+      if (validationError) {
+        onUploadError(validationError);
         continue;
       }
 
@@ -40,16 +57,16 @@ export default function FileUpload({
         setIsUploading(true);
         setUploadProgress(0);
 
-        // Create form data for upload
         const formData = new FormData();
         formData.append('file', file);
         formData.append('fileName', file.name);
         formData.append('contentType', file.type);
+        if (formType) {
+          formData.append('formType', formType);
+        }
 
-        // Upload through API route with progress tracking
         const xhr = new XMLHttpRequest();
         
-        // Create a promise to handle the upload
         const uploadPromise = new Promise<{ path: string; url: string }>((resolve, reject) => {
           xhr.upload.addEventListener('progress', (event) => {
             if (event.lengthComputable) {
@@ -77,16 +94,20 @@ export default function FileUpload({
           });
 
           xhr.addEventListener('error', () => {
-            reject(new Error('Network error occurred'));
+            reject(new Error('Network error occurred during upload'));
           });
 
           xhr.addEventListener('abort', () => {
             reject(new Error('Upload was aborted'));
           });
+
+          xhr.addEventListener('timeout', () => {
+            reject(new Error('Upload timed out. Please try again.'));
+          });
         });
 
-        // Start the upload
         xhr.open('POST', '/api/upload');
+        xhr.timeout = 300000; // 5 minutes timeout
         xhr.send(formData);
 
         const data = await uploadPromise;
@@ -97,7 +118,8 @@ export default function FileUpload({
 
         console.log('Upload successful:', {
           url: data.url,
-          fileName: file.name
+          fileName: file.name,
+          formType
         });
 
         onUploadComplete(data.url, file);
@@ -106,6 +128,7 @@ export default function FileUpload({
         onUploadError(error instanceof Error ? error : new Error('Upload failed'));
       } finally {
         setIsUploading(false);
+        setUploadProgress(0);
       }
     }
 
@@ -125,14 +148,18 @@ export default function FileUpload({
               <span className="font-semibold">Click to upload</span> or drag and drop
             </p>
             <p className="text-xs text-gray-500">
-              {accept.split(',').join(', ')} (Max {Math.round(maxSize / 1024 / 1024)}MB)
+              {formType === 'video_testimonial' ? 'Video files only' :
+               formType === 'ugly_window_contest' ? 'Image files only' :
+               accept.split(',').join(', ')} (Max {Math.round(maxSize / 1024 / 1024)}MB)
             </p>
           </div>
           <input
             type="file"
             className="hidden"
             onChange={handleFileChange}
-            accept={accept}
+            accept={formType === 'video_testimonial' ? 'video/*' :
+                   formType === 'ugly_window_contest' ? 'image/*' :
+                   accept}
             multiple={multiple}
             disabled={isUploading}
           />
