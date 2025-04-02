@@ -445,7 +445,7 @@ Picking a reliable window repair service doesn't have to be a gamble. Look for e
       'simple window fixes',
       'window repair guide'
     ],
-    metaTitle: 'DIY Window Repair Guide: Easy Fixes & Money-Saving Tips | The Window Hospital',
+    metaTitle: 'DIY Window Repair Tips: Save Money & Time | The Window Hospital',
     metaDescription: 'Learn which window repairs you can safely do yourself, and when to call a professional. Expert tips from The Window Hospital.',
     content: `# DIY Window Repair Tips for Minor Issues
 
