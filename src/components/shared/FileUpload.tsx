@@ -46,18 +46,50 @@ export default function FileUpload({
         formData.append('fileName', file.name);
         formData.append('contentType', file.type);
 
-        // Upload through API route
-        const response = await fetch('/api/upload', {
-          method: 'POST',
-          body: formData
+        // Upload through API route with progress tracking
+        const xhr = new XMLHttpRequest();
+        
+        // Create a promise to handle the upload
+        const uploadPromise = new Promise<{ path: string; url: string }>((resolve, reject) => {
+          xhr.upload.addEventListener('progress', (event) => {
+            if (event.lengthComputable) {
+              const progress = Math.round((event.loaded / event.total) * 100);
+              setUploadProgress(progress);
+            }
+          });
+
+          xhr.addEventListener('load', () => {
+            if (xhr.status >= 200 && xhr.status < 300) {
+              try {
+                const response = JSON.parse(xhr.responseText);
+                resolve(response);
+              } catch (error) {
+                reject(new Error('Invalid response from server'));
+              }
+            } else {
+              try {
+                const error = JSON.parse(xhr.responseText);
+                reject(new Error(error.error || 'Upload failed'));
+              } catch {
+                reject(new Error(`Upload failed with status ${xhr.status}`));
+              }
+            }
+          });
+
+          xhr.addEventListener('error', () => {
+            reject(new Error('Network error occurred'));
+          });
+
+          xhr.addEventListener('abort', () => {
+            reject(new Error('Upload was aborted'));
+          });
         });
 
-        if (!response.ok) {
-          const error = await response.json();
-          throw new Error(error.error || 'Upload failed');
-        }
+        // Start the upload
+        xhr.open('POST', '/api/upload');
+        xhr.send(formData);
 
-        const data = await response.json();
+        const data = await uploadPromise;
 
         if (!data.url) {
           throw new Error('No URL returned from upload');
@@ -69,7 +101,6 @@ export default function FileUpload({
         });
 
         onUploadComplete(data.url, file);
-        setUploadProgress(100);
       } catch (error) {
         console.error('Upload error:', error);
         onUploadError(error instanceof Error ? error : new Error('Upload failed'));

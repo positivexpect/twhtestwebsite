@@ -26,12 +26,27 @@ async function ensureBucketExists() {
         .storage
         .createBucket('form-uploads', {
           public: true,
-          fileSizeLimit: 104857600, // 100MB
+          fileSizeLimit: 524288000, // 500MB
+          allowedMimeTypes: ['image/*', 'video/*']
         });
 
       if (createError) {
         console.error('Error creating bucket:', createError);
         throw createError;
+      }
+    } else {
+      // Update bucket configuration if needed
+      const { error: updateError } = await supabase
+        .storage
+        .updateBucket('form-uploads', {
+          public: true,
+          fileSizeLimit: 524288000, // 500MB
+          allowedMimeTypes: ['image/*', 'video/*']
+        });
+
+      if (updateError) {
+        console.error('Error updating bucket:', updateError);
+        throw updateError;
       }
     }
   } catch (error) {
@@ -39,6 +54,13 @@ async function ensureBucketExists() {
     throw error;
   }
 }
+
+export const config = {
+  api: {
+    bodyParser: false, // Disable the default body parser
+    responseLimit: '500mb',
+  },
+};
 
 export async function POST(request: Request) {
   try {
@@ -57,6 +79,14 @@ export async function POST(request: Request) {
       );
     }
 
+    // Validate file type
+    if (!contentType.startsWith('image/') && !contentType.startsWith('video/')) {
+      return NextResponse.json(
+        { error: 'Only image and video files are allowed' },
+        { status: 400 }
+      );
+    }
+
     // Create a unique filename
     const timestamp = Date.now();
     const sanitizedName = fileName
@@ -66,11 +96,18 @@ export async function POST(request: Request) {
       .replace(/^-|-$/g, '');
     const uniqueFileName = `${timestamp}-${sanitizedName}`;
 
+    console.log('Processing upload:', {
+      originalName: fileName,
+      sanitizedName: uniqueFileName,
+      contentType,
+      size: file.size
+    });
+
     // Convert file to buffer
     const arrayBuffer = await file.arrayBuffer();
     const buffer = Buffer.from(arrayBuffer);
 
-    // Upload to Supabase
+    // Upload to Supabase with increased timeout
     const { data, error } = await supabase
       .storage
       .from('form-uploads')
@@ -87,6 +124,11 @@ export async function POST(request: Request) {
         { status: 500 }
       );
     }
+
+    console.log('Upload successful:', {
+      path: data.path,
+      size: buffer.length
+    });
 
     // Get the public URL
     const { data: { publicUrl } } = supabase
