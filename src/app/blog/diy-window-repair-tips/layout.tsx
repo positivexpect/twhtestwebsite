@@ -1,7 +1,7 @@
 import { Metadata } from 'next'
 
 export const metadata: Metadata = {
-  title: 'DIY Window Repair Guide: Fix Common Issues at Home | The Window Hospital',
+  title: 'DIY Window Repair Guide: Simple Solutions for Common Problems | TWH',
   description: 'Learn how to fix minor window issues with our expert DIY repair guide. Step-by-step instructions for common problems.',
 }
 
