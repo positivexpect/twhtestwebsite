@@ -11,7 +11,7 @@ import AssessmentForm from '@/components/client/AssessmentForm';
 
 export const metadata: Metadata = {
   title: 'About Us | The Window Hospital',
-  description: 'Learn about The Window Hospital\'s mission to provide expert window repair services. Discover our commitment to honesty, sustainability, and saving customers money by repairing instead of replacing windows.',
+  description: 'Expert window repair services focused on honesty and sustainability. Save money with repairs over replacements at The Window Hospital.',
 };
 
 export default function AboutPage() {

@@ -16,7 +16,7 @@ export const BLOG_POSTS: BlogPost[] = [
       'franchise opportunities',
       'window repair industry'
     ],
-    metaTitle: 'Window Repairs Overtake 70% of Market – Franchise Today | The Window Hospital',
+    metaTitle: 'Window Repairs Market Growth | The Window Hospital',
     metaDescription: 'Window repairs claim 70% of the replacement market on April 1, 2025! Learn how this benefits Americans and join our franchise—April Fools twist inside.',
     content: `# Window Repairs Overtake 70% of Replacement Market – Franchise Now!
 
@@ -445,7 +445,7 @@ Picking a reliable window repair service doesn't have to be a gamble. Look for e
       'simple window fixes',
       'window repair guide'
     ],
-    metaTitle: 'DIY Window Repair Guide | The Window Hospital',
+    metaTitle: 'DIY Window Repair Guide: Easy Fixes & Money-Saving Tips | The Window Hospital',
     metaDescription: 'Learn which window repairs you can safely do yourself, and when to call a professional. Expert tips from The Window Hospital.',
     content: `# DIY Window Repair Tips for Minor Issues
 
