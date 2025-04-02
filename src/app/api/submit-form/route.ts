@@ -6,7 +6,16 @@ import { v4 as uuidv4 } from 'uuid';
 // Initialize Supabase client
 const supabase = createClient(
   process.env.NEXT_PUBLIC_SUPABASE_URL!,
-  process.env.SUPABASE_SERVICE_ROLE_KEY!
+  process.env.SUPABASE_SERVICE_ROLE_KEY!,
+  {
+    db: {
+      schema: 'public'
+    },
+    global: {
+      fetch: fetch.bind(globalThis),
+      headers: { 'x-statement-timeout': '30000' }
+    }
+  }
 );
 
 // Ensure the bucket exists and is properly configured
@@ -84,31 +93,66 @@ transporter.verify(function(error, success) {
 });
 
 async function verifyCaptcha(token: string) {
-  const response = await fetch('https://api.hcaptcha.com/siteverify', {
-    method: 'POST',
-    headers: {
-      'Content-Type': 'application/x-www-form-urlencoded',
-    },
-    body: `response=${token}&secret=${process.env.HCAPTCHA_SECRET_KEY}`,
-  });
+  try {
+    console.log('Verifying captcha token...');
+    const response = await fetch('https://api.hcaptcha.com/siteverify', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/x-www-form-urlencoded',
+      },
+      body: `response=${token}&secret=${process.env.HCAPTCHA_SECRET_KEY}&sitekey=${process.env.NEXT_PUBLIC_HCAPTCHA_SITE_KEY}`,
+    });
 
-  const data = await response.json();
-  return data.success;
+    const data = await response.json();
+    console.log('Captcha verification response:', {
+      success: data.success,
+      errorCodes: data['error-codes'],
+      hostname: data.hostname
+    });
+
+    return data.success;
+  } catch (error) {
+    console.error('Captcha verification error:', error);
+    return false;
+  }
+}
+
+interface FileReference {
+  name: string;
+  type: string;
+  size: number;
+  url: string;
+  path: string;
+}
+
+interface FormData {
+  formType: string;
+  name: string;
+  email: string;
+  phone: string;
+  zipCode?: string;
+  issueTypes?: string[];
+  message?: string;
+  files?: FileReference[];
 }
 
 export async function POST(request: Request) {
   try {
-    // Ensure bucket exists before processing
-    await ensureBucketExists();
-
     const body = await request.json();
     const { captchaToken, ...formData } = body;
 
     // Verify captcha
+    if (!captchaToken) {
+      return NextResponse.json(
+        { success: false, message: 'Captcha token is required' },
+        { status: 400 }
+      );
+    }
+
     const isValidCaptcha = await verifyCaptcha(captchaToken);
     if (!isValidCaptcha) {
       return NextResponse.json(
-        { success: false, message: 'Captcha verification failed' },
+        { success: false, message: 'Captcha verification failed. Please try again.' },
         { status: 400 }
       );
     }
@@ -121,207 +165,68 @@ export async function POST(request: Request) {
       hasFiles: formData.files?.length > 0
     });
 
-    // Handle file uploads if present
-    let fileReferences = [];
-    if (formData.files && formData.files.length > 0) {
-      for (const file of formData.files) {
-        try {
-          // Combine chunks if they exist
-          const fileBuffer = file.chunks 
-            ? Buffer.concat(file.chunks.map((chunk: string) => Buffer.from(chunk, 'base64')))
-            : Buffer.from(file.base64, 'base64');
-
-          const fileName = `${uuidv4()}-${file.name}`;
-          
-          // Upload to Supabase in chunks
-          const { data: uploadData, error: uploadError } = await supabase
-            .storage
-            .from('form-uploads')
-            .upload(fileName, fileBuffer, {
-              contentType: file.type,
-              upsert: false,
-              cacheControl: '3600'
-            });
-
-          if (uploadError) {
-            console.error('Error uploading file:', uploadError);
-            throw uploadError;
-          }
-          
-          // Get the public URL for the file
-          const { data: { publicUrl } } = supabase
-            .storage
-            .from('form-uploads')
-            .getPublicUrl(uploadData.path);
-
-          console.log('File uploaded successfully:', {
-            fileName,
-            path: uploadData.path,
-            publicUrl
-          });
-          
-          fileReferences.push({
-            name: file.name,
-            path: uploadData.path,
-            type: file.type,
-            url: publicUrl
-          });
-        } catch (error) {
-          console.error('Error processing file:', error);
-          // Continue with other files even if one fails
-          continue;
-        }
-      }
-    }
-
-    // Store submission in database
-    const { data: submission, error: dbError } = await supabase
-      .from('form_submissions')
+    // Insert into database with file references
+    const { error: dbError } = await supabase
+      .from('assessments')
       .insert({
-        form_type: formData.formType,
-        name: formData.name,
-        email: formData.email,
-        phone: formData.phone,
-        address: formData.address,
-        form_data: formData,
-        files: fileReferences
+        ...formData,
+        files: formData.files?.map((file: FileReference) => ({
+          name: file.name,
+          type: file.type,
+          size: file.size,
+          url: file.url,
+          path: file.path.split('/form-uploads/')[1] // Ensure we only store the relative path
+        })) || []
       })
       .select()
       .single();
 
     if (dbError) {
-      console.error('Error storing in database:', dbError);
-      throw dbError;
+      console.error('Database error:', dbError);
+      return NextResponse.json(
+        { success: false, message: 'Failed to save assessment request. Please try again.' },
+        { status: 500 }
+      );
     }
 
-    // Log email configuration
-    console.log('Email configuration:', {
-      host: process.env.CUSTOMER_SMTP_HOST,
-      port: process.env.CUSTOMER_SMTP_PORT,
-      from: process.env.CUSTOMER_SMTP_FROM_EMAIL,
-      to: process.env.ADMIN_EMAIL
-    });
-
-    // Create email content for admin
-    const adminEmailHtml = `
-      <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto;">
-        <img src="https://thewindowhospital.com/images/fulllogo_transparent_nobuffer.png" alt="The Window Hospital" style="width: 200px; margin-bottom: 20px;" />
-        <h2 style="color: #CD2028;">New ${formData.formType.charAt(0).toUpperCase() + formData.formType.slice(1)} Request</h2>
-        <div style="background: #f5f5f5; padding: 20px; border-radius: 5px;">
-          <p><strong>Name:</strong> ${formData.name}</p>
-          <p><strong>Email:</strong> ${formData.email}</p>
-          <p><strong>Phone:</strong> ${formData.phone}</p>
-          ${formData.address ? `
-          <p><strong>Address:</strong><br/>
-            ${formData.address.street}<br/>
-            ${formData.address.city}, ${formData.address.state} ${formData.address.zip}
-          </p>
-          ` : ''}
-          ${formData.zipCode ? `<p><strong>ZIP Code:</strong> ${formData.zipCode}</p>` : ''}
-          ${formData.issueTypes ? `<p><strong>Issues:</strong> ${formData.issueTypes.join(', ')}</p>` : ''}
-          ${formData.issueType ? `<p><strong>Issue Type:</strong> ${formData.issueType}</p>` : ''}
-          ${formData.customerType ? `<p><strong>Customer Type:</strong> ${formData.customerType}</p>` : ''}
-          ${formData.serviceType ? `<p><strong>Service Type:</strong> ${formData.serviceType}</p>` : ''}
-          ${formData.urgency ? `<p><strong>Urgency:</strong> ${formData.urgency}</p>` : ''}
-          ${formData.needByDate ? `<p><strong>Need by Date:</strong> ${formData.needByDate}</p>` : ''}
-          ${formData.textConsent ? `<p><strong>SMS Consent:</strong> ${formData.textConsent}</p>` : ''}
-          ${formData.message ? `
-          <h3 style="color: #333; margin-top: 20px;">Additional Information:</h3>
-          <p>${formData.message}</p>
-          ` : ''}
-          ${fileReferences.length > 0 ? `
-          <h3 style="color: #333; margin-top: 20px;">Attached Files:</h3>
-          <ul style="list-style: none; padding: 0;">
-            ${fileReferences.map(file => `
-              <li style="margin-bottom: 10px;">
-                <a href="${file.url}" style="color: #CD2028; text-decoration: none;">
-                  ${file.name}
-                </a>
-              </li>
-            `).join('')}
-          </ul>
-          ` : ''}
-        </div>
-      </div>
-    `;
-
-    // Send email to admin
+    // Send email notification
     try {
       await transporter.sendMail({
-        from: {
-          name: 'The Window Hospital',
-          address: process.env.CUSTOMER_SMTP_FROM_EMAIL!
-        },
-        to: process.env.ADMIN_EMAIL!,
-        subject: `New ${formData.formType} Request from ${formData.name}`,
-        html: adminEmailHtml
-      });
-      console.log('Admin email sent successfully');
-    } catch (emailError) {
-      console.error('Error sending admin email:', emailError);
-      // Log the full error details
-      if (emailError instanceof Error) {
-        console.error('Email error details:', {
-          message: emailError.message,
-          stack: emailError.stack,
-          code: (emailError as any).code,
-          command: (emailError as any).command
-        });
-      }
-      // Don't throw here, continue with the rest of the process
-    }
-
-    // Send auto-reply to the customer if email is provided
-    if (formData.email) {
-      try {
-        const autoReplyHtml = `
+        from: process.env.CUSTOMER_SMTP_FROM_EMAIL,
+        to: process.env.CUSTOMER_ADMIN_EMAIL,
+        subject: 'New Assessment Request',
+        html: `
           <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto;">
-            <img src="https://thewindowhospital.com/images/fulllogo_transparent_nobuffer.png" alt="The Window Hospital" style="width: 200px; margin-bottom: 20px;" />
-            <h2 style="color: #CD2028;">Thank You for Your Request</h2>
-            <p>Dear ${formData.name},</p>
-            <p>We have received your request and will contact you shortly to discuss your needs.</p>
-            <p>Best regards,<br/>The Window Hospital Team</p>
+            <h2 style="color: #CD2028;">New Assessment Request</h2>
+            <div style="background: #f5f5f5; padding: 20px; border-radius: 5px;">
+              <p><strong>Name:</strong> ${formData.name}</p>
+              <p><strong>Email:</strong> ${formData.email}</p>
+              <p><strong>Phone:</strong> ${formData.phone}</p>
+              ${formData.zipCode ? `<p><strong>ZIP Code:</strong> ${formData.zipCode}</p>` : ''}
+              ${formData.issueTypes?.length ? `<p><strong>Issues:</strong> ${formData.issueTypes.join(', ')}</p>` : ''}
+              ${formData.message ? `<p><strong>Message:</strong> ${formData.message}</p>` : ''}
+              ${formData.files?.length ? `
+                <h3>Attached Files:</h3>
+                <ul>
+                  ${formData.files.map((file: FileReference) => `
+                    <li><a href="${file.url}">${file.name}</a> (${Math.round(file.size / 1024 / 1024)}MB)</li>
+                  `).join('')}
+                </ul>
+              ` : ''}
+            </div>
           </div>
-        `;
-
-        await transporter.sendMail({
-          from: {
-            name: 'The Window Hospital',
-            address: process.env.CUSTOMER_SMTP_FROM_EMAIL!
-          },
-          to: formData.email,
-          subject: 'Thank You for Your Request',
-          html: autoReplyHtml
-        });
-        console.log('Customer auto-reply sent successfully');
-      } catch (emailError) {
-        console.error('Error sending customer auto-reply:', emailError);
-        // Log the full error details
-        if (emailError instanceof Error) {
-          console.error('Email error details:', {
-            message: emailError.message,
-            stack: emailError.stack,
-            code: (emailError as any).code,
-            command: (emailError as any).command
-          });
-        }
-        // Don't throw here, continue with the rest of the process
-      }
+        `
+      });
+    } catch (emailError) {
+      console.error('Error sending email:', emailError);
+      // Don't fail the request if email fails
     }
 
-    return NextResponse.json({ 
-      success: true, 
-      message: 'Form submitted successfully',
-      submissionId: submission.id
-    });
-
+    return NextResponse.json({ success: true });
   } catch (error) {
-    console.error('Error submitting form:', error);
+    console.error('Server error:', error);
     return NextResponse.json(
-      { 
-        success: false, 
-        message: 'Failed to submit form. Please try again later.' 
-      },
+      { success: false, message: 'Server error. Please try again later.' },
       { status: 500 }
     );
   }

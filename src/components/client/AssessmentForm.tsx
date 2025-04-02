@@ -1,15 +1,38 @@
 'use client';
 
-import { useState, useEffect, useRef } from 'react';
+import { useState, useEffect, useRef, useCallback } from 'react';
 import Image from 'next/image';
 import { ChevronDownIcon } from '@heroicons/react/24/outline';
 import Link from 'next/link';
-import { FFmpeg } from '@ffmpeg/ffmpeg';
-import { fetchFile } from '@ffmpeg/util';
-import { toBlobURL } from '@ffmpeg/util';
 import CaptchaWrapper from '../shared/CaptchaWrapper';
 import { uploadFile } from '@/utils/fileUpload';
 import FileUpload from '../shared/FileUpload';
+
+// FFmpeg types and dynamic imports
+type FFmpegType = any;
+type FFmpegUtilType = any;
+
+let FFmpegInstance: FFmpegType | null = null;
+let ffmpegUtils: {
+  fetchFile?: FFmpegUtilType;
+  toBlobURL?: FFmpegUtilType;
+} = {};
+
+if (typeof window !== 'undefined') {
+  // Only import FFmpeg on client side
+  Promise.all([
+    import('@ffmpeg/ffmpeg'),
+    import('@ffmpeg/util')
+  ]).then(([ffmpeg, util]) => {
+    FFmpegInstance = ffmpeg.FFmpeg;
+    ffmpegUtils = {
+      fetchFile: util.fetchFile,
+      toBlobURL: util.toBlobURL
+    };
+  }).catch(error => {
+    console.error('Failed to load FFmpeg modules:', error);
+  });
+}
 
 type FormData = {
   name: string;
@@ -33,7 +56,13 @@ type FormData = {
     height: string;
     unit: string;
   };
-  files: File[];
+  files: {
+    name: string;
+    type: string;
+    size: number;
+    url: string;
+    path: string;
+  }[];
   textConsent: 'yes' | 'no' | '';
 };
 
@@ -106,7 +135,7 @@ export default function AssessmentForm() {
   const successRef = useRef<HTMLDivElement>(null);
   const [isCompressing, setIsCompressing] = useState(false);
   const [compressionProgress, setCompressionProgress] = useState(0);
-  const ffmpegRef = useRef<FFmpeg | null>(null);
+  const ffmpegRef = useRef<FFmpegType | null>(null);
   const compressionAbortRef = useRef<AbortController | null>(null);
 
   useEffect(() => {
@@ -125,18 +154,56 @@ export default function AssessmentForm() {
     // Initialize FFmpeg
     const initFFmpeg = async () => {
       try {
-        const ffmpeg = new FFmpeg();
-        await ffmpeg.load({
-          coreURL: 'https://cdn.jsdelivr.net/npm/@ffmpeg/core@0.12.9/dist/umd/ffmpeg-core.js',
-          wasmURL: 'https://cdn.jsdelivr.net/npm/@ffmpeg/core@0.12.9/dist/umd/ffmpeg-core.wasm',
-        });
-        ffmpegRef.current = ffmpeg;
+        if (typeof window === 'undefined') return; // Skip on server-side
+        
+        if (!FFmpegInstance) {
+          console.warn('FFmpeg not loaded yet, skipping initialization');
+          return;
+        }
+
+        const ffmpeg = new FFmpegInstance();
+        const baseURL = window.location.origin;
+        
+        try {
+          await ffmpeg.load({
+            coreURL: `${baseURL}/ffmpeg/ffmpeg-core.js`,
+            wasmURL: `${baseURL}/ffmpeg/ffmpeg-core.wasm`,
+          });
+          console.log('FFmpeg initialized successfully');
+          ffmpegRef.current = ffmpeg;
+        } catch (loadError) {
+          console.error('Failed to load FFmpeg:', loadError);
+          // Continue without FFmpeg - compression will be skipped
+        }
       } catch (error) {
         console.error('Failed to initialize FFmpeg:', error);
         // Don't throw, just log the error. The form will still work without compression.
       }
     };
+
     initFFmpeg();
+
+    // Clean up FFmpeg instance on unmount
+    return () => {
+      if (ffmpegRef.current) {
+        ffmpegRef.current.terminate();
+      }
+    };
+  }, []);
+
+  // Add passive event listener options
+  const touchStartOptions = { passive: true };
+  
+  useEffect(() => {
+    const handleTouchStart = (e: TouchEvent) => {
+      // Your touch start handling logic here
+    };
+
+    document.addEventListener('touchstart', handleTouchStart, touchStartOptions);
+    
+    return () => {
+      document.removeEventListener('touchstart', handleTouchStart);
+    };
   }, []);
 
   const compressVideo = async (file: File): Promise<File> => {
@@ -152,10 +219,10 @@ export default function AssessmentForm() {
       compressionAbortRef.current = new AbortController();
 
       // Write the file to FFmpeg's virtual filesystem
-      await ffmpeg.writeFile(inputFileName, await fetchFile(file));
+      await ffmpeg.writeFile(inputFileName, await ffmpegUtils.fetchFile!(file));
 
       // Set up progress handling
-      ffmpeg.on('progress', ({ progress }) => {
+      ffmpeg.on('progress', ({ progress }: { progress: number }) => {
         setCompressionProgress(Math.round(progress * 100));
       });
 
@@ -219,58 +286,33 @@ export default function AssessmentForm() {
     setFormData(prev => ({ ...prev, preferredTimes: newTimes }));
   };
 
-  const handleFileChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
-    const files = e.target.files;
-    if (!files) return;
-
-    // Check total file size before adding new files
-    const currentTotalSize = formData.files.reduce((sum, file) => sum + file.size, 0);
-    const newFilesTotalSize = Array.from(files).reduce((sum, file) => sum + file.size, 0);
+  const handleFileUploadComplete = (url: string, file: File) => {
+    // Extract the file path from the URL
+    const path = url.split('/form-uploads/')[1];
     
-    if (currentTotalSize + newFilesTotalSize > 1024 * 1024 * 1024) {
-      alert('The total size of all files cannot exceed 1GB. Please select smaller files or fewer files.');
-      return;
-    }
+    // Check if the file is already in the list
+    const isDuplicate = formData.files.some(
+      existingFile => existingFile.path === path
+    );
 
-    // Check individual file sizes
-    const oversizedFiles = Array.from(files).filter(file => file.size > 1024 * 1024 * 1024);
-    if (oversizedFiles.length > 0) {
-      alert('Some files are too large. Each file must be under 1GB. Please compress your videos or select smaller files.');
-      return;
-    }
-
-    // Check file types
-    const invalidFiles = Array.from(files).filter(file => {
-      const type = file.type.toLowerCase();
-      return !type.startsWith('image/') && 
-             !type.startsWith('video/') && 
-             type !== 'application/pdf' &&
-             !file.name.match(/\.(jpg|jpeg|png|gif|mp4|mov|m4v|pdf)$/i);
-    });
-
-    if (invalidFiles.length > 0) {
-      alert('Some files are not supported. Please only upload images (JPG, PNG, GIF), videos (MP4, MOV, M4V), or PDFs.');
-      return;
-    }
-
-    // Upload each file to Supabase
-    try {
-      const uploadedFiles = await Promise.all(
-        Array.from(files).map(async (file) => {
-          const { filePath, error } = await uploadFile(file, 'form-uploads');
-          if (error) throw error;
-          return file;
-        })
-      );
-
+    if (!isDuplicate) {
       setFormData(prev => ({
         ...prev,
-        files: [...prev.files, ...uploadedFiles]
+        files: [...prev.files, {
+          name: file.name,
+          type: file.type,
+          size: file.size,
+          url: url,
+          path: path
+        }]
       }));
-    } catch (error) {
-      console.error('Error uploading files:', error);
-      alert('Failed to upload one or more files. Please try again.');
+    } else {
+      console.log('File already exists in the list:', file.name);
     }
+  };
+
+  const handleFileUploadError = (error: Error) => {
+    setSubmitError(error.message);
   };
 
   const removeFile = (index: number) => {
@@ -289,51 +331,7 @@ export default function AssessmentForm() {
     setIsSubmitting(true);
     setSubmitError('');
 
-    // Check total file size before submission
-    const totalSize = formData.files.reduce((sum, file) => sum + file.size, 0);
-    if (totalSize > 1024 * 1024 * 1024) {
-      setSubmitError('The total size of all files exceeds 1GB. Please select smaller files or fewer files.');
-      setIsSubmitting(false);
-      return;
-    }
-
     try {
-      // Convert files to base64 with progress tracking
-      const filesWithBase64 = await Promise.all(
-        formData.files.map(async (file) => {
-          try {
-            // Split large files into smaller chunks
-            const chunkSize = 500 * 1024; // Reduced to 500KB chunks
-            const chunks = [];
-            let offset = 0;
-
-            while (offset < file.size) {
-              const chunk = file.slice(offset, offset + chunkSize);
-              const base64Chunk = await new Promise<string>((resolve, reject) => {
-                const reader = new FileReader();
-                reader.onloadend = () => resolve(reader.result as string);
-                reader.onerror = (error) => {
-                  console.error('FileReader error:', error);
-                  reject(new Error(`Unable to process "${file.name}". Please try uploading it again.`));
-                };
-                reader.readAsDataURL(chunk);
-              });
-              chunks.push(base64Chunk.split(',')[1]);
-              offset += chunkSize;
-            }
-
-            return {
-              name: file.name,
-              type: file.type || 'application/octet-stream',
-              chunks: chunks
-            };
-          } catch (error) {
-            console.error(`Error processing file ${file.name}:`, error);
-            throw new Error(`Unable to process "${file.name}". Please try uploading it again.`);
-          }
-        })
-      );
-
       const response = await fetch('/api/submit-form', {
         method: 'POST',
         headers: {
@@ -341,57 +339,54 @@ export default function AssessmentForm() {
         },
         body: JSON.stringify({
           ...formData,
-          formType: 'assessment',
-          files: filesWithBase64,
-          captchaToken
-        }),
+          captchaToken,
+          // Only send file references, not the actual files
+          files: formData.files.map(file => ({
+            name: file.name,
+            type: file.type,
+            size: file.size,
+            url: file.url,
+            path: file.path
+          }))
+        })
       });
 
       if (!response.ok) {
-        const errorText = await response.text();
-        console.error('Server response error:', errorText);
-        if (response.status === 413) {
-          throw new Error('The files are too large to upload. Please compress your videos or select smaller files.');
-        }
-        throw new Error(`Server error: ${response.status} ${response.statusText}`);
+        const error = await response.json();
+        throw new Error(error.message || 'Server error. Please try again later or contact support if the problem persists.');
       }
 
-      const result = await response.json();
-
-      if (result.success) {
-        setSubmitSuccess(true);
-        setFormData({
-          name: '',
-          email: '',
-          phone: '',
-          address: {
-            street: '',
-            city: '',
-            state: '',
-            zip: ''
-          },
-          issueTypes: [],
-          customerType: '',
-          serviceType: '',
-          urgency: '',
-          needByDate: '',
-          preferredDates: ['', '', ''],
-          preferredTimes: ['', '', ''],
-          glassSize: {
-            width: '',
-            height: '',
-            unit: 'inches'
-          },
-          files: [],
-          textConsent: ''
-        });
-      } else {
-        console.error('Server response error:', result);
-        setSubmitError('We encountered an issue submitting your form. Please try again or contact us if the problem persists.');
-      }
-    } catch (error: any) {
-      console.error('Error submitting form:', error);
-      setSubmitError(error.message || 'We encountered an issue submitting your form. Please try again or contact us if the problem persists.');
+      // Reset form on success
+      setFormData({
+        name: '',
+        email: '',
+        phone: '',
+        address: {
+          street: '',
+          city: '',
+          state: '',
+          zip: ''
+        },
+        issueTypes: [],
+        customerType: '',
+        serviceType: '',
+        urgency: '',
+        needByDate: '',
+        preferredDates: ['', '', ''],
+        preferredTimes: ['', '', ''],
+        glassSize: {
+          width: '',
+          height: '',
+          unit: 'inches'
+        },
+        files: [],
+        textConsent: ''
+      });
+      setCaptchaToken(null);
+      setSubmitSuccess(true);
+    } catch (error) {
+      console.error('Form submission error:', error);
+      setSubmitError(error instanceof Error ? error.message : 'Server error. Please try again later.');
     } finally {
       setIsSubmitting(false);
     }
@@ -589,20 +584,16 @@ export default function AssessmentForm() {
             </label>
             <div className="mt-2">
               <FileUpload
-                onUploadComplete={(filePath) => {
-                  const newFiles = [...formData.files];
-                  newFiles.push(new File([], filePath));
-                  setFormData(prev => ({ ...prev, files: newFiles }));
-                }}
-                onUploadError={(error) => {
-                  setSubmitError(error.message);
-                }}
+                onUploadComplete={handleFileUploadComplete}
+                onUploadError={handleFileUploadError}
                 accept="image/*,video/*"
+                maxSize={100 * 1024 * 1024} // 100MB
                 className="mb-4"
               />
             </div>
             <p className="mt-2 text-sm text-gray-500">
               Upload photos or videos of your window issues to help us better understand your needs.
+              Maximum file size: 100MB per file.
             </p>
           </div>
 

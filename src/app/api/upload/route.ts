@@ -1,141 +1,103 @@
 import { NextResponse } from 'next/server';
 import { createClient } from '@supabase/supabase-js';
 
-// Validate environment variables
-const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL;
-const supabaseServiceKey = process.env.SUPABASE_SERVICE_ROLE_KEY;
+// Initialize Supabase client with service role key
+const supabase = createClient(
+  process.env.NEXT_PUBLIC_SUPABASE_URL!,
+  process.env.SUPABASE_SERVICE_ROLE_KEY!
+);
 
-if (!supabaseUrl || !supabaseServiceKey) {
-  console.error('Missing required environment variables:', {
-    hasUrl: !!supabaseUrl,
-    hasServiceKey: !!supabaseServiceKey
-  });
-  throw new Error('Missing required environment variables');
+// Ensure bucket exists and is properly configured
+async function ensureBucketExists() {
+  try {
+    const { data: buckets, error: listError } = await supabase
+      .storage
+      .listBuckets();
+
+    if (listError) {
+      console.error('Error listing buckets:', listError);
+      throw listError;
+    }
+
+    const formUploadsBucket = buckets.find(bucket => bucket.name === 'form-uploads');
+
+    if (!formUploadsBucket) {
+      const { error: createError } = await supabase
+        .storage
+        .createBucket('form-uploads', {
+          public: true,
+          fileSizeLimit: 104857600, // 100MB
+        });
+
+      if (createError) {
+        console.error('Error creating bucket:', createError);
+        throw createError;
+      }
+    }
+  } catch (error) {
+    console.error('Error ensuring bucket exists:', error);
+    throw error;
+  }
 }
-
-// Initialize Supabase client
-const supabase = createClient(supabaseUrl, supabaseServiceKey);
-
-// Store chunks temporarily
-const chunks = new Map<string, { 
-  chunks: Buffer[],
-  contentType: string,
-  totalSize: number,
-  receivedSize: number
-}>();
 
 export async function POST(request: Request) {
   try {
+    // Ensure bucket exists
+    await ensureBucketExists();
+
     const formData = await request.formData();
-    const chunk = formData.get('file') as File;
+    const file = formData.get('file') as File;
     const fileName = formData.get('fileName') as string;
     const contentType = formData.get('contentType') as string;
-    const chunkIndex = parseInt(formData.get('chunkIndex') as string);
-    const totalChunks = parseInt(formData.get('totalChunks') as string);
-    const totalSize = parseInt(formData.get('totalSize') as string);
-    
-    if (!chunk || !fileName || !contentType || isNaN(chunkIndex) || isNaN(totalChunks) || isNaN(totalSize)) {
-      console.error('Invalid upload data:', {
-        hasChunk: !!chunk,
-        fileName,
-        contentType,
-        chunkIndex,
-        totalChunks,
-        totalSize
-      });
+
+    if (!file || !fileName) {
       return NextResponse.json(
-        { error: 'Invalid upload data' },
+        { error: 'File and filename are required' },
         { status: 400 }
       );
     }
 
-    // Initialize file data if not exists
-    if (!chunks.has(fileName)) {
-      chunks.set(fileName, {
-        chunks: new Array(totalChunks),
-        contentType,
-        totalSize,
-        receivedSize: 0
-      });
-    }
+    // Create a unique filename
+    const timestamp = Date.now();
+    const sanitizedName = fileName
+      .toLowerCase()
+      .replace(/[^a-z0-9.]/g, '-')
+      .replace(/-+/g, '-')
+      .replace(/^-|-$/g, '');
+    const uniqueFileName = `${timestamp}-${sanitizedName}`;
 
-    const fileData = chunks.get(fileName)!;
-    
-    // Convert chunk to buffer and store
-    const buffer = Buffer.from(await chunk.arrayBuffer());
-    fileData.chunks[chunkIndex - 1] = buffer;
-    fileData.receivedSize += buffer.length;
+    // Convert file to buffer
+    const arrayBuffer = await file.arrayBuffer();
+    const buffer = Buffer.from(arrayBuffer);
 
-    console.log('Processing chunk upload:', {
-      fileName,
-      chunkIndex,
-      totalChunks,
-      progress: `${Math.round((fileData.receivedSize / fileData.totalSize) * 100)}%`,
-      chunkSize: buffer.length
-    });
-
-    // If we haven't received all chunks yet, return progress
-    if (fileData.receivedSize < fileData.totalSize) {
-      return NextResponse.json({
-        status: 'chunk_received',
-        progress: Math.round((fileData.receivedSize / fileData.totalSize) * 100)
-      });
-    }
-
-    // All chunks received, combine and upload
-    console.log('All chunks received, combining...');
-    
-    try {
-      const completeBuffer = Buffer.concat(fileData.chunks);
-      chunks.delete(fileName); // Clean up stored chunks immediately
-
-      console.log('Uploading complete file:', {
-        fileName,
-        totalSize: completeBuffer.length,
-        bucket: 'form-uploads'
+    // Upload to Supabase
+    const { data, error } = await supabase
+      .storage
+      .from('form-uploads')
+      .upload(uniqueFileName, buffer, {
+        contentType: contentType || 'application/octet-stream',
+        cacheControl: '3600',
+        upsert: true
       });
 
-      const { data, error } = await supabase
-        .storage
-        .from('form-uploads')
-        .upload(fileName, completeBuffer, {
-          contentType: fileData.contentType,
-          cacheControl: '3600',
-          upsert: true
-        });
-
-      if (error) {
-        console.error('Upload error:', error);
-        return NextResponse.json(
-          { error: error.message },
-          { status: 500 }
-        );
-      }
-
-      // Get the public URL
-      const { data: { publicUrl } } = supabase
-        .storage
-        .from('form-uploads')
-        .getPublicUrl(data.path);
-
-      console.log('Upload successful:', {
-        path: data.path,
-        url: publicUrl,
-        size: completeBuffer.length
-      });
-
-      return NextResponse.json({
-        path: data.path,
-        url: publicUrl
-      });
-    } catch (error) {
-      console.error('Error processing complete file:', error);
-      chunks.delete(fileName); // Clean up on error
+    if (error) {
+      console.error('Upload error:', error);
       return NextResponse.json(
-        { error: 'Failed to process complete file' },
+        { error: error.message },
         { status: 500 }
       );
     }
+
+    // Get the public URL
+    const { data: { publicUrl } } = supabase
+      .storage
+      .from('form-uploads')
+      .getPublicUrl(data.path);
+
+    return NextResponse.json({
+      path: data.path,
+      url: publicUrl
+    });
   } catch (error) {
     console.error('Server error:', error);
     return NextResponse.json(

@@ -7,11 +7,13 @@
     "build": "node scripts/download-ffmpeg.js && next build",
     "start": "next start",
     "lint": "next lint",
-    "download-ffmpeg": "node scripts/download-ffmpeg.js"
+    "download-ffmpeg": "node scripts/download-ffmpeg.js",
+    "postinstall": "node scripts/copy-ffmpeg.js"
   },
   "dependencies": {
-    "@ffmpeg/ffmpeg": "^0.12.15",
-    "@ffmpeg/util": "^0.12.2",
+    "@ffmpeg/core": "^0.12.6",
+    "@ffmpeg/ffmpeg": "^0.12.9",
+    "@ffmpeg/util": "^0.12.1",
     "@hcaptcha/react-hcaptcha": "^1.12.0",
     "@headlessui/react": "^1.7.18",
     "@heroicons/react": "^2.1.1",

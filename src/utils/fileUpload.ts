@@ -17,6 +17,15 @@ export async function uploadFile(
   onProgress?: (progress: number) => void
 ): Promise<{ filePath: string; error: Error | null }> {
   try {
+    // Validate file size
+    if (file.size === 0) {
+      throw new Error('File is empty');
+    }
+
+    if (file.size > 1024 * 1024 * 1024) { // 1GB
+      throw new Error('File size exceeds 1GB limit');
+    }
+
     console.log('Attempting to upload file:', {
       name: file.name,
       type: file.type,
@@ -27,65 +36,63 @@ export async function uploadFile(
     const fileName = `${Date.now()}-${file.name}`;
     let uploadedChunks = 0;
     const totalChunks = Math.ceil(file.size / CHUNK_SIZE);
+    let lastError: Error | null = null;
+    let retryCount = 0;
+    const MAX_RETRIES = 3;
 
     for await (const chunk of createChunks(file)) {
       uploadedChunks++;
-      console.log(`Uploading chunk ${uploadedChunks}/${totalChunks} (${Math.round(chunk.size / 1024 / 1024)}MB)`);
+      let chunkUploaded = false;
+      
+      while (!chunkUploaded && retryCount < MAX_RETRIES) {
+        try {
+          console.log(`Uploading chunk ${uploadedChunks}/${totalChunks} (${Math.round(chunk.size / 1024 / 1024)}MB)`);
 
-      const formData = new FormData();
-      formData.append('file', chunk);
-      formData.append('fileName', fileName);
-      formData.append('contentType', file.type);
-      formData.append('chunkIndex', uploadedChunks.toString());
-      formData.append('totalChunks', totalChunks.toString());
-      formData.append('totalSize', file.size.toString());
+          const formData = new FormData();
+          formData.append('file', chunk);
+          formData.append('fileName', fileName);
+          formData.append('contentType', file.type);
+          formData.append('chunkIndex', uploadedChunks.toString());
+          formData.append('totalChunks', totalChunks.toString());
+          formData.append('totalSize', file.size.toString());
 
-      const response = await fetch('/api/upload', {
-        method: 'POST',
-        body: formData,
-      });
+          const response = await fetch('/api/upload', {
+            method: 'POST',
+            body: formData,
+          });
 
-      const data = await response.json();
+          const data = await response.json();
 
-      if (!response.ok) {
-        console.error('Upload error:', data);
-        throw new Error(data.error || 'Upload failed');
-      }
+          if (!response.ok) {
+            throw new Error(data.error || 'Upload failed');
+          }
 
-      // Update progress
-      if (data.progress && onProgress) {
-        onProgress(data.progress);
-      }
+          // Update progress
+          if (data.progress && onProgress) {
+            onProgress(data.progress);
+          }
 
-      // If this is the last chunk, verify the upload
-      if (uploadedChunks === totalChunks) {
-        console.log('Final chunk uploaded, verifying file...');
-        
-        // Verify the file exists in the bucket
-        const { data: files } = await supabase
-          .storage
-          .from(bucket)
-          .list();
-        
-        const uploadedFile = files?.find(f => f.name === fileName);
-        if (!uploadedFile) {
-          throw new Error('File not found in bucket after upload');
+          chunkUploaded = true;
+        } catch (error) {
+          lastError = error instanceof Error ? error : new Error(String(error));
+          retryCount++;
+          if (retryCount < MAX_RETRIES) {
+            // Wait before retrying (exponential backoff)
+            await new Promise(resolve => setTimeout(resolve, 1000 * Math.pow(2, retryCount)));
+            console.log(`Retrying chunk upload (attempt ${retryCount + 1}/${MAX_RETRIES})`);
+          }
         }
+      }
 
-        console.log('Upload successful:', {
-          path: data.path,
-          url: data.url,
-          size: uploadedFile.metadata?.size
-        });
-
-        return { filePath: data.path, error: null };
+      if (!chunkUploaded) {
+        throw new Error(`Failed to upload chunk ${uploadedChunks} after ${MAX_RETRIES} attempts: ${lastError?.message || 'Unknown error'}`);
       }
     }
 
-    throw new Error('Upload incomplete');
+    return { filePath: fileName, error: null };
   } catch (error) {
     console.error('Upload error:', error);
-    return { filePath: '', error: error as Error };
+    return { filePath: '', error: error instanceof Error ? error : new Error('Unknown upload error') };
   }
 }
 
