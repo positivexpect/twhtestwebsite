@@ -16,36 +16,21 @@ export const viewport: Viewport = {
 };
 
 export const metadata: Metadata = {
-  title: 'Window Repair vs Replacement | Save 50-80% | The Window Hospital',
-  description: 'Save 50-80% on window repairs vs replacement. Expert window repair services in Fredericksburg, VA. Free assessment and same-day service available.',
+  title: {
+    template: '%s | The Window Hospital',
+    default: 'The Window Hospital | Expert Window Repair Services',
+  },
+  description: 'Expert window repair services helping homeowners save 50-80% on repairs vs replacement.',
   metadataBase: new URL('https://thewindowhospital.com'),
   icons: {
     icon: [
-      {
-        url: '/images/icononly_transparent_nobuffer.png',
-        sizes: '32x32',
-        type: 'image/png'
-      },
-      {
-        url: '/images/icononly_transparent_nobuffer.png',
-        sizes: '16x16',
-        type: 'image/png'
-      }
+      { url: '/favicon.svg', type: 'image/svg+xml' },
+      { url: '/favicon-96x96.png', sizes: '96x96', type: 'image/png' }
     ],
     apple: [
-      {
-        url: '/images/icononly_transparent_nobuffer.png',
-        sizes: '180x180',
-        type: 'image/png'
-      }
+      { url: '/apple-touch-icon.png', sizes: '180x180', type: 'image/png' }
     ],
-    other: [
-      {
-        rel: 'mask-icon',
-        url: '/images/icononly_transparent_nobuffer.png',
-        color: '#CD2028'
-      }
-    ]
+    shortcut: ['/favicon.ico'],
   },
   keywords: 'window repair, glass repair, window replacement, foggy windows, window parts, window maintenance, Fredericksburg VA, window repair cost, window repair vs replacement',
   openGraph: {
@@ -55,7 +40,7 @@ export const metadata: Metadata = {
     siteName: 'The Window Hospital',
     images: [
       {
-        url: '/images/og-image.jpg',
+        url: '/og-image.png',
         width: 1200,
         height: 630,
         alt: 'The Window Hospital - Professional Window Repair Services',
@@ -68,9 +53,14 @@ export const metadata: Metadata = {
     card: 'summary_large_image',
     title: 'The Window Hospital | Professional Window Repair Services',
     description: 'Expert window repair services in Fredericksburg, VA. Save 50-80% compared to window replacement.',
-    images: ['/images/og-image.jpg'],
+    images: ['/og-image.png'],
   },
-  manifest: '/manifest.json',
+  manifest: '/site.webmanifest',
+  other: {
+    'msapplication-TileColor': '#CD2028',
+    'msapplication-TileImage': '/mstile-144x144.png',
+    'msapplication-config': '/browserconfig.xml',
+  },
 };
 
 export default function RootLayout({
@@ -80,6 +70,13 @@ export default function RootLayout({
 }) {
   return (
     <html lang="en" className={inter.variable}>
+      <head>
+        <link rel="icon" href="/favicon.svg" type="image/svg+xml" />
+        <link rel="alternate icon" href="/favicon-96x96.png" type="image/png" />
+        <link rel="apple-touch-icon" href="/apple-touch-icon.png" />
+        <link rel="manifest" href="/site.webmanifest" />
+        <link rel="mask-icon" href="/safari-pinned-tab.svg" color="#CD2028" />
+      </head>
       <body>
         <Navigation />
         <main>{children}</main>
