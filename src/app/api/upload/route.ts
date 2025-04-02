@@ -55,12 +55,8 @@ async function ensureBucketExists() {
   }
 }
 
-export const config = {
-  api: {
-    bodyParser: false, // Disable the default body parser
-    responseLimit: '500mb',
-  },
-};
+export const runtime = 'nodejs';
+export const dynamic = 'force-dynamic';
 
 export async function POST(request: Request) {
   try {
