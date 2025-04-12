@@ -18,7 +18,6 @@ export default function ThumbtackRating() {
             alt="Thumbtack"
             className="tt-logo"
             fill
-            style={{ objectFit: 'contain' }}
             sizes="120px"
           />
         </div>
@@ -32,7 +31,6 @@ export default function ThumbtackRating() {
               src="https://cdn.thumbtackstatic.com/fe-assets-web/media/pages/profile/standard-widgets/review-widget/orange_star.svg"
               alt="star"
               fill
-              style={{ objectFit: 'contain' }}
               sizes="20px"
             />
           </div>
