@@ -668,6 +668,7 @@ export default function AssessmentForm() {
                 accept="image/*,video/*"
                 maxSize={100 * 1024 * 1024} // 100MB
                 className="mb-4"
+                formType="assessment"
               />
             </div>
             <p className="mt-2 text-sm text-gray-500">

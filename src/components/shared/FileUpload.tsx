@@ -38,6 +38,9 @@ export default function FileUpload({
     if (formType === 'ugly_window_contest' && fileType !== 'image') {
       return new Error('Only image files are allowed for the ugly window contest');
     }
+    if (formType === 'assessment' && !['image', 'video'].includes(fileType)) {
+      return new Error('Only image and video files are allowed for assessments');
+    }
 
     return null;
   };

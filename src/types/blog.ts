@@ -12,6 +12,9 @@ export interface BlogPost {
   canonicalUrl?: string;
   ogImage?: string;
   structuredData?: Record<string, any>;
+  isDraft?: boolean;
+  published: boolean;
+  lastModified?: string;
 }
 
 export interface BlogMetadata {

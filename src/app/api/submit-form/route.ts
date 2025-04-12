@@ -12,20 +12,24 @@ const supabase = createClient(
 // Ensure the bucket exists and is properly configured
 async function ensureBucketExists() {
   try {
-    // Check if bucket exists
-    const { data: buckets, error: listError } = await supabase
+    console.log('Checking Supabase storage bucket configuration...');
+    
+    // Check if we can access storage
+    const { data: bucketList, error: storageError } = await supabase
       .storage
       .listBuckets();
 
-    if (listError) {
-      console.error('Error listing buckets:', listError);
-      throw listError;
+    if (storageError) {
+      console.error('Storage access error:', storageError);
+      throw new Error(`Storage access failed: ${storageError.message}`);
     }
 
-    const formUploadsBucket = buckets.find(bucket => bucket.name === 'form-uploads');
+    console.log('Successfully accessed storage. Found buckets:', bucketList.map(b => b.name));
+
+    const formUploadsBucket = bucketList.find(bucket => bucket.name === 'form-uploads');
 
     if (!formUploadsBucket) {
-      // Create the bucket if it doesn't exist
+      console.log('form-uploads bucket not found, creating...');
       const { data: newBucket, error: createError } = await supabase
         .storage
         .createBucket('form-uploads', {
@@ -35,43 +39,58 @@ async function ensureBucketExists() {
 
       if (createError) {
         console.error('Error creating bucket:', createError);
-        throw createError;
+        throw new Error(`Failed to create bucket: ${createError.message}`);
       }
 
-      console.log('Created form-uploads bucket');
-    } else if (!formUploadsBucket.public) {
-      // Make the bucket public if it exists but isn't public
-      const { error: updateError } = await supabase
+      console.log('Successfully created form-uploads bucket with config:', newBucket);
+    } else {
+      console.log('Found existing form-uploads bucket:', formUploadsBucket);
+      
+      // Check bucket permissions
+      if (!formUploadsBucket.public) {
+        console.log('Bucket is not public, updating permissions...');
+        const { error: updateError } = await supabase
+          .storage
+          .updateBucket('form-uploads', {
+            public: true
+          });
+
+        if (updateError) {
+          console.error('Error updating bucket permissions:', updateError);
+          throw new Error(`Failed to update bucket permissions: ${updateError.message}`);
+        }
+        console.log('Successfully updated bucket to public access');
+      }
+
+      // Verify we can list files in the bucket
+      const { data: files, error: listError } = await supabase
         .storage
-        .updateBucket('form-uploads', {
-          public: true
-        });
+        .from('form-uploads')
+        .list();
 
-      if (updateError) {
-        console.error('Error updating bucket:', updateError);
-        throw updateError;
+      if (listError) {
+        console.error('Error listing files in bucket:', listError);
+        throw new Error(`Cannot access bucket contents: ${listError.message}`);
       }
-
-      console.log('Made form-uploads bucket public');
+      console.log(`Successfully verified bucket access. Contains ${files.length} files.`);
     }
+
+    return true;
   } catch (error) {
-    console.error('Error ensuring bucket exists:', error);
+    console.error('Bucket configuration error:', error);
     throw error;
   }
 }
 
-// Initialize email transporter for customer inquiries
+// Initialize email transporter
 const transporter = nodemailer.createTransport({
   host: process.env.CUSTOMER_SMTP_HOST,
-  port: Number(process.env.CUSTOMER_SMTP_PORT),
+  port: parseInt(process.env.CUSTOMER_SMTP_PORT || '465'),
   secure: true,
   auth: {
     user: process.env.CUSTOMER_SMTP_USER,
     pass: process.env.CUSTOMER_SMTP_PASS,
   },
-  tls: {
-    rejectUnauthorized: true
-  }
 });
 
 // Verify SMTP connection
@@ -91,8 +110,13 @@ async function verifyCaptcha(token: string) {
       headers: {
         'Content-Type': 'application/x-www-form-urlencoded',
       },
-      body: `response=${token}&secret=${process.env.HCAPTCHA_SECRET_KEY}&sitekey=${process.env.NEXT_PUBLIC_HCAPTCHA_SITE_KEY}`,
+      body: `response=${token}&secret=${process.env.HCAPTCHA_SECRET_KEY}`,
     });
+
+    if (!response.ok) {
+      console.error('Captcha verification HTTP error:', response.status);
+      return false;
+    }
 
     const data = await response.json();
     console.log('Captcha verification response:', {
@@ -110,8 +134,20 @@ async function verifyCaptcha(token: string) {
 
 export async function POST(request: Request) {
   try {
-    // Ensure bucket exists before processing
-    await ensureBucketExists();
+    console.log('Starting form submission process...');
+    
+    // Verify bucket configuration
+    try {
+      await ensureBucketExists();
+      console.log('Bucket verification successful');
+    } catch (bucketError) {
+      console.error('Critical bucket configuration error:', bucketError);
+      return NextResponse.json({
+        success: false,
+        message: 'Server storage configuration error. Please contact support.',
+        error: bucketError instanceof Error ? bucketError.message : 'Unknown bucket error'
+      }, { status: 500 });
+    }
 
     const body = await request.json();
     const { captchaToken, ...formData } = body;
@@ -127,7 +163,7 @@ export async function POST(request: Request) {
     const isValidCaptcha = await verifyCaptcha(captchaToken);
     if (!isValidCaptcha) {
       return NextResponse.json(
-        { success: false, message: 'Captcha verification failed. Please try again.' },
+        { success: false, message: 'Captcha verification failed. Please refresh the page and try again.' },
         { status: 400 }
       );
     }
@@ -139,6 +175,14 @@ export async function POST(request: Request) {
       email: formData.email,
       hasFiles: formData.files?.length > 0
     });
+
+    // Validate required fields
+    if (!formData.name || !formData.email) {
+      return NextResponse.json(
+        { success: false, message: 'Name and email are required fields' },
+        { status: 400 }
+      );
+    }
 
     // Handle file uploads if present
     let fileReferences = [];
@@ -298,6 +342,59 @@ export async function POST(request: Request) {
         message: 'Failed to save submission',
         error: dbError.message
       }, { status: 500 });
+    }
+
+    // Send email notifications
+    try {
+      await transporter.sendMail({
+        from: {
+          name: 'The Window Hospital',
+          address: process.env.CUSTOMER_SMTP_FROM_EMAIL!
+        },
+        to: process.env.ADMIN_EMAIL,
+        subject: `New ${formData.formType} Submission`,
+        html: `
+          <h2>New Form Submission</h2>
+          <p><strong>Type:</strong> ${formData.formType}</p>
+          <p><strong>Name:</strong> ${formData.name}</p>
+          <p><strong>Email:</strong> ${formData.email}</p>
+          <p><strong>Phone:</strong> ${formData.phone || 'Not provided'}</p>
+          ${formData.address ? `
+            <p><strong>Address:</strong><br>
+            ${formData.address.street}<br>
+            ${formData.address.city}, ${formData.address.state} ${formData.address.zip}
+            </p>
+          ` : ''}
+          ${fileReferences.length > 0 ? `
+            <p><strong>Uploaded Files:</strong></p>
+            <ul>
+              ${fileReferences.map(file => `
+                <li><a href="${file.url}">${file.name}</a> (${Math.round(file.size / 1024)}KB)</li>
+              `).join('')}
+            </ul>
+          ` : ''}
+        `
+      });
+
+      // Send confirmation email to customer
+      if (formData.email) {
+        await transporter.sendMail({
+          from: {
+            name: 'The Window Hospital',
+            address: process.env.CUSTOMER_SMTP_FROM_EMAIL!
+          },
+          to: formData.email,
+          subject: 'Thank you for your submission',
+          html: `
+            <h2>Thank you for contacting The Window Hospital</h2>
+            <p>We have received your submission and will get back to you shortly.</p>
+            <p>If you have any immediate questions, please don't hesitate to call us.</p>
+          `
+        });
+      }
+    } catch (emailError) {
+      console.error('Error sending email notifications:', emailError);
+      // Continue with the response even if email fails
     }
 
     // Return success with partial upload info if some files failed

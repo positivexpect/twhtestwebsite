@@ -1,8 +1,14 @@
 import { Metadata } from 'next'
 
 export const metadata: Metadata = {
-  title: 'Window Repair Guides & Expert Tips: Save Money on Window Repairs | TWH',
-  description: 'Explore our collection of window repair guides, maintenance tips, and expert advice to help maintain your windows.',
+  title: 'Window Repair Blog | The Window Hospital',
+  description: 'Expert advice on window repair, maintenance, and cost savings from The Window Hospital. Learn why repair beats replacement.',
+  keywords: ['window repair', 'window maintenance', 'cost savings', 'home improvement'],
+  openGraph: {
+    title: 'Window Repair Blog | The Window Hospital',
+    description: 'Expert advice on window repair, maintenance, and cost savings from The Window Hospital.',
+    type: 'website',
+  },
 }
 
 export default function BlogLayout({

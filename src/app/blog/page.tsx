@@ -1,19 +1,82 @@
-import Link from 'next/link';
-import { BLOG_POSTS } from '@/data/blogPosts';
-import { Metadata } from 'next';
+'use client';
 
-export const metadata: Metadata = {
-  title: 'Window Repair Blog | The Window Hospital',
-  description: 'Expert advice on window repair, maintenance, and cost savings from The Window Hospital. Learn why repair beats replacement.',
-  keywords: ['window repair', 'window maintenance', 'cost savings', 'home improvement'],
-  openGraph: {
-    title: 'Window Repair Blog | The Window Hospital',
-    description: 'Expert advice on window repair, maintenance, and cost savings from The Window Hospital.',
-    type: 'website',
-  },
-};
+import { BlogPost } from '@/types/blog';
+import Link from 'next/link';
+import { useEffect, useState } from 'react';
+import { supabase } from '@/lib/supabase';
 
 export default function BlogPage() {
+  const [posts, setPosts] = useState<BlogPost[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
+
+  useEffect(() => {
+    async function fetchPosts() {
+      try {
+        const { data, error: fetchError } = await supabase
+          .from('blog_posts')
+          .select('*')
+          .eq('published', true)
+          .order('date', { ascending: false });
+
+        if (fetchError) throw fetchError;
+
+        // Convert from database format to BlogPost format
+        const formattedPosts: BlogPost[] = data.map(post => ({
+          id: post.id,
+          title: post.title,
+          description: post.description,
+          date: post.date,
+          readTime: post.read_time,
+          content: post.content,
+          author: post.author,
+          keywords: post.keywords,
+          metaTitle: post.meta_title,
+          metaDescription: post.meta_description,
+          canonicalUrl: post.canonical_url,
+          ogImage: post.og_image,
+          structuredData: post.structured_data || {},
+          isDraft: post.is_draft,
+          published: post.published,
+          lastModified: post.last_modified
+        }));
+
+        setPosts(formattedPosts);
+      } catch (err) {
+        console.error('Error fetching posts:', err);
+        setError(err instanceof Error ? err.message : 'Failed to fetch posts');
+      } finally {
+        setLoading(false);
+      }
+    }
+
+    fetchPosts();
+  }, []);
+
+  if (loading) {
+    return (
+      <div className="bg-white">
+        <div className="max-w-7xl mx-auto">
+          <div className="text-center py-16">
+            <p className="text-gray-500">Loading posts...</p>
+          </div>
+        </div>
+      </div>
+    );
+  }
+
+  if (error) {
+    return (
+      <div className="bg-white">
+        <div className="max-w-7xl mx-auto">
+          <div className="text-center py-16">
+            <p className="text-red-600">{error}</p>
+          </div>
+        </div>
+      </div>
+    );
+  }
+
   return (
     <div className="bg-white">
       <div className="max-w-7xl mx-auto">
@@ -26,30 +89,36 @@ export default function BlogPage() {
           </p>
         </div>
 
-        <div className="mt-12 grid gap-8 md:grid-cols-2 lg:grid-cols-3">
-          {BLOG_POSTS.map((post) => (
-            <Link 
-              key={post.id}
-              href={`/blog/${post.id}`}
-              className="block group"
-            >
-              <div className="bg-white rounded-lg shadow-sm hover:shadow-md transition-shadow p-6 h-full border border-gray-200">
-                <h2 className="text-xl font-semibold text-gray-900 group-hover:text-[#CD2028]">
-                  {post.title}
-                </h2>
-                <p className="mt-3 text-gray-600">
-                  {post.description}
-                </p>
-                <div className="mt-4 flex items-center text-sm text-gray-500">
-                  <span>{post.date}</span>
-                  <span className="mx-2">•</span>
-                  <span>{post.readTime}</span>
-                  <span className="mx-2">•</span>
-                  <span>By {post.author}</span>
+        <div className="mt-12 grid gap-8 md:grid-cols-2 lg:grid-cols-3 pb-16">
+          {posts.length === 0 ? (
+            <div className="col-span-full text-center py-12">
+              <p className="text-gray-500">No published posts yet.</p>
+            </div>
+          ) : (
+            posts.map((post) => (
+              <Link 
+                key={post.id}
+                href={`/blog/${post.id}`}
+                className="block group"
+              >
+                <div className="bg-white rounded-lg shadow-sm hover:shadow-md transition-shadow p-6 h-full border border-gray-200">
+                  <h2 className="text-xl font-semibold text-gray-900 group-hover:text-[#CD2028]">
+                    {post.title}
+                  </h2>
+                  <p className="mt-3 text-gray-600">
+                    {post.description}
+                  </p>
+                  <div className="mt-4 flex items-center text-sm text-gray-500">
+                    <span>{post.date}</span>
+                    <span className="mx-2">•</span>
+                    <span>{post.readTime}</span>
+                    <span className="mx-2">•</span>
+                    <span>By {post.author}</span>
+                  </div>
                 </div>
-              </div>
-            </Link>
-          ))}
+              </Link>
+            ))
+          )}
         </div>
       </div>
     </div>
