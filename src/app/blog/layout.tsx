@@ -1,20 +1,12 @@
-import { Metadata } from 'next'
+import { metadata } from './metadata';
+import ClientLayout from './ClientLayout';
 
-export const metadata: Metadata = {
-  title: 'Window Repair Blog | The Window Hospital',
-  description: 'Expert advice on window repair, maintenance, and cost savings from The Window Hospital. Learn why repair beats replacement.',
-  keywords: ['window repair', 'window maintenance', 'cost savings', 'home improvement'],
-  openGraph: {
-    title: 'Window Repair Blog | The Window Hospital',
-    description: 'Expert advice on window repair, maintenance, and cost savings from The Window Hospital.',
-    type: 'website',
-  },
-}
+export { metadata };
 
-export default function BlogLayout({
+export default function BlogLayoutServer({
   children,
 }: {
   children: React.ReactNode
 }) {
-  return children
+  return <ClientLayout>{children}</ClientLayout>;
 } 

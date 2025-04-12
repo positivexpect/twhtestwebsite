@@ -1,9 +1,12 @@
+'use client';
+
 import { BlogPost } from '@/types/blog';
 import { Metadata } from 'next';
 import Link from 'next/link';
 import ReactMarkdown from 'react-markdown';
 import Script from 'next/script';
 import rehypeRaw from 'rehype-raw';
+import { useDarkMode } from '@/contexts/DarkModeContext';
 
 interface BlogPostLayoutProps {
   post: BlogPost;
@@ -57,6 +60,7 @@ export function generateMetadata(post: BlogPost): Metadata {
 }
 
 export default function BlogPostLayout({ post }: BlogPostLayoutProps) {
+  const { isDarkMode } = useDarkMode();
   const cleanContent = stripMetadataSection(post.content);
 
   return (
@@ -67,22 +71,22 @@ export default function BlogPostLayout({ post }: BlogPostLayoutProps) {
         </Script>
       )}
       
-      <article className="max-w-3xl mx-auto px-4 sm:px-6 lg:px-8 py-16">
+      <article className={`max-w-3xl mx-auto px-4 sm:px-6 lg:px-8 py-16 ${isDarkMode ? 'bg-gray-900 text-gray-100' : 'bg-white text-gray-900'}`}>
         <header className="mb-8">
           <nav className="mb-8">
             <Link 
               href="/blog"
-              className="text-[#CD2028] hover:text-[#B01B22]"
+              className={`${isDarkMode ? 'text-red-400 hover:text-red-300' : 'text-[#CD2028] hover:text-[#B01B22]'}`}
             >
               ← Back to Blog
             </Link>
           </nav>
           
-          <h1 className="text-4xl font-extrabold text-gray-900 mb-4">
+          <h1 className={`text-4xl font-extrabold mb-4 ${isDarkMode ? 'text-white' : 'text-gray-900'}`}>
             {post.title}
           </h1>
           
-          <div className="flex items-center text-sm text-gray-500">
+          <div className={`flex items-center text-sm ${isDarkMode ? 'text-gray-400' : 'text-gray-500'}`}>
             <span>{post.date}</span>
             <span className="mx-2">•</span>
             <span>{post.readTime}</span>
@@ -91,50 +95,80 @@ export default function BlogPostLayout({ post }: BlogPostLayoutProps) {
           </div>
         </header>
 
-        <div className="prose prose-lg max-w-none">
+        <div className={`prose max-w-none ${isDarkMode ? 'prose-invert' : ''}`}>
           <ReactMarkdown
             rehypePlugins={[rehypeRaw]}
             components={{
-              h1: ({ children }) => <h2 className="text-3xl font-bold mt-8 mb-4">{children}</h2>,
-              h2: ({ children }) => <h3 className="text-2xl font-bold mt-6 mb-3 text-gray-900">{children}</h3>,
-              h3: ({ children }) => <h4 className="text-xl font-bold mt-4 mb-2">{children}</h4>,
+              h1: ({ children }) => (
+                <h2 className={`text-3xl font-bold mt-8 mb-4 ${isDarkMode ? 'text-white' : 'text-gray-900'}`}>
+                  {children}
+                </h2>
+              ),
+              h2: ({ children }) => (
+                <h3 className={`text-2xl font-bold mt-6 mb-3 ${isDarkMode ? 'text-white' : 'text-gray-900'}`}>
+                  {children}
+                </h3>
+              ),
+              h3: ({ children }) => (
+                <h4 className={`text-xl font-bold mt-4 mb-2 ${isDarkMode ? 'text-white' : 'text-gray-900'}`}>
+                  {children}
+                </h4>
+              ),
               a: ({ href, children }) => (
                 <Link 
                   href={href || '#'} 
-                  className="text-[#CD2028] hover:text-[#B01B22] underline"
+                  className={`${isDarkMode ? 'text-red-400 hover:text-red-300' : 'text-[#CD2028] hover:text-[#B01B22]'} underline`}
                 >
                   {children}
                 </Link>
               ),
               table: ({ children }) => (
                 <div className="overflow-x-auto my-8">
-                  <table className="min-w-full border border-gray-200 divide-y divide-gray-200 bg-white">
+                  <table className={`min-w-full border divide-y ${
+                    isDarkMode 
+                      ? 'border-gray-700 divide-gray-700 bg-gray-800' 
+                      : 'border-gray-200 divide-gray-200 bg-white'
+                  }`}>
                     {children}
                   </table>
                 </div>
               ),
               thead: ({ children }) => (
-                <thead className="bg-gray-50">
+                <thead className={isDarkMode ? 'bg-gray-800' : 'bg-gray-50'}>
                   {children}
                 </thead>
               ),
               tbody: ({ children }) => (
-                <tbody className="bg-white divide-y divide-gray-200">
+                <tbody className={`divide-y ${
+                  isDarkMode ? 'divide-gray-700' : 'divide-gray-200'
+                }`}>
                   {children}
                 </tbody>
               ),
               tr: ({ children }) => (
-                <tr className="hover:bg-gray-50 transition-colors">
+                <tr className={`${
+                  isDarkMode 
+                    ? 'hover:bg-gray-700' 
+                    : 'hover:bg-gray-50'
+                } transition-colors`}>
                   {children}
                 </tr>
               ),
               th: ({ children }) => (
-                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider border-r last:border-r-0 bg-gray-50">
+                <th className={`px-6 py-3 text-left text-xs font-medium uppercase tracking-wider border-r last:border-r-0 ${
+                  isDarkMode 
+                    ? 'text-gray-400 border-gray-700 bg-gray-800' 
+                    : 'text-gray-500 border-gray-200 bg-gray-50'
+                }`}>
                   {children}
                 </th>
               ),
               td: ({ children }) => (
-                <td className="px-6 py-4 text-sm text-gray-900 border-r last:border-r-0 align-top">
+                <td className={`px-6 py-4 text-sm border-r last:border-r-0 align-top ${
+                  isDarkMode 
+                    ? 'text-gray-300 border-gray-700' 
+                    : 'text-gray-900 border-gray-200'
+                }`}>
                   {children}
                 </td>
               ),
@@ -149,7 +183,7 @@ export default function BlogPostLayout({ post }: BlogPostLayoutProps) {
                 </summary>
               ),
               p: ({ children }) => (
-                <p className="my-4">
+                <p className={`my-4 ${isDarkMode ? 'text-gray-300' : 'text-gray-700'}`}>
                   {children}
                 </p>
               ),
@@ -169,10 +203,14 @@ export default function BlogPostLayout({ post }: BlogPostLayoutProps) {
           </ReactMarkdown>
         </div>
 
-        <div className="mt-12 border-t border-gray-200 pt-8">
+        <div className={`mt-12 border-t pt-8 ${isDarkMode ? 'border-gray-700' : 'border-gray-200'}`}>
           <Link 
             href="/contact"
-            className="inline-flex items-center px-6 py-3 border border-transparent text-base font-medium rounded-md shadow-sm text-white bg-[#CD2028] hover:bg-[#B01B22]"
+            className={`inline-flex items-center px-6 py-3 border border-transparent text-base font-medium rounded-md shadow-sm text-white ${
+              isDarkMode 
+                ? 'bg-red-600 hover:bg-red-700' 
+                : 'bg-[#CD2028] hover:bg-[#B01B22]'
+            }`}
           >
             Schedule a Repair Consultation
           </Link>

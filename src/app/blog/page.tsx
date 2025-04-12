@@ -4,11 +4,13 @@ import { BlogPost } from '@/types/blog';
 import Link from 'next/link';
 import { useEffect, useState } from 'react';
 import { supabase } from '@/lib/supabase';
+import { useDarkMode } from '@/contexts/DarkModeContext';
 
 export default function BlogPage() {
   const [posts, setPosts] = useState<BlogPost[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  const { isDarkMode } = useDarkMode();
 
   useEffect(() => {
     async function fetchPosts() {
@@ -55,10 +57,10 @@ export default function BlogPage() {
 
   if (loading) {
     return (
-      <div className="bg-white">
+      <div className={isDarkMode ? 'bg-gray-900' : 'bg-white'}>
         <div className="max-w-7xl mx-auto">
           <div className="text-center py-16">
-            <p className="text-gray-500">Loading posts...</p>
+            <p className={isDarkMode ? 'text-gray-400' : 'text-gray-500'}>Loading posts...</p>
           </div>
         </div>
       </div>
@@ -67,7 +69,7 @@ export default function BlogPage() {
 
   if (error) {
     return (
-      <div className="bg-white">
+      <div className={isDarkMode ? 'bg-gray-900' : 'bg-white'}>
         <div className="max-w-7xl mx-auto">
           <div className="text-center py-16">
             <p className="text-red-600">{error}</p>
@@ -78,21 +80,27 @@ export default function BlogPage() {
   }
 
   return (
-    <div className="bg-white">
+    <div className={isDarkMode ? 'bg-gray-900 min-h-screen' : 'bg-white'}>
       <div className="max-w-7xl mx-auto">
         <div className="text-center pt-16">
-          <h1 className="text-4xl font-extrabold text-gray-900 sm:text-5xl md:text-6xl tracking-tight">
+          <h1 className={`text-4xl font-extrabold sm:text-5xl md:text-6xl tracking-tight ${
+            isDarkMode ? 'text-white' : 'text-gray-900'
+          }`}>
             The Window Hospital Blog
           </h1>
-          <p className="mt-4 text-xl text-gray-600 max-w-3xl mx-auto leading-relaxed">
+          <p className={`mt-4 text-xl max-w-3xl mx-auto leading-relaxed ${
+            isDarkMode ? 'text-gray-300' : 'text-gray-600'
+          }`}>
             Expert advice on window repair, maintenance, and cost savings
           </p>
         </div>
 
-        <div className="mt-12 grid gap-8 md:grid-cols-2 lg:grid-cols-3 pb-16">
+        <div className="grid gap-6 mt-12 px-4 sm:px-6 lg:px-8 pb-16">
           {posts.length === 0 ? (
             <div className="col-span-full text-center py-12">
-              <p className="text-gray-500">No published posts yet.</p>
+              <p className={isDarkMode ? 'text-gray-400' : 'text-gray-500'}>
+                No published posts yet.
+              </p>
             </div>
           ) : (
             posts.map((post) => (
@@ -101,14 +109,24 @@ export default function BlogPage() {
                 href={`/blog/${post.id}`}
                 className="block group"
               >
-                <div className="bg-white rounded-lg shadow-sm hover:shadow-md transition-shadow p-6 h-full border border-gray-200">
-                  <h2 className="text-xl font-semibold text-gray-900 group-hover:text-[#CD2028]">
+                <div className={`rounded-lg shadow-sm hover:shadow-md transition-shadow p-6 h-full border ${
+                  isDarkMode 
+                    ? 'bg-gray-800 border-gray-700 hover:bg-gray-700' 
+                    : 'bg-white border-gray-200 hover:shadow-md'
+                }`}>
+                  <h2 className={`text-xl font-semibold group-hover:text-[#CD2028] ${
+                    isDarkMode ? 'text-white' : 'text-gray-900'
+                  }`}>
                     {post.title}
                   </h2>
-                  <p className="mt-3 text-gray-600">
+                  <p className={`mt-3 ${
+                    isDarkMode ? 'text-gray-300' : 'text-gray-600'
+                  }`}>
                     {post.description}
                   </p>
-                  <div className="mt-4 flex items-center text-sm text-gray-500">
+                  <div className={`mt-4 flex items-center text-sm ${
+                    isDarkMode ? 'text-gray-400' : 'text-gray-500'
+                  }`}>
                     <span>{post.date}</span>
                     <span className="mx-2">•</span>
                     <span>{post.readTime}</span>
