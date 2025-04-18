@@ -208,7 +208,9 @@ export default function VideoTestimonialForm() {
         </div>
       )}
 
-      <CaptchaWrapper onVerify={setCaptchaToken}>
+      <div className="space-y-4">
+        <CaptchaWrapper onVerify={setCaptchaToken} />
+        
         <button
           type="submit"
           disabled={isSubmitting || (!videoUrl && !videoFilePath) || !captchaToken}
@@ -220,7 +222,7 @@ export default function VideoTestimonialForm() {
         >
           {isSubmitting ? 'Submitting...' : 'Submit'}
         </button>
-      </CaptchaWrapper>
+      </div>
     </form>
   );
 } 
