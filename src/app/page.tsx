@@ -34,13 +34,6 @@ const AssessmentForm = dynamic(
   }
 );
 
-const Navigation = dynamic(
-  () => import('@/components/client/Navigation'),
-  {
-    ssr: true
-  }
-);
-
 const Parts = dynamic(
   () => import('@/components/client/Parts'),
   {
@@ -78,7 +71,6 @@ const SocialProof = dynamic(
 export default function Home() {
   return (
     <div className="min-h-screen">
-      <Navigation />
       <Hero />
       <EducationalContent />
       <RepairVsReplace />
