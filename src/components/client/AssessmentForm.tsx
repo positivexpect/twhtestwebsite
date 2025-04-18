@@ -116,6 +116,30 @@ interface ProcessedFile {
   base64: string;
 }
 
+interface FFmpegInstance {
+  ffmpeg: any; // Using any for FFmpeg type since it's dynamically imported
+  fetchFile: (file?: string | File | Blob) => Promise<Uint8Array>;
+}
+
+// Dynamically import FFmpeg only when needed
+const loadFFmpeg = async (): Promise<FFmpegInstance | null> => {
+  if (typeof window === 'undefined') return null;
+  
+  const { FFmpeg } = await import('@ffmpeg/ffmpeg');
+  const { fetchFile } = await import('@ffmpeg/util');
+  
+  const ffmpeg = new FFmpeg();
+  await ffmpeg.load();
+  
+  return { ffmpeg, fetchFile };
+};
+
+// Dynamically import compression utilities
+const loadCompressionUtils = async () => {
+  const { compressImage, compressVideo } = await import('@/utils/compression');
+  return { compressImage, compressVideo };
+};
+
 export default function AssessmentForm() {
   const [formData, setFormData] = useState<FormData>({
     name: '',
@@ -481,6 +505,32 @@ export default function AssessmentForm() {
     } finally {
       setIsSubmitting(false);
     }
+  };
+
+  // Load FFmpeg only when file upload is initiated
+  const handleFileUpload = async (file: File) => {
+    if (file.type.startsWith('video/')) {
+      const ffmpegInstance = await loadFFmpeg();
+      const { compressVideo } = await loadCompressionUtils();
+      
+      if (!ffmpegInstance) {
+        console.warn('FFmpeg not available, using original file');
+        return file;
+      }
+      
+      return compressVideo(file, {
+        onProgress: (progress: number) => {
+          console.log('Compression progress:', progress);
+        }
+      });
+    }
+    
+    if (file.type.startsWith('image/')) {
+      const { compressImage } = await loadCompressionUtils();
+      return compressImage(file);
+    }
+    
+    return file;
   };
 
   if (submitSuccess) {

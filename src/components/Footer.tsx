@@ -9,11 +9,11 @@ export default function Footer() {
           {/* Contact Information */}
           <div>
             <h3 className="text-white text-lg font-semibold mb-4">Contact Us</h3>
-            <div className="space-y-3 text-gray-100">
+            <div className="space-y-3 text-gray-200">
               <p>
                 <a 
                   href="tel:5406030088" 
-                  className="text-gray-100 hover:text-white transition-colors underline underline-offset-2"
+                  className="text-gray-200 hover:text-white transition-colors underline underline-offset-2"
                 >
                   (540) 603-0088
                 </a>
@@ -23,13 +23,13 @@ export default function Footer() {
                   href="https://maps.google.com/?q=10944+Patriot+Highway+Suite+4745+Fredericksburg+VA+22408"
                   target="_blank"
                   rel="noopener noreferrer"
-                  className="text-gray-100 hover:text-white transition-colors underline underline-offset-2"
+                  className="text-gray-200 hover:text-white transition-colors underline underline-offset-2"
                 >
                   10944 Patriot Highway, Suite 4745<br />
                   Fredericksburg, VA 22408
                 </a>
               </p>
-              <div className="text-gray-100">
+              <div className="text-gray-200">
                 <p>Monday-Thursday: 9am-4pm</p>
                 <p>Friday: 9am-1pm</p>
                 <p>Saturday-Sunday: Closed</p>
@@ -42,37 +42,37 @@ export default function Footer() {
             <h3 className="text-white text-lg font-semibold mb-4">Quick Links</h3>
             <ul className="space-y-2">
               <li>
-                <Link href="/glass-services" className="text-gray-100 hover:text-white transition-colors underline underline-offset-2">
+                <Link href="/glass-services" className="text-gray-200 hover:text-white transition-colors underline underline-offset-2">
                   Glass Services
                 </Link>
               </li>
               <li>
-                <Link href="/parts-services" className="text-gray-100 hover:text-white transition-colors underline underline-offset-2">
+                <Link href="/parts-services" className="text-gray-200 hover:text-white transition-colors underline underline-offset-2">
                   Parts Services
                 </Link>
               </li>
               <li>
-                <Link href="/screen-services" className="text-gray-100 hover:text-white transition-colors underline underline-offset-2">
+                <Link href="/screen-services" className="text-gray-200 hover:text-white transition-colors underline underline-offset-2">
                   Screen Services
                 </Link>
               </li>
               <li>
-                <Link href="/about" className="text-gray-100 hover:text-white transition-colors underline underline-offset-2">
+                <Link href="/about" className="text-gray-200 hover:text-white transition-colors underline underline-offset-2">
                   Why Choose Us?
                 </Link>
               </li>
               <li>
-                <Link href="/faq" className="text-gray-100 hover:text-white transition-colors underline underline-offset-2">
+                <Link href="/faq" className="text-gray-200 hover:text-white transition-colors underline underline-offset-2">
                   FAQ
                 </Link>
               </li>
               <li>
-                <Link href="/contact" className="text-gray-100 hover:text-white transition-colors underline underline-offset-2">
+                <Link href="/contact" className="text-gray-200 hover:text-white transition-colors underline underline-offset-2">
                   Contact
                 </Link>
               </li>
               <li>
-                <Link href="/campaigns" className="text-gray-100 hover:text-white transition-colors underline underline-offset-2">
+                <Link href="/campaigns" className="text-gray-200 hover:text-white transition-colors underline underline-offset-2">
                   Special Offers
                 </Link>
               </li>
@@ -82,17 +82,17 @@ export default function Footer() {
           {/* Service Area */}
           <div>
             <h3 className="text-white text-lg font-semibold mb-4">Service Area</h3>
-            <p className="text-gray-100">
+            <p className="text-gray-200">
               Serving Fredericksburg, Stafford, Spotsylvania, King George, Caroline, and surrounding areas.
             </p>
             <div className="mt-4 space-y-2">
               <div>
-                <Link href="/gallery" className="text-gray-100 hover:text-white transition-colors underline underline-offset-2">
+                <Link href="/gallery" className="text-gray-200 hover:text-white transition-colors underline underline-offset-2">
                   View Our Work Gallery
                 </Link>
               </div>
               <div>
-                <Link href="/reviews" className="text-gray-100 hover:text-white transition-colors underline underline-offset-2">
+                <Link href="/reviews" className="text-gray-200 hover:text-white transition-colors underline underline-offset-2">
                   Read Customer Reviews
                 </Link>
               </div>
@@ -111,7 +111,7 @@ export default function Footer() {
                 href="https://www.facebook.com/people/The-Window-Hospital/100076861613944/"
                 target="_blank"
                 rel="noopener noreferrer"
-                className="text-gray-100 hover:text-[#1877F2] transition-colors"
+                className="text-gray-200 hover:text-[#1877F2] transition-colors"
                 aria-label="Follow us on Facebook"
               >
                 <FaFacebook className="w-6 h-6" />
@@ -120,7 +120,7 @@ export default function Footer() {
                 href="https://www.youtube.com/@thewindowhosptial"
                 target="_blank"
                 rel="noopener noreferrer"
-                className="text-gray-100 hover:text-[#FF0000] transition-colors"
+                className="text-gray-200 hover:text-[#FF0000] transition-colors"
                 aria-label="Subscribe to our YouTube channel"
               >
                 <FaYoutube className="w-6 h-6" />
@@ -129,7 +129,7 @@ export default function Footer() {
                 href="https://twitter.com/windowhospital"
                 target="_blank"
                 rel="noopener noreferrer"
-                className="text-gray-100 hover:text-[#1DA1F2] transition-colors"
+                className="text-gray-200 hover:text-[#1DA1F2] transition-colors"
                 aria-label="Follow us on Twitter"
               >
                 <FaTwitter className="w-6 h-6" />
@@ -138,7 +138,7 @@ export default function Footer() {
                 href="https://instagram.com/thewindowhospital"
                 target="_blank"
                 rel="noopener noreferrer"
-                className="text-gray-100 hover:text-[#E4405F] transition-colors"
+                className="text-gray-200 hover:text-[#E4405F] transition-colors"
                 aria-label="Follow us on Instagram"
               >
                 <FaInstagram className="w-6 h-6" />
@@ -148,10 +148,10 @@ export default function Footer() {
         </div>
 
         <div className="mt-8 pt-8 border-t border-gray-700">
-          <div className="text-center text-gray-100 text-sm">
+          <div className="text-center text-gray-200 text-sm">
             <p>© {new Date().getFullYear()} The Window Hospital Inc. All rights reserved.</p>
             <p className="mt-2">
-              <Link href="/privacy-policy" className="text-gray-100 hover:text-white transition-colors underline underline-offset-2">
+              <Link href="/privacy-policy" className="text-gray-200 hover:text-white transition-colors underline underline-offset-2">
                 Privacy Policy
               </Link>
             </p>
