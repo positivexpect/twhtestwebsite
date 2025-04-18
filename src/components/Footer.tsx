@@ -151,7 +151,7 @@ export default function Footer() {
           <div className="text-center text-gray-400 text-sm">
             <p>© {new Date().getFullYear()} The Window Hospital Inc. All rights reserved.</p>
             <p className="mt-2">
-              <Link href="/privacy-policy" className="hover:text-white transition-colors">
+              <Link href="/privacy-policy" className="text-footer-link hover:text-white transition-colors underline underline-offset-2">
                 Privacy Policy
               </Link>
             </p>

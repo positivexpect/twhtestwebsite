@@ -6,7 +6,19 @@ module.exports = {
     './src/app/**/*.{js,ts,jsx,tsx,mdx}',
   ],
   theme: {
-    extend: {},
+    extend: {
+      colors: {
+        'green': {
+          600: '#047857', // WCAG AA compliant
+        },
+        'red': {
+          600: '#b91c1c', // WCAG AA compliant
+        },
+        'footer': {
+          link: '#e5e7eb', // WCAG AA compliant
+        }
+      },
+    },
   },
   plugins: [],
 } 

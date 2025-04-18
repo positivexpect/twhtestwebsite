@@ -18,21 +18,28 @@ let ffmpegUtils: {
   toBlobURL?: FFmpegUtilType;
 } = {};
 
-if (typeof window !== 'undefined') {
-  // Only import FFmpeg on client side
-  Promise.all([
-    import('@ffmpeg/ffmpeg'),
-    import('@ffmpeg/util')
-  ]).then(([ffmpeg, util]) => {
+// Lazy load FFmpeg modules
+const loadFFmpegModules = async () => {
+  if (FFmpegInstance) return { FFmpegInstance, ffmpegUtils };
+  
+  try {
+    const [ffmpeg, util] = await Promise.all([
+      import('@ffmpeg/ffmpeg'),
+      import('@ffmpeg/util')
+    ]);
+    
     FFmpegInstance = ffmpeg.FFmpeg;
     ffmpegUtils = {
       fetchFile: util.fetchFile,
       toBlobURL: util.toBlobURL
     };
-  }).catch(error => {
+    
+    return { FFmpegInstance, ffmpegUtils };
+  } catch (error) {
     console.error('Failed to load FFmpeg modules:', error);
-  });
-}
+    throw error;
+  }
+};
 
 type FormData = {
   name: string;
@@ -92,6 +99,22 @@ const URGENCY_TYPES = [
   'Home Inspection',
   'Just want to see how much I could save'
 ];
+
+// Add this after the imports
+const scheduleIdleTask = (callback: () => void, timeout = 2000) => {
+  if ('requestIdleCallback' in window) {
+    window.requestIdleCallback(callback, { timeout });
+  } else {
+    setTimeout(callback, 50);
+  }
+};
+
+interface ProcessedFile {
+  name: string;
+  type: string;
+  size: number;
+  base64: string;
+}
 
 export default function AssessmentForm() {
   const [formData, setFormData] = useState<FormData>({
@@ -212,30 +235,34 @@ export default function AssessmentForm() {
       const outputFileName = 'output.mp4';
       compressionAbortRef.current = new AbortController();
 
-      // Write the file to FFmpeg's virtual filesystem
-      await ffmpeg.writeFile(inputFileName, await ffmpegUtils.fetchFile!(file));
+      // Break up the compression into smaller tasks
+      const tasks = [
+        async () => await ffmpeg.writeFile(inputFileName, await ffmpegUtils.fetchFile!(file)),
+        async () => {
+          await ffmpeg.exec([
+            '-i', inputFileName,
+            '-c:v', 'libx264',
+            '-crf', '35',
+            '-preset', 'faster',
+            '-c:a', 'aac',
+            '-b:a', '96k',
+            '-vf', 'scale=1280:-2',
+            outputFileName
+          ]);
+        },
+        async () => await ffmpeg.readFile(outputFileName)
+      ];
 
-      // Set up progress handling
-      ffmpeg.on('progress', ({ progress }: { progress: number }) => {
-        setCompressionProgress(Math.round(progress * 100));
-      });
+      for (const task of tasks) {
+        await new Promise<void>((resolve) => {
+          scheduleIdleTask(async () => {
+            await task();
+            resolve();
+          });
+        });
+      }
 
-      // More aggressive compression settings
-      await ffmpeg.exec([
-        '-i', inputFileName,
-        '-c:v', 'libx264',
-        '-crf', '35', // Higher value = more compression (35 is more aggressive)
-        '-preset', 'faster', // Faster compression
-        '-c:a', 'aac',
-        '-b:a', '96k', // Lower audio bitrate
-        '-vf', 'scale=1280:-2', // Scale to 720p
-        outputFileName
-      ]);
-
-      // Read the compressed file
       const data = await ffmpeg.readFile(outputFileName);
-      
-      // Create a new File object from the compressed data
       return new File([data], file.name.replace(/\.[^/.]+$/, '_compressed.mp4'), {
         type: 'video/mp4'
       });
@@ -281,10 +308,12 @@ export default function AssessmentForm() {
   };
 
   const handleFileUploadComplete = (url: string, file: File) => {
-    setFormData(prev => ({
-      ...prev,
-      files: [...prev.files, file]
-    }));
+    scheduleIdleTask(() => {
+      setFormData(prev => ({
+        ...prev,
+        files: [...prev.files, file]
+      }));
+    });
   };
 
   const handleFileUploadError = (error: Error) => {
@@ -307,20 +336,16 @@ export default function AssessmentForm() {
     setIsSubmitting(true);
     setSubmitError('');
 
-    // Check total file size before submission
-    const totalSize = formData.files.reduce((sum, file) => sum + file.size, 0);
-    if (totalSize > 1024 * 1024 * 1024) {
-      setSubmitError('The total size of all files exceeds 1GB. Please select smaller files or fewer files.');
-      setIsSubmitting(false);
-      return;
-    }
+    // Process files in chunks to avoid blocking the main thread
+    const processFiles = async () => {
+      const chunkSize = 3; // Process 3 files at a time
+      const files = [...formData.files];
+      const processedFiles: ProcessedFile[] = [];
 
-    try {
-      // Process files with improved error handling
-      const filesWithBase64 = await Promise.all(
-        formData.files.map(async (file) => {
+      while (files.length > 0) {
+        const chunk = files.splice(0, chunkSize);
+        const chunkPromises = chunk.map(async (file) => {
           try {
-            // Validate file
             if (!file || file.size === 0) {
               console.warn(`Skipping empty file: ${file?.name || 'unknown'}`);
               return null;
@@ -332,64 +357,51 @@ export default function AssessmentForm() {
             const validExtensions = /\.(jpg|jpeg|png|gif|mp4|mov|pdf)$/i;
             
             if (!validTypes.includes(type) && !file.name.match(validExtensions)) {
-              throw new Error(`File "${file.name}" has an unsupported type. Supported types: JPG, PNG, GIF, MP4, MOV, PDF`);
+              throw new Error(`File "${file.name}" has an unsupported type.`);
             }
 
-            // Convert file to base64 in one go for smaller files
-            if (file.size <= 5 * 1024 * 1024) { // 5MB
-              const base64 = await new Promise<string>((resolve, reject) => {
-                const reader = new FileReader();
-                reader.onload = () => resolve(reader.result as string);
-                reader.onerror = () => reject(reader.error);
-                reader.readAsDataURL(file);
+            return new Promise<ProcessedFile>((resolve) => {
+              scheduleIdleTask(async () => {
+                const base64 = await new Promise<string>((resolve, reject) => {
+                  const reader = new FileReader();
+                  reader.onload = () => resolve(reader.result as string);
+                  reader.onerror = () => reject(reader.error);
+                  reader.readAsDataURL(file);
+                });
+
+                resolve({
+                  name: file.name,
+                  type: file.type,
+                  size: file.size,
+                  base64: base64.split(',')[1]
+                });
               });
-
-              return {
-                name: file.name,
-                type: file.type,
-                size: file.size,
-                base64: base64.split(',')[1]
-              };
-            }
-
-            // For larger files, use chunking
-            const chunkSize = 5 * 1024 * 1024; // 5MB chunks
-            const totalChunks = Math.ceil(file.size / chunkSize);
-            const chunks: string[] = [];
-
-            for (let i = 0; i < totalChunks; i++) {
-              const start = i * chunkSize;
-              const end = Math.min(start + chunkSize, file.size);
-              const chunk = file.slice(start, end);
-
-              const base64Chunk = await new Promise<string>((resolve, reject) => {
-                const reader = new FileReader();
-                reader.onload = () => resolve(reader.result as string);
-                reader.onerror = () => reject(reader.error);
-                reader.readAsDataURL(chunk);
-              });
-
-              chunks.push(base64Chunk.split(',')[1]);
-            }
-
-            return {
-              name: file.name,
-              type: file.type,
-              size: file.size,
-              chunks
-            };
+            });
           } catch (error) {
             console.error(`Error processing file ${file.name}:`, error);
-            throw new Error(`Unable to process "${file.name}". ${error instanceof Error ? error.message : 'Please try uploading it again.'}`);
+            return null;
           }
-        })
-      );
+        });
 
-      // Filter out null entries (skipped files) and handle errors
-      const validFiles = filesWithBase64.filter((file): file is NonNullable<typeof file> => file !== null);
-      
-      if (formData.files.length > 0 && validFiles.length === 0) {
-        throw new Error('No valid files to upload. Please check your files and try again.');
+        const results = await Promise.all(chunkPromises);
+        processedFiles.push(...results.filter((file): file is ProcessedFile => file !== null));
+
+        // Give the main thread a break between chunks
+        await new Promise(resolve => setTimeout(resolve, 10));
+      }
+
+      return processedFiles;
+    };
+
+    try {
+      const processedFiles = await processFiles();
+
+      // Check total file size before submission
+      const totalSize = processedFiles.reduce((sum, file) => sum + file.size, 0);
+      if (totalSize > 1024 * 1024 * 1024) {
+        setSubmitError('The total size of all files exceeds 1GB. Please compress your videos or select smaller files.');
+        setIsSubmitting(false);
+        return;
       }
 
       const response = await fetch('/api/submit-form', {
@@ -400,7 +412,7 @@ export default function AssessmentForm() {
         body: JSON.stringify({
           ...formData,
           formType: 'assessment',
-          files: validFiles,
+          files: processedFiles,
           captchaToken
         }),
       });
@@ -911,7 +923,7 @@ export default function AssessmentForm() {
                 </label>
               </div>
               <p className="mt-4 text-sm text-gray-700">
-                See our <Link href="/privacy-policy" className="text-[#CD2028] hover:text-[#B01B22]">Privacy Policy</Link> for details on how we handle your information.
+                See our <Link href="/privacy-policy" className="text-red-600 hover:text-red-700 underline underline-offset-2">Privacy Policy</Link> for details on how we handle your information.
               </p>
             </div>
           </div>

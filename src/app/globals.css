@@ -75,6 +75,10 @@ a {
   @apply transition-colors duration-200;
 }
 
+a:not(.btn):not(.no-underline) {
+  @apply underline underline-offset-2 decoration-1 decoration-gray-300 hover:decoration-2 hover:decoration-current;
+}
+
 /* Section spacing */
 section {
   @apply py-12 sm:py-16;
