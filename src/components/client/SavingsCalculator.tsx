@@ -1,11 +1,18 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 
 type WindowIssue = {
   type: string;
   replacementCost: number;
   repairCost: number;
+};
+
+type SavingsResult = {
+  totalReplacementCost: number;
+  totalRepairCost: number;
+  savings: number;
+  roi: string;
 };
 
 const commonIssues: WindowIssue[] = [
@@ -18,13 +25,44 @@ const commonIssues: WindowIssue[] = [
 export default function SavingsCalculator() {
   const [selectedIssue, setSelectedIssue] = useState<WindowIssue | null>(null);
   const [windowCount, setWindowCount] = useState(1);
+  const [calculationResult, setCalculationResult] = useState<SavingsResult | null>(null);
+  const [worker, setWorker] = useState<Worker | null>(null);
 
-  const calculateSavings = () => {
-    if (!selectedIssue) return 0;
-    return (selectedIssue.replacementCost - selectedIssue.repairCost) * windowCount;
-  };
+  // Initialize Web Worker
+  useEffect(() => {
+    if (typeof window !== 'undefined') {
+      const newWorker = new Worker('/workers/heavyTasks.worker.js');
+      newWorker.onmessage = (e) => {
+        if (e.data.type === 'SAVINGS_CALCULATED') {
+          setCalculationResult(e.data.savings);
+        }
+      };
+      setWorker(newWorker);
 
-  const savings = calculateSavings();
+      return () => {
+        newWorker.terminate();
+      };
+    }
+  }, []);
+
+  // Calculate savings using Web Worker
+  const calculateSavings = useCallback(() => {
+    if (!selectedIssue || !worker) return;
+
+    worker.postMessage({
+      type: 'CALCULATE_SAVINGS',
+      data: {
+        windowCount,
+        replacementCost: selectedIssue.replacementCost,
+        repairCost: selectedIssue.repairCost
+      }
+    });
+  }, [selectedIssue, windowCount, worker]);
+
+  // Trigger calculation when inputs change
+  useEffect(() => {
+    calculateSavings();
+  }, [calculateSavings]);
 
   return (
     <section id="savings-calculator" className="bg-white py-16">
@@ -74,26 +112,32 @@ export default function SavingsCalculator() {
               />
             </div>
 
-            {selectedIssue && (
+            {selectedIssue && calculationResult && (
               <div className="mt-8 p-6 bg-white rounded-lg border border-gray-200">
                 <h3 className="text-lg font-medium text-gray-900">Your Potential Savings</h3>
                 <dl className="mt-4 space-y-4">
                   <div className="flex justify-between">
                     <dt className="text-sm text-gray-600">Replacement Cost</dt>
                     <dd className="text-sm font-medium text-gray-900">
-                      ${(selectedIssue.replacementCost * windowCount).toLocaleString()}
+                      ${calculationResult.totalReplacementCost.toLocaleString()}
                     </dd>
                   </div>
                   <div className="flex justify-between">
                     <dt className="text-sm text-gray-600">Repair Cost</dt>
                     <dd className="text-sm font-medium text-gray-900">
-                      ${(selectedIssue.repairCost * windowCount).toLocaleString()}
+                      ${calculationResult.totalRepairCost.toLocaleString()}
                     </dd>
                   </div>
                   <div className="pt-4 border-t border-gray-200">
                     <div className="flex justify-between">
                       <dt className="text-base font-medium text-gray-900">Total Savings</dt>
-                      <dd className="text-base font-medium text-green-600">${savings.toLocaleString()}</dd>
+                      <dd className="text-base font-medium text-green-600">
+                        ${calculationResult.savings.toLocaleString()}
+                      </dd>
+                    </div>
+                    <div className="flex justify-between mt-2">
+                      <dt className="text-sm text-gray-600">Return on Investment</dt>
+                      <dd className="text-sm font-medium text-blue-600">{calculationResult.roi}%</dd>
                     </div>
                   </div>
                 </dl>
