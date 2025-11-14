@@ -1,6 +1,6 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useRef } from 'react';
 import CaptchaWrapper from '../shared/CaptchaWrapper';
 
 type FormData = {
@@ -64,7 +64,7 @@ export default function NovaSubmissionForm() {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
   const [success, setSuccess] = useState(false);
-  const captchaRef = React.useRef<any>(null);
+  const captchaRef = useRef<any>(null);
 
   const validateForm = () => {
     if (!formData.name.trim()) {
