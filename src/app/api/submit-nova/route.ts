@@ -106,7 +106,15 @@ export async function POST(request: Request) {
             ${formData.windowCount ? `<p><strong>Number of Windows:</strong> ${formData.windowCount}</p>` : ''}
             ${formData.message ? `<p><strong>Additional Details:</strong><br/>${formData.message}</p>` : ''}
             <p><strong>SMS Consent:</strong> ${formData.textConsent === 'yes' ? 'Yes' : 'No'}</p>
-            <p style="margin-top: 20px; color: #999; font-size: 12px;">Submitted from: Northern Virginia (Nova) Page</p>
+            ${fileReferences.length > 0 ? `
+              <p><strong>Uploaded Files:</strong></p>
+              <ul>
+                ${fileReferences.map(file => `
+                  <li><a href="${file.url}">${file.name}</a> (${Math.round(file.size / 1024)}KB)</li>
+                `).join('')}
+              </ul>
+            ` : ''}
+            <p style="margin-top: 20px; color: #999; font-size: 12px;">Submitted from: Northern Virginia (Nova) Page | Submission ID: ${submission?.id}</p>
           </div>
         </div>
       `;
