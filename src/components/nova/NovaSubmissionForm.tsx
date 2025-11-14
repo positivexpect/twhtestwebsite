@@ -61,13 +61,15 @@ export default function NovaSubmissionForm() {
     issue: '',
     windowCount: '',
     message: '',
-    textConsent: ''
+    textConsent: '',
+    files: []
   });
 
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
   const [success, setSuccess] = useState(false);
   const [captchaToken, setCaptchaToken] = useState<string>('');
+  const [uploadError, setUploadError] = useState('');
 
   const validateForm = () => {
     if (!formData.name.trim()) {
