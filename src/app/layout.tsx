@@ -1,11 +1,18 @@
 import './globals.css';
 import { Inter } from 'next/font/google';
 import type { Metadata, Viewport } from 'next';
+import dynamic from 'next/dynamic';
 import { Analytics } from '@vercel/analytics/next';
 import Navigation from '@/components/client/Navigation';
 import Footer from '@/components/Footer';
-import ChatBot from '@/components/client/ChatBot';
-import ExitIntentPopup from '@/components/client/ExitIntentPopup';
+
+const ChatBot = dynamic(() => import('@/components/client/ChatBot'), {
+  ssr: false,
+});
+
+const ExitIntentPopup = dynamic(() => import('@/components/client/ExitIntentPopup'), {
+  ssr: false,
+});
 
 const inter = Inter({ subsets: ['latin'], variable: '--font-inter' });
 
@@ -72,8 +79,12 @@ export default function RootLayout({
     <html lang="en" className={inter.variable}>
       <head>
         {/* Google tag (gtag.js) */}
-        <script async src="https://www.googletagmanager.com/gtag/js?id=G-CNZE5NMBG5"></script>
         <script
+          defer
+          src="https://www.googletagmanager.com/gtag/js?id=G-CNZE5NMBG5"
+        ></script>
+        <script
+          defer
           dangerouslySetInnerHTML={{
             __html: `
               window.dataLayer = window.dataLayer || [];
