@@ -367,7 +367,7 @@ export default function NovaSubmissionForm() {
 
       {/* CAPTCHA */}
       <div className="mb-6">
-        <CaptchaWrapper ref={captchaRef} />
+        <CaptchaWrapper ref={captchaRef} onVerify={() => {}} />
       </div>
 
       <button
