@@ -1,10 +1,6 @@
-import { Metadata } from 'next';
-import CampaignsPage from './page';
+'use client';
 
-export const metadata: Metadata = {
-  title: 'Window Repair Offers & Programs',
-  description: 'Discover our window repair promotions, community initiatives, and special programs to save on your repairs.',
-};
+import { Metadata } from 'next';
 
 export default function CampaignsLayout({
   children,
@@ -12,4 +8,4 @@ export default function CampaignsLayout({
   children: React.ReactNode
 }) {
   return children
-} 
+}
