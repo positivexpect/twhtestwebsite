@@ -1,18 +1,11 @@
 import './globals.css';
 import { Inter } from 'next/font/google';
 import type { Metadata, Viewport } from 'next';
-import dynamic from 'next/dynamic';
 import { Analytics } from '@vercel/analytics/next';
 import Navigation from '@/components/client/Navigation';
 import Footer from '@/components/Footer';
-
-const ChatBot = dynamic(() => import('@/components/client/ChatBot'), {
-  ssr: false,
-});
-
-const ExitIntentPopup = dynamic(() => import('@/components/client/ExitIntentPopup'), {
-  ssr: false,
-});
+import ChatBotWrapper from '@/components/client/ChatBotWrapper';
+import ExitIntentPopupWrapper from '@/components/client/ExitIntentPopupWrapper';
 
 const inter = Inter({
   subsets: ['latin'],
@@ -108,8 +101,8 @@ export default function RootLayout({
         <Navigation />
         <main>{children}</main>
         <Footer />
-        <ChatBot />
-        <ExitIntentPopup />
+        <ChatBotWrapper />
+        <ExitIntentPopupWrapper />
         <Analytics />
       </body>
     </html>
