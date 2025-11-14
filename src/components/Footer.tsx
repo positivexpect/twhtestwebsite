@@ -29,7 +29,7 @@ export default function Footer() {
                   Fredericksburg, VA 22408
                 </a>
               </p>
-              <div className="text-[#E5E7EB]">
+              <div className="text-white">
                 <p>Monday-Thursday: 9am-4pm</p>
                 <p>Friday: 9am-1pm</p>
                 <p>Saturday-Sunday: Closed</p>
@@ -82,7 +82,7 @@ export default function Footer() {
           {/* Service Area */}
           <div>
             <h3 className="text-white text-lg font-semibold mb-4">Service Area</h3>
-            <p className="text-[#E5E7EB]">
+            <p className="text-white">
               Serving Fredericksburg, Stafford, Spotsylvania, King George, Caroline, and surrounding areas.
             </p>
             <div className="mt-4 space-y-2">
@@ -148,7 +148,7 @@ export default function Footer() {
         </div>
 
         <div className="mt-8 pt-8 border-t border-gray-700">
-          <div className="text-center text-[#E5E7EB] text-sm">
+          <div className="text-center text-gray-300 text-sm">
             <p>© {new Date().getFullYear()} The Window Hospital Inc. All rights reserved.</p>
             <p className="mt-2">
               <Link href="/privacy-policy" className="text-gray-100 hover:text-white transition-colors underline underline-offset-2">
