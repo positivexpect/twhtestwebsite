@@ -64,7 +64,7 @@ export default function NovaSubmissionForm() {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
   const [success, setSuccess] = useState(false);
-  const captchaRef = useRef<any>(null);
+  const [captchaToken, setCaptchaToken] = useState<string>('');
 
   const validateForm = () => {
     if (!formData.name.trim()) {
