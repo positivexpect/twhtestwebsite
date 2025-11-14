@@ -399,7 +399,7 @@ export default function NovaSubmissionForm() {
       {/* SMS Consent */}
       <div className="mb-6 p-4 bg-blue-50 rounded-lg border border-blue-200">
         <p className="text-sm font-semibold text-gray-900 mb-3">
-          Do you agree to receive text messages from The Window Hospital Inc. sent from (540)-603-0088? *
+          Do you agree to receive text messages from The Window Hospital Inc. sent from (703)-574-6003? *
         </p>
 
         <p className="text-xs text-gray-700 mb-4 leading-relaxed">
@@ -414,7 +414,7 @@ export default function NovaSubmissionForm() {
           • To communicate with you regarding your inquiries and our services
           <br />
           <br />
-          We do not sell your information. This is only to communicate with The Window Hospital Inc. Message and data rates may apply. Reply STOP at any time to end or unsubscribe. For assistance, reply HELP or contact support at (540)-603-0088.
+          We do not sell your information. This is only to communicate with The Window Hospital Inc. Message and data rates may apply. Reply STOP at any time to end or unsubscribe. For assistance, reply HELP or contact support at (703)-574-6003.
         </p>
 
         <div className="space-y-3">
@@ -429,7 +429,7 @@ export default function NovaSubmissionForm() {
               required
             />
             <span className="ml-3 text-sm text-gray-900">
-              Yes, I agree to receive text messages from The Window Hospital Inc. sent from (540)-603-0088
+              Yes, I agree to receive text messages from The Window Hospital Inc. sent from (703)-574-6003
             </span>
           </label>
 
