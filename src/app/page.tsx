@@ -1,5 +1,4 @@
 import dynamic from 'next/dynamic';
-import dynamic from 'next/dynamic';
 import Hero from '@/components/Hero';
 import RepairVsReplace from '@/components/RepairVsReplace';
 import Services from '@/components/Services';
