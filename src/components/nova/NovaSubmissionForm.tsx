@@ -185,67 +185,74 @@ export default function NovaSubmissionForm() {
   };
 
   return (
-    <form onSubmit={handleSubmit} className="bg-white rounded-lg shadow-lg p-8">
+    <form onSubmit={handleSubmit} className="bg-white rounded-lg shadow-lg p-8" aria-label="Northern Virginia Window Assessment Request Form">
       {success && (
-        <div className="mb-6 p-4 bg-green-100 text-green-800 rounded-lg">
+        <div className="mb-6 p-4 bg-green-100 text-green-800 rounded-lg" role="alert" aria-live="polite">
           <p className="font-semibold">Thank you for your submission!</p>
           <p>We'll contact you shortly to schedule your free assessment.</p>
         </div>
       )}
 
       {error && (
-        <div className="mb-6 p-4 bg-red-100 text-red-800 rounded-lg">
+        <div className="mb-6 p-4 bg-red-100 text-red-800 rounded-lg" role="alert" aria-live="polite">
           {error}
         </div>
       )}
 
       <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-6">
         <div>
-          <label className="block text-sm font-medium text-gray-700 mb-2">
-            Full Name *
+          <label htmlFor="name" className="block text-sm font-medium text-gray-700 mb-2">
+            Full Name <span aria-label="required">*</span>
           </label>
           <input
+            id="name"
             type="text"
             value={formData.name}
             onChange={(e) => setFormData({ ...formData, name: e.target.value })}
             className="w-full px-4 py-2 border border-gray-300 rounded-md focus:ring-[#CD2028] focus:border-[#CD2028] outline-none"
             required
+            aria-required="true"
           />
         </div>
 
         <div>
-          <label className="block text-sm font-medium text-gray-700 mb-2">
-            Email Address *
+          <label htmlFor="email" className="block text-sm font-medium text-gray-700 mb-2">
+            Email Address <span aria-label="required">*</span>
           </label>
           <input
+            id="email"
             type="email"
             value={formData.email}
             onChange={(e) => setFormData({ ...formData, email: e.target.value })}
             className="w-full px-4 py-2 border border-gray-300 rounded-md focus:ring-[#CD2028] focus:border-[#CD2028] outline-none"
             required
+            aria-required="true"
           />
         </div>
       </div>
 
       <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-6">
         <div>
-          <label className="block text-sm font-medium text-gray-700 mb-2">
-            Phone Number *
+          <label htmlFor="phone" className="block text-sm font-medium text-gray-700 mb-2">
+            Phone Number <span aria-label="required">*</span>
           </label>
           <input
+            id="phone"
             type="tel"
             value={formData.phone}
             onChange={(e) => setFormData({ ...formData, phone: e.target.value })}
             className="w-full px-4 py-2 border border-gray-300 rounded-md focus:ring-[#CD2028] focus:border-[#CD2028] outline-none"
             required
+            aria-required="true"
           />
         </div>
 
         <div>
-          <label className="block text-sm font-medium text-gray-700 mb-2">
+          <label htmlFor="street" className="block text-sm font-medium text-gray-700 mb-2">
             Street Address
           </label>
           <input
+            id="street"
             type="text"
             value={formData.address.street}
             onChange={(e) => setFormData({ ...formData, address: { ...formData.address, street: e.target.value } })}
@@ -256,23 +263,26 @@ export default function NovaSubmissionForm() {
 
       <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-6">
         <div>
-          <label className="block text-sm font-medium text-gray-700 mb-2">
-            City *
+          <label htmlFor="city" className="block text-sm font-medium text-gray-700 mb-2">
+            City <span aria-label="required">*</span>
           </label>
           <input
+            id="city"
             type="text"
             value={formData.address.city}
             onChange={(e) => setFormData({ ...formData, address: { ...formData.address, city: e.target.value } })}
             className="w-full px-4 py-2 border border-gray-300 rounded-md focus:ring-[#CD2028] focus:border-[#CD2028] outline-none"
             required
+            aria-required="true"
           />
         </div>
 
         <div>
-          <label className="block text-sm font-medium text-gray-700 mb-2">
+          <label htmlFor="state" className="block text-sm font-medium text-gray-700 mb-2">
             State
           </label>
           <input
+            id="state"
             type="text"
             value={formData.address.state}
             disabled
@@ -281,25 +291,28 @@ export default function NovaSubmissionForm() {
         </div>
 
         <div className="col-span-2 md:col-span-2">
-          <label className="block text-sm font-medium text-gray-700 mb-2">
-            ZIP Code *
+          <label htmlFor="zip" className="block text-sm font-medium text-gray-700 mb-2">
+            ZIP Code <span aria-label="required">*</span>
           </label>
           <input
+            id="zip"
             type="text"
             value={formData.address.zip}
             onChange={(e) => setFormData({ ...formData, address: { ...formData.address, zip: e.target.value } })}
             className="w-full px-4 py-2 border border-gray-300 rounded-md focus:ring-[#CD2028] focus:border-[#CD2028] outline-none"
             required
+            aria-required="true"
           />
         </div>
       </div>
 
       <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-6">
         <div>
-          <label className="block text-sm font-medium text-gray-700 mb-2">
+          <label htmlFor="windowType" className="block text-sm font-medium text-gray-700 mb-2">
             Window Type
           </label>
           <select
+            id="windowType"
             value={formData.windowType}
             onChange={(e) => setFormData({ ...formData, windowType: e.target.value })}
             className="w-full px-4 py-2 border border-gray-300 rounded-md focus:ring-[#CD2028] focus:border-[#CD2028] outline-none"
@@ -312,10 +325,11 @@ export default function NovaSubmissionForm() {
         </div>
 
         <div>
-          <label className="block text-sm font-medium text-gray-700 mb-2">
+          <label htmlFor="issue" className="block text-sm font-medium text-gray-700 mb-2">
             Main Issue
           </label>
           <select
+            id="issue"
             value={formData.issue}
             onChange={(e) => setFormData({ ...formData, issue: e.target.value })}
             className="w-full px-4 py-2 border border-gray-300 rounded-md focus:ring-[#CD2028] focus:border-[#CD2028] outline-none"
@@ -463,6 +477,7 @@ export default function NovaSubmissionForm() {
         type="submit"
         disabled={loading}
         className="w-full bg-[#CD2028] text-white font-bold py-3 rounded-md hover:bg-[#B01B22] disabled:bg-gray-400 transition text-lg"
+        aria-busy={loading}
       >
         {loading ? 'Submitting...' : 'Get Your Free Assessment'}
       </button>
