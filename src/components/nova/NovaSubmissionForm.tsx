@@ -357,10 +357,11 @@ export default function NovaSubmissionForm() {
       </div>
 
       <div className="mb-6">
-        <label className="block text-sm font-medium text-gray-700 mb-2">
+        <label htmlFor="message" className="block text-sm font-medium text-gray-700 mb-2">
           Additional Details (Optional)
         </label>
         <textarea
+          id="message"
           value={formData.message}
           onChange={(e) => setFormData({ ...formData, message: e.target.value })}
           rows={4}
