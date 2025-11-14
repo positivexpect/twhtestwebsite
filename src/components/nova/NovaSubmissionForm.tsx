@@ -103,7 +103,6 @@ export default function NovaSubmissionForm() {
     setLoading(true);
 
     try {
-      const captchaToken = captchaRef.current?.getResponse();
       if (!captchaToken) {
         setError('Please complete the CAPTCHA');
         setLoading(false);
@@ -144,9 +143,7 @@ export default function NovaSubmissionForm() {
         textConsent: ''
       });
 
-      if (captchaRef.current) {
-        captchaRef.current.reset();
-      }
+      setCaptchaToken('');
 
       setTimeout(() => setSuccess(false), 5000);
     } catch (err) {
