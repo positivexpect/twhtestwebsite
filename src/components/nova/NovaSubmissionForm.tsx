@@ -332,7 +332,7 @@ export default function NovaSubmissionForm() {
 
       <div className="mb-6">
         <label className="block text-sm font-medium text-gray-700 mb-2">
-          Additional Details
+          Additional Details (Optional)
         </label>
         <textarea
           value={formData.message}
@@ -341,6 +341,24 @@ export default function NovaSubmissionForm() {
           className="w-full px-4 py-2 border border-gray-300 rounded-md focus:ring-[#CD2028] focus:border-[#CD2028] outline-none"
           placeholder="Tell us more about your windows or your timeline..."
         />
+      </div>
+
+      {/* File Upload */}
+      <div className="mb-6">
+        <label className="block text-sm font-medium text-gray-700 mb-2">
+          Photos or Videos (Optional)
+        </label>
+        <FileUpload
+          formType="nova_assessment"
+          onFilesSelected={handleFilesSelected}
+          onError={handleUploadError}
+        />
+        <p className="text-sm text-gray-600 mt-2">
+          Upload photos or videos of your window issues to help us better understand your needs. Maximum file size: 100MB per file.
+        </p>
+        {uploadError && (
+          <p className="text-red-600 text-sm mt-2">{uploadError}</p>
+        )}
       </div>
 
       {/* SMS Consent */}
