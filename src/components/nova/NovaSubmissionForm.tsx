@@ -361,15 +361,38 @@ export default function NovaSubmissionForm() {
           Photos or Videos (Optional)
         </label>
         <FileUpload
-          formType="nova_assessment"
-          onFilesSelected={handleFilesSelected}
-          onError={handleUploadError}
+          formType="assessment"
+          onUploadComplete={handleFileUploadComplete}
+          onUploadError={handleUploadError}
+          multiple={true}
         />
         <p className="text-sm text-gray-600 mt-2">
           Upload photos or videos of your window issues to help us better understand your needs. Maximum file size: 100MB per file.
         </p>
         {uploadError && (
           <p className="text-red-600 text-sm mt-2">{uploadError}</p>
+        )}
+
+        {uploadedFiles.length > 0 && (
+          <div className="mt-4">
+            <h4 className="text-sm font-medium text-gray-700 mb-2">Uploaded Files:</h4>
+            <ul className="space-y-2">
+              {uploadedFiles.map((file, index) => (
+                <li key={index} className="flex items-center justify-between bg-gray-50 p-3 rounded-md">
+                  <span className="text-sm text-gray-700">
+                    {file.name} ({Math.round(file.size / 1024)} KB)
+                  </span>
+                  <button
+                    type="button"
+                    onClick={() => removeUploadedFile(index)}
+                    className="text-red-600 hover:text-red-800 text-sm font-medium"
+                  >
+                    Remove
+                  </button>
+                </li>
+              ))}
+            </ul>
+          </div>
         )}
       </div>
 
