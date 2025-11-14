@@ -14,7 +14,11 @@ const ExitIntentPopup = dynamic(() => import('@/components/client/ExitIntentPopu
   ssr: false,
 });
 
-const inter = Inter({ subsets: ['latin'], variable: '--font-inter' });
+const inter = Inter({
+  subsets: ['latin'],
+  variable: '--font-inter',
+  display: 'swap'
+});
 
 export const viewport: Viewport = {
   width: 'device-width',
