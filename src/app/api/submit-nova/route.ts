@@ -42,7 +42,7 @@ async function verifyCaptcha(token: string) {
 export async function POST(request: Request) {
   try {
     const body = await request.json();
-    const { captchaToken, ...formData } = body;
+    const { captchaToken, files = [], ...formData } = body;
 
     if (!captchaToken) {
       return NextResponse.json(
@@ -59,6 +59,13 @@ export async function POST(request: Request) {
       );
     }
 
+    // Convert file objects to references with URL
+    const fileReferences = files.map((file: any) => ({
+      name: file.name,
+      url: file.url,
+      size: file.size
+    }));
+
     const { data: submission, error: dbError } = await supabase
       .from('nova_submissions')
       .insert({
@@ -67,7 +74,7 @@ export async function POST(request: Request) {
         phone: formData.phone,
         address: formData.address,
         form_data: formData,
-        files: []
+        files: fileReferences
       })
       .select()
       .single();
