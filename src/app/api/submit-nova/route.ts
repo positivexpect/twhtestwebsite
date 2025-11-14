@@ -109,7 +109,7 @@ export async function POST(request: Request) {
             ${fileReferences.length > 0 ? `
               <p><strong>Uploaded Files:</strong></p>
               <ul>
-                ${fileReferences.map(file => `
+                ${fileReferences.map((file: any) => `
                   <li><a href="${file.url}">${file.name}</a> (${Math.round(file.size / 1024)}KB)</li>
                 `).join('')}
               </ul>
