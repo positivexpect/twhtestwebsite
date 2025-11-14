@@ -148,7 +148,7 @@ export default function Footer() {
         </div>
 
         <div className="mt-8 pt-8 border-t border-gray-700">
-          <div className="text-center text-gray-300 text-sm">
+          <div className="text-center text-white text-sm">
             <p>© {new Date().getFullYear()} The Window Hospital Inc. All rights reserved.</p>
             <p className="mt-2">
               <Link href="/privacy-policy" className="text-gray-100 hover:text-white transition-colors underline underline-offset-2">
