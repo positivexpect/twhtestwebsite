@@ -199,7 +199,7 @@ export default function EducationPage() {
         </p>
         <Link
           href="/contact"
-          className="inline-flex items-center px-8 py-4 border-2 border-white text-lg font-semibold rounded-xl text-white hover:bg-white hover:text-gray-900 transition-all duration-300 transform hover:scale-105"
+          className="inline-flex items-center px-8 py-4 bg-[#CD2028] text-lg font-semibold rounded-xl text-white hover:bg-[#B01B22] transition-all duration-300 transform hover:scale-105"
         >
           Get Your Free Assessment
         </Link>
