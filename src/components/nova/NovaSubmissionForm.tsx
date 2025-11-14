@@ -104,16 +104,22 @@ export default function NovaSubmissionForm() {
     return true;
   };
 
-  const handleFilesSelected = (files: File[]) => {
-    setFormData(prev => ({
-      ...prev,
-      files: files
-    }));
+  const handleFileUploadComplete = (url: string, file: File) => {
+    const newFile: UploadedFile = {
+      name: file.name,
+      url: url,
+      size: file.size
+    };
+    setUploadedFiles(prev => [...prev, newFile]);
     setUploadError('');
   };
 
   const handleUploadError = (error: Error) => {
     setUploadError(error.message);
+  };
+
+  const removeUploadedFile = (index: number) => {
+    setUploadedFiles(prev => prev.filter((_, i) => i !== index));
   };
 
   const handleSubmit = async (e: React.FormEvent) => {
