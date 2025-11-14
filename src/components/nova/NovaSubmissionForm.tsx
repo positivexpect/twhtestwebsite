@@ -1,7 +1,9 @@
 'use client';
 
 import { useState } from 'react';
+import Link from 'next/link';
 import CaptchaWrapper from '../shared/CaptchaWrapper';
+import FileUpload from '../shared/FileUpload';
 
 type FormData = {
   name: string;
@@ -18,6 +20,7 @@ type FormData = {
   windowCount: string;
   message: string;
   textConsent: 'yes' | 'no' | '';
+  files: File[];
 };
 
 const WINDOW_TYPES = [
