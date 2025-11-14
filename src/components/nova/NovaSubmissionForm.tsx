@@ -362,38 +362,58 @@ export default function NovaSubmissionForm() {
       </div>
 
       {/* SMS Consent */}
-      <div className="mb-6">
-        <p className="text-sm text-gray-700 font-medium mb-3">
-          May we text you with updates about your assessment? *
+      <div className="mb-6 p-4 bg-blue-50 rounded-lg border border-blue-200">
+        <p className="text-sm font-semibold text-gray-900 mb-3">
+          Do you agree to receive text messages from The Window Hospital Inc. sent from (540)-603-0088? *
         </p>
+
+        <p className="text-xs text-gray-700 mb-4 leading-relaxed">
+          Message frequency varies and may include:
+          <br />
+          • To provide and manage our services
+          <br />
+          • To schedule and confirm appointments
+          <br />
+          • To process payments and send invoices
+          <br />
+          • To communicate with you regarding your inquiries and our services
+          <br />
+          <br />
+          We do not sell your information. This is only to communicate with The Window Hospital Inc. Message and data rates may apply. Reply STOP at any time to end or unsubscribe. For assistance, reply HELP or contact support at (540)-603-0088.
+        </p>
+
         <div className="space-y-3">
-          <label className="flex items-center">
+          <label className="flex items-start cursor-pointer">
             <input
               type="radio"
               name="textConsent"
               value="yes"
               checked={formData.textConsent === 'yes'}
               onChange={(e) => setFormData({ ...formData, textConsent: 'yes' })}
-              className="w-4 h-4 text-[#CD2028] focus:ring-[#CD2028] border-gray-300"
+              className="w-4 h-4 text-[#CD2028] focus:ring-[#CD2028] border-gray-300 mt-0.5 flex-shrink-0"
               required
             />
-            <span className="ml-3 text-gray-700">
-              Yes, text me with updates (standard rates may apply)
+            <span className="ml-3 text-sm text-gray-900">
+              Yes, I agree to receive text messages from The Window Hospital Inc. sent from (540)-603-0088
             </span>
           </label>
 
-          <label className="flex items-center">
+          <label className="flex items-start cursor-pointer">
             <input
               type="radio"
               name="textConsent"
               value="no"
               checked={formData.textConsent === 'no'}
               onChange={(e) => setFormData({ ...formData, textConsent: 'no' })}
-              className="w-4 h-4 text-[#CD2028] focus:ring-[#CD2028] border-gray-300"
+              className="w-4 h-4 text-[#CD2028] focus:ring-[#CD2028] border-gray-300 mt-0.5 flex-shrink-0"
               required
             />
-            <span className="ml-3 text-gray-700">
-              No, contact me by email or phone only
+            <span className="ml-3 text-sm text-gray-900">
+              No, I do not want to receive text messages from The Window Hospital Inc. See our{' '}
+              <Link href="/privacy-policy" className="text-blue-600 hover:text-blue-800 underline">
+                Privacy Policy
+              </Link>
+              {' '}for details on how we handle your information.
             </span>
           </label>
         </div>
