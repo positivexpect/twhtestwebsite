@@ -157,10 +157,12 @@ export default function NovaSubmissionForm() {
         issue: '',
         windowCount: '',
         message: '',
-        textConsent: ''
+        textConsent: '',
+        files: []
       });
 
       setCaptchaToken('');
+      setUploadError('');
 
       setTimeout(() => setSuccess(false), 5000);
     } catch (err) {
