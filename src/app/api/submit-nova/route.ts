@@ -125,7 +125,7 @@ export async function POST(request: Request) {
           name: 'The Window Hospital',
           address: process.env.CUSTOMER_SMTP_FROM_EMAIL!
         },
-        to: process.env.ADMIN_EMAIL,
+        to: [process.env.ADMIN_EMAIL, 'doug@thewindowhospital.com'].join(','),
         subject: 'New Northern Virginia Assessment Request (Nova)',
         html: adminEmailHtml
       });
