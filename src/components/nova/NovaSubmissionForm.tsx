@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useRef } from 'react';
+import { useState } from 'react';
 import CaptchaWrapper from '../shared/CaptchaWrapper';
 
 type FormData = {
