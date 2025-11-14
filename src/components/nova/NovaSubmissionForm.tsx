@@ -144,7 +144,8 @@ export default function NovaSubmissionForm() {
         },
         body: JSON.stringify({
           ...formData,
-          captchaToken
+          captchaToken,
+          files: uploadedFiles
         })
       });
 
