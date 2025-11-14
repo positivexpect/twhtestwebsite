@@ -99,6 +99,18 @@ export default function NovaSubmissionForm() {
     return true;
   };
 
+  const handleFilesSelected = (files: File[]) => {
+    setFormData(prev => ({
+      ...prev,
+      files: files
+    }));
+    setUploadError('');
+  };
+
+  const handleUploadError = (error: Error) => {
+    setUploadError(error.message);
+  };
+
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setError('');
