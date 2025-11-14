@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useEffect, useCallback } from 'react';
+import { useState, useCallback, useEffect } from 'react';
 
 type WindowIssue = {
   type: string;
@@ -26,38 +26,23 @@ export default function SavingsCalculator() {
   const [selectedIssue, setSelectedIssue] = useState<WindowIssue | null>(null);
   const [windowCount, setWindowCount] = useState(1);
   const [calculationResult, setCalculationResult] = useState<SavingsResult | null>(null);
-  const [worker, setWorker] = useState<Worker | null>(null);
 
-  // Initialize Web Worker
-  useEffect(() => {
-    if (typeof window !== 'undefined') {
-      const newWorker = new Worker('/workers/heavyTasks.worker.js');
-      newWorker.onmessage = (e) => {
-        if (e.data.type === 'SAVINGS_CALCULATED') {
-          setCalculationResult(e.data.savings);
-        }
-      };
-      setWorker(newWorker);
-
-      return () => {
-        newWorker.terminate();
-      };
-    }
-  }, []);
-
-  // Calculate savings using Web Worker
+  // Calculate savings directly
   const calculateSavings = useCallback(() => {
-    if (!selectedIssue || !worker) return;
+    if (!selectedIssue) return;
 
-    worker.postMessage({
-      type: 'CALCULATE_SAVINGS',
-      data: {
-        windowCount,
-        replacementCost: selectedIssue.replacementCost,
-        repairCost: selectedIssue.repairCost
-      }
+    const totalReplacementCost = windowCount * selectedIssue.replacementCost;
+    const totalRepairCost = windowCount * selectedIssue.repairCost;
+    const savings = totalReplacementCost - totalRepairCost;
+    const roi = ((savings / totalRepairCost) * 100).toFixed(2);
+
+    setCalculationResult({
+      totalReplacementCost,
+      totalRepairCost,
+      savings,
+      roi
     });
-  }, [selectedIssue, windowCount, worker]);
+  }, [selectedIssue, windowCount]);
 
   // Trigger calculation when inputs change
   useEffect(() => {
