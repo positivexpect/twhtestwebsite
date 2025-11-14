@@ -1,6 +1,6 @@
 'use client';
 
-import { useEffect, useRef, useState } from 'react';
+import { useEffect, useRef, useState, forwardRef } from 'react';
 import dynamic from 'next/dynamic';
 
 const HCaptcha = dynamic(() => import('@hcaptcha/react-hcaptcha'), {
@@ -13,43 +13,62 @@ const HCaptcha = dynamic(() => import('@hcaptcha/react-hcaptcha'), {
 });
 
 interface CaptchaWrapperProps {
-  onVerify: (token: string) => void;
+  onVerify?: (token: string) => void;
 }
 
-export default function CaptchaWrapper({ onVerify }: CaptchaWrapperProps) {
-  const [isVisible, setIsVisible] = useState(false);
-  const captchaRef = useRef<HTMLDivElement>(null);
+const CaptchaWrapper = forwardRef<any, CaptchaWrapperProps>(
+  ({ onVerify }, ref) => {
+    const [isVisible, setIsVisible] = useState(false);
+    const containerRef = useRef<HTMLDivElement>(null);
+    const hcaptchaRef = useRef<any>(null);
 
-  useEffect(() => {
-    if (!captchaRef.current) return;
+    useEffect(() => {
+      if (!containerRef.current) return;
 
-    const observer = new IntersectionObserver(
-      ([entry]) => {
-        if (entry.isIntersecting) {
-          setIsVisible(true);
-          observer.disconnect();
+      const observer = new IntersectionObserver(
+        ([entry]) => {
+          if (entry.isIntersecting) {
+            setIsVisible(true);
+            observer.disconnect();
+          }
+        },
+        { threshold: 0.1 }
+      );
+
+      observer.observe(containerRef.current);
+
+      return () => {
+        observer.disconnect();
+      };
+    }, []);
+
+    // Expose hcaptcha ref methods through the forwarded ref
+    useEffect(() => {
+      if (ref) {
+        if (typeof ref === 'function') {
+          ref(hcaptchaRef.current);
+        } else {
+          ref.current = hcaptchaRef.current;
         }
-      },
-      { threshold: 0.1 }
+      }
+    }, [ref]);
+
+    return (
+      <div ref={containerRef}>
+        {isVisible && (
+          <HCaptcha
+            ref={hcaptchaRef}
+            sitekey={process.env.NEXT_PUBLIC_HCAPTCHA_SITE_KEY!}
+            onVerify={onVerify}
+            theme="light"
+            size="normal"
+          />
+        )}
+      </div>
     );
+  }
+);
 
-    observer.observe(captchaRef.current);
+CaptchaWrapper.displayName = 'CaptchaWrapper';
 
-    return () => {
-      observer.disconnect();
-    };
-  }, []);
-
-  return (
-    <div ref={captchaRef}>
-      {isVisible && (
-        <HCaptcha
-          sitekey={process.env.NEXT_PUBLIC_HCAPTCHA_SITE_KEY!}
-          onVerify={onVerify}
-          theme="light"
-          size="normal"
-        />
-      )}
-    </div>
-  );
-} 
+export default CaptchaWrapper;
