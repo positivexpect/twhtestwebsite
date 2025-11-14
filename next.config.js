@@ -4,16 +4,6 @@ const withBundleAnalyzer = require('@next/bundle-analyzer')({
 });
 
 const nextConfig = {
-  // Target modern browsers to reduce bundle size and eliminate polyfills
-  swcMinify: true,
-  webpack: (config, { isServer }) => {
-    if (!isServer) {
-      config.resolve.fallback = {
-        ...config.resolve.fallback,
-      };
-    }
-    return config;
-  },
   async headers() {
     return [
       {
