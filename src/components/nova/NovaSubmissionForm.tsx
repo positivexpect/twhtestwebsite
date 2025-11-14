@@ -20,7 +20,12 @@ type FormData = {
   windowCount: string;
   message: string;
   textConsent: 'yes' | 'no' | '';
-  files: File[];
+};
+
+type UploadedFile = {
+  name: string;
+  url: string;
+  size: number;
 };
 
 const WINDOW_TYPES = [
@@ -370,7 +375,7 @@ export default function NovaSubmissionForm() {
         <p className="text-xs text-gray-700 mb-4 leading-relaxed">
           Message frequency varies and may include:
           <br />
-          • To provide and manage our services
+          �� To provide and manage our services
           <br />
           • To schedule and confirm appointments
           <br />
