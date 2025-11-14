@@ -58,10 +58,10 @@ export default function NovaPage() {
                   </div>
                   <div className="mt-3 sm:mt-0 sm:ml-3">
                     <a
-                      href="tel:5406030088"
+                      href="tel:7035746003"
                       className="w-full flex items-center justify-center px-8 py-3 border border-transparent text-base font-medium rounded-md text-blue-700 bg-blue-100 hover:bg-blue-200 md:py-4 md:text-lg md:px-10"
                     >
-                      Call 540-603-0088
+                      Call 703-574-6003
                     </a>
                   </div>
                 </div>
@@ -233,10 +233,10 @@ export default function NovaPage() {
               Get Free Assessment
             </a>
             <a
-              href="tel:5406030088"
+              href="tel:7035746003"
               className="px-8 py-3 border-2 border-white text-white font-bold rounded-md hover:bg-white hover:text-[#CD2028] transition text-lg"
             >
-              Call 540-603-0088
+              Call 703-574-6003
             </a>
           </div>
         </div>
