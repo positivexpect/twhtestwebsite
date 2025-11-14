@@ -192,9 +192,9 @@ export default function EducationPage() {
         </div>
       </section>
 
-      <section className="bg-gradient-to-br from-gray-900 to-gray-800 p-12 rounded-3xl shadow-2xl text-center">
-        <h2 className="text-3xl font-bold text-white mb-6">Ready to Save on Your Window Repairs?</h2>
-        <p className="text-xl text-gray-300 mb-10 max-w-2xl mx-auto leading-relaxed">
+      <section className="bg-white p-12 rounded-3xl shadow-2xl text-center border-2 border-[#CD2028]">
+        <h2 className="text-3xl font-bold text-gray-900 mb-6">Ready to Save on Your Window Repairs?</h2>
+        <p className="text-xl text-gray-600 mb-10 max-w-2xl mx-auto leading-relaxed">
           Now that you understand the benefits of window repair, let our experts assess your windows and provide a customized solution.
         </p>
         <Link
