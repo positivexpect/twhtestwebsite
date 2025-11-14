@@ -1,5 +1,4 @@
 import dynamic from 'next/dynamic';
-import Image from 'next/image';
 import Link from 'next/link';
 
 const NovaSubmissionForm = dynamic(
@@ -23,21 +22,21 @@ export default function NovaPage() {
     'Warrenton',
     'Leesburg',
     'Aldie',
-    'Purcellville',
+    'Purcellsville',
     'Hillsboro',
     'Lovettsville',
     'Middleburg'
   ];
 
   return (
-    <div className="min-h-screen">
+    <div className="min-h-screen" role="main">
       {/* Hero Section */}
       <div className="relative bg-white overflow-hidden">
         <div className="max-w-7xl mx-auto">
           <div className="relative z-10 bg-white sm:pb-16 md:pb-20 lg:max-w-2xl lg:w-full lg:pb-28 xl:pb-32">
             <main className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
               <div className="sm:text-center lg:text-left pt-8">
-                <h1 className="text-4xl tracking-tight font-extrabold text-gray-900 sm:text-5xl md:text-6xl">
+                <h1 className="text-5xl tracking-tight font-extrabold text-gray-900 sm:text-5xl md:text-6xl">
                   <span className="block">Northern Virginia</span>
                   <span className="block text-[#CD2028]">Window Repair Specialists</span>
                 </h1>
@@ -72,10 +71,10 @@ export default function NovaPage() {
       </div>
 
       {/* Why Choose Us Section */}
-      <section className="py-12 bg-gray-50 sm:py-16 lg:py-20">
+      <section className="py-12 bg-gray-50 sm:py-16 lg:py-20" aria-labelledby="why-choose">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="text-center">
-            <h2 className="text-3xl font-extrabold text-gray-900 sm:text-4xl mb-8">
+            <h2 id="why-choose" className="text-3xl font-extrabold text-gray-900 sm:text-4xl mb-8">
               Why Northern Virginia Homeowners Choose The Window Hospital
             </h2>
           </div>
@@ -100,10 +99,10 @@ export default function NovaPage() {
       </section>
 
       {/* Services Section */}
-      <section className="py-12 sm:py-16 lg:py-20 bg-white">
+      <section className="py-12 sm:py-16 lg:py-20 bg-white" aria-labelledby="services-heading">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="text-center mb-12">
-            <h2 className="text-3xl font-extrabold text-gray-900 sm:text-4xl">
+            <h2 id="services-heading" className="text-3xl font-extrabold text-gray-900 sm:text-4xl">
               Our Expert Window Services
             </h2>
             <p className="mt-4 text-lg text-gray-600">Available throughout Northern Virginia</p>
@@ -144,10 +143,10 @@ export default function NovaPage() {
       </section>
 
       {/* Areas Served Section */}
-      <section className="py-12 sm:py-16 lg:py-20 bg-gray-50">
+      <section className="py-12 sm:py-16 lg:py-20 bg-gray-50" aria-labelledby="areas-heading">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="text-center mb-12">
-            <h2 className="text-3xl font-extrabold text-gray-900 sm:text-4xl">
+            <h2 id="areas-heading" className="text-3xl font-extrabold text-gray-900 sm:text-4xl">
               We Serve Northern Virginia
             </h2>
             <p className="mt-4 text-lg text-gray-600">Including these communities and surrounding areas</p>
@@ -165,10 +164,10 @@ export default function NovaPage() {
       </section>
 
       {/* Form Section */}
-      <section id="nova-form" className="py-12 sm:py-16 lg:py-20 bg-white">
+      <section id="nova-form" className="py-12 sm:py-16 lg:py-20 bg-white" aria-labelledby="form-heading">
         <div className="max-w-3xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="text-center mb-12">
-            <h2 className="text-3xl font-extrabold text-gray-900 sm:text-4xl">
+            <h2 id="form-heading" className="text-3xl font-extrabold text-gray-900 sm:text-4xl">
               Get Your Free Assessment
             </h2>
             <p className="mt-4 text-lg text-gray-600">
@@ -181,9 +180,9 @@ export default function NovaPage() {
       </section>
 
       {/* FAQ Section */}
-      <section className="py-12 sm:py-16 lg:py-20 bg-gray-50">
+      <section className="py-12 sm:py-16 lg:py-20 bg-gray-50" aria-labelledby="faq-heading">
         <div className="max-w-3xl mx-auto px-4 sm:px-6 lg:px-8">
-          <h2 className="text-3xl font-extrabold text-gray-900 sm:text-4xl text-center mb-12">
+          <h2 id="faq-heading" className="text-3xl font-extrabold text-gray-900 sm:text-4xl text-center mb-12">
             Frequently Asked Questions
           </h2>
 
@@ -217,9 +216,9 @@ export default function NovaPage() {
       </section>
 
       {/* CTA Section */}
-      <section className="py-12 sm:py-16 lg:py-20 bg-[#CD2028]">
+      <section className="py-12 sm:py-16 lg:py-20 bg-[#CD2028]" aria-labelledby="cta-heading">
         <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
-          <h2 className="text-3xl font-extrabold text-white sm:text-4xl mb-4">
+          <h2 id="cta-heading" className="text-3xl font-extrabold text-white sm:text-4xl mb-4">
             Ready to Save on Your Window Repair?
           </h2>
           <p className="text-xl text-white mb-8">
