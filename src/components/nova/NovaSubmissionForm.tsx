@@ -169,10 +169,10 @@ export default function NovaSubmissionForm() {
         issue: '',
         windowCount: '',
         message: '',
-        textConsent: '',
-        files: []
+        textConsent: ''
       });
 
+      setUploadedFiles([]);
       setCaptchaToken('');
       setUploadError('');
 
