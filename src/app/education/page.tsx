@@ -52,7 +52,8 @@ export default function EducationPage() {
   }, []);
 
   return (
-    <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
+    <div className="bg-white min-h-screen">
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
       <div className="text-center mb-16">
         <h1 className="text-5xl font-extrabold text-gray-900 mb-6 tracking-tight">
           Window Education Center
@@ -204,6 +205,7 @@ export default function EducationPage() {
           Get Your Free Assessment
         </Link>
       </section>
+      </div>
     </div>
   );
 }
