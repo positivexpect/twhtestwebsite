@@ -1,7 +1,6 @@
 'use client';
 
 import { useState } from 'react';
-import { Search, Filter, Phone, Clock, Volume2 } from 'react-icons/fa';
 
 /**
  * Conversations Page (VAPI Integration Placeholder)
@@ -116,14 +115,14 @@ export default function ConversationsPage({
       {/* Filters */}
       <div className="bg-white rounded-lg shadow p-4 space-y-4">
         <div className="flex items-center space-x-2 text-gray-600">
-          <Filter size={16} />
+          <span>🔍</span>
           <span className="text-sm font-medium">Filters</span>
         </div>
 
         <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
           {/* Search */}
           <div className="relative">
-            <Search className="absolute left-3 top-3 text-gray-400" size={18} />
+            <span className="absolute left-3 top-3 text-gray-400">🔎</span>
             <input
               type="text"
               placeholder="Search by phone number or call ID..."
@@ -182,14 +181,14 @@ export default function ConversationsPage({
                   <td className="px-6 py-4 font-medium text-red-600">{call.id}</td>
                   <td className="px-6 py-4">
                     <div className="flex items-center space-x-2">
-                      <Phone size={14} className="text-gray-400" />
+                      <span>📱</span>
                       <span className="font-medium text-gray-900">{call.callerNumber}</span>
                     </div>
                   </td>
                   <td className="px-6 py-4 text-sm text-gray-600">{call.callTime}</td>
                   <td className="px-6 py-4 text-sm text-gray-600">
                     <div className="flex items-center space-x-2">
-                      <Clock size={14} className="text-gray-400" />
+                      <span>⏱️</span>
                       <span>{call.duration} min</span>
                     </div>
                   </td>
@@ -208,7 +207,7 @@ export default function ConversationsPage({
                           className="text-blue-600 hover:text-blue-700 transition-colors"
                           title="Listen to recording"
                         >
-                          <Volume2 size={16} />
+                          🔊
                         </button>
                       )}
                       <button className="text-gray-600 hover:text-gray-700 font-medium transition-colors">
