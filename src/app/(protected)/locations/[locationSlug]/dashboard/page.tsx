@@ -2,7 +2,6 @@
 
 import { useState } from 'react';
 import Link from 'next/link';
-import { AlertCircle, CheckCircle, Clock, Phone } from 'react-icons/fa';
 
 /**
  * Location Dashboard Page
