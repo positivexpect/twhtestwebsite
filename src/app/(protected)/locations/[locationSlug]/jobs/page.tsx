@@ -2,7 +2,6 @@
 
 import { useState } from 'react';
 import Link from 'next/link';
-import { Plus, Search, Filter, MapPin, User } from 'react-icons/fa';
 
 /**
  * Jobs / Work Orders Page
@@ -128,7 +127,7 @@ export default function JobsPage({
           <p className="mt-2 text-gray-600">Track and manage all scheduled work</p>
         </div>
         <button className="flex items-center space-x-2 px-4 py-2 bg-red-600 text-white rounded-lg hover:bg-red-700 transition-colors font-medium">
-          <Plus size={18} />
+          <span>➕</span>
           <span>New Job</span>
         </button>
       </div>
@@ -136,14 +135,14 @@ export default function JobsPage({
       {/* Filters */}
       <div className="bg-white rounded-lg shadow p-4 space-y-4">
         <div className="flex items-center space-x-2 text-gray-600">
-          <Filter size={16} />
+          <span>🔍</span>
           <span className="text-sm font-medium">Filters</span>
         </div>
 
         <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
           {/* Search */}
           <div className="relative">
-            <Search className="absolute left-3 top-3 text-gray-400" size={18} />
+            <span className="absolute left-3 top-3 text-gray-400">🔎</span>
             <input
               type="text"
               placeholder="Search by customer, address, or job ID..."
@@ -205,14 +204,14 @@ export default function JobsPage({
                   <td className="px-6 py-4 text-sm font-medium text-gray-900">{job.customer}</td>
                   <td className="px-6 py-4 text-sm text-gray-600">
                     <div className="flex items-center space-x-2">
-                      <MapPin size={14} className="text-gray-400" />
+                      <span>📍</span>
                       <span>{job.address}, {job.city}</span>
                     </div>
                   </td>
                   <td className="px-6 py-4 text-sm text-gray-600">{job.problemType}</td>
                   <td className="px-6 py-4 text-sm text-gray-600">
                     <div className="flex items-center space-x-2">
-                      <User size={14} className="text-gray-400" />
+                      <span>👤</span>
                       <span>{job.tech}</span>
                     </div>
                   </td>
