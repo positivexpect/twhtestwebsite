@@ -2,7 +2,6 @@
 
 import { useState } from 'react';
 import Link from 'next/link';
-import { Plus, Edit, Trash2, User } from 'react-icons/fa';
 
 /**
  * Locations Management Page (HQ Admin Only)
@@ -71,7 +70,7 @@ export default function LocationsPage() {
           onClick={() => setShowNewLocationForm(!showNewLocationForm)}
           className="flex items-center space-x-2 px-4 py-2 bg-red-600 text-white rounded-lg hover:bg-red-700 transition-colors font-medium"
         >
-          <Plus size={18} />
+          <span>➕</span>
           <span>New Location</span>
         </button>
       </div>
@@ -179,7 +178,7 @@ export default function LocationsPage() {
                   <td className="px-6 py-4 text-sm text-gray-600">{location.territory}</td>
                   <td className="px-6 py-4 text-sm text-gray-600">
                     <div className="flex items-center space-x-2">
-                      <User size={14} className="text-gray-400" />
+                      <span>👤</span>
                       <span>{location.franchiseOwner}</span>
                     </div>
                   </td>
@@ -199,19 +198,19 @@ export default function LocationsPage() {
                       className="text-blue-600 hover:text-blue-700 transition-colors"
                       title="Invite Staff"
                     >
-                      <Plus size={16} />
+                      ➕
                     </button>
                     <button
                       className="text-gray-600 hover:text-gray-700 transition-colors"
                       title="Edit"
                     >
-                      <Edit size={16} />
+                      ✏️
                     </button>
                     <button
                       className="text-red-600 hover:text-red-700 transition-colors"
                       title="Delete"
                     >
-                      <Trash2 size={16} />
+                      🗑️
                     </button>
                   </td>
                 </tr>
