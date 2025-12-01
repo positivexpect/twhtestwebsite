@@ -1,7 +1,4 @@
 import { NextResponse } from 'next/server';
-import jwt from 'jsonwebtoken';
-
-const JWT_SECRET = process.env.JWT_SECRET || 'your-secret-key-change-in-production';
 
 interface LoginRequest {
   email: string;
@@ -17,6 +14,20 @@ interface LoginResponse {
     name: string;
     role: string;
   };
+}
+
+// Generate a simple token (for temporary hardcoded auth)
+function generateToken(email: string): string {
+  return Buffer.from(
+    JSON.stringify({
+      email,
+      name: 'Operations Admin',
+      role: 'hq_admin',
+      location_ids: ['1', '2', '3'],
+      issuedAt: Date.now(),
+      expiresAt: Date.now() + 24 * 60 * 60 * 1000,
+    })
+  ).toString('base64');
 }
 
 export async function POST(request: Request): Promise<NextResponse<LoginResponse>> {
@@ -43,17 +54,8 @@ export async function POST(request: Request): Promise<NextResponse<LoginResponse
       );
     }
 
-    // Generate JWT token
-    const token = jwt.sign(
-      {
-        email,
-        name: 'Operations Admin',
-        role: 'hq_admin',
-        location_ids: ['1', '2', '3'], // All locations
-      },
-      JWT_SECRET,
-      { expiresIn: '24h' }
-    );
+    // Generate token
+    const token = generateToken(email);
 
     const response = NextResponse.json({
       success: true,
@@ -65,7 +67,7 @@ export async function POST(request: Request): Promise<NextResponse<LoginResponse
       },
     });
 
-    // Set auth token in httpOnly cookie
+    // Set auth token in cookie
     response.cookies.set('authToken', token, {
       httpOnly: true,
       secure: process.env.NODE_ENV === 'production',
