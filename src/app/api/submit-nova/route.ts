@@ -67,14 +67,18 @@ export async function POST(request: Request) {
     }));
 
     const { data: submission, error: dbError } = await supabase
-      .from('nova_submissions')
+      .from('form_submissions')
       .insert({
+        form_type: 'assessment',
+        location_id: '2',
+        location_name: 'Northern Virginia',
         name: formData.name,
         email: formData.email,
         phone: formData.phone,
         address: formData.address,
         form_data: formData,
-        files: fileReferences
+        files: fileReferences,
+        status: 'new'
       })
       .select()
       .single();
