@@ -1,7 +1,6 @@
 'use client';
 
 import { useState } from 'react';
-import { Save, Lock, Bell, Users, Trash2 } from 'react-icons/fa';
 
 /**
  * Settings Page
@@ -77,7 +76,7 @@ export default function SettingsPage() {
               onClick={handleSave}
               className="flex items-center space-x-2 px-6 py-2 bg-red-600 text-white rounded-lg hover:bg-red-700 transition-colors font-medium"
             >
-              <Save size={18} />
+              <span>💾</span>
               <span>Save Changes</span>
             </button>
             {isSaved && <p className="mt-2 text-green-600 text-sm">✓ Changes saved successfully</p>}
@@ -88,7 +87,7 @@ export default function SettingsPage() {
       {/* Security Settings */}
       <div className="bg-white rounded-lg shadow p-6">
         <h2 className="text-lg font-bold text-gray-900 mb-6 flex items-center space-x-2">
-          <Lock size={20} />
+          <span>🔒</span>
           <span>Security</span>
         </h2>
 
@@ -124,7 +123,7 @@ export default function SettingsPage() {
       {/* Notification Settings */}
       <div className="bg-white rounded-lg shadow p-6">
         <h2 className="text-lg font-bold text-gray-900 mb-6 flex items-center space-x-2">
-          <Bell size={20} />
+          <span>🔔</span>
           <span>Notifications</span>
         </h2>
 
@@ -150,7 +149,7 @@ export default function SettingsPage() {
       {/* Team Management */}
       <div className="bg-white rounded-lg shadow p-6">
         <h2 className="text-lg font-bold text-gray-900 mb-6 flex items-center space-x-2">
-          <Users size={20} />
+          <span>👥</span>
           <span>Team Members</span>
         </h2>
 
@@ -166,7 +165,7 @@ export default function SettingsPage() {
                 <p className="text-sm text-gray-600">{member.role} · {member.email}</p>
               </div>
               <button className="text-red-600 hover:text-red-700 transition-colors">
-                <Trash2 size={18} />
+                🗑️
               </button>
             </div>
           ))}
