@@ -1,7 +1,6 @@
 'use client';
 
 import { useState } from 'react';
-import { ArrowLeft, Edit, Send, Phone, Mail } from 'react-icons/fa';
 import Link from 'next/link';
 
 /**
@@ -90,7 +89,7 @@ export default function LeadDetailPage({
         href={`/locations/${params.locationSlug}/leads`}
         className="flex items-center space-x-2 text-red-600 hover:text-red-700 font-medium"
       >
-        <ArrowLeft size={18} />
+        <span>←</span>
         <span>Back to Leads</span>
       </Link>
 
@@ -115,14 +114,14 @@ export default function LeadDetailPage({
               <div>
                 <p className="text-sm text-gray-600">Phone</p>
                 <a href={`tel:${lead.phone}`} className="mt-1 flex items-center space-x-2 text-red-600 hover:text-red-700 font-medium">
-                  <Phone size={16} />
+                  <span>📱</span>
                   <span>{lead.phone}</span>
                 </a>
               </div>
               <div>
                 <p className="text-sm text-gray-600">Email</p>
                 <a href={`mailto:${lead.email}`} className="mt-1 flex items-center space-x-2 text-red-600 hover:text-red-700 font-medium">
-                  <Mail size={16} />
+                  <span>📧</span>
                   <span>{lead.email}</span>
                 </a>
               </div>
@@ -176,11 +175,11 @@ export default function LeadDetailPage({
             <h2 className="text-lg font-bold text-gray-900 mb-4">Actions</h2>
             <div className="space-y-3">
               <button className="w-full flex items-center justify-center space-x-2 px-4 py-2 bg-red-600 text-white rounded-lg hover:bg-red-700 transition-colors font-medium">
-                <Phone size={16} />
+                <span>📞</span>
                 <span>Call Lead</span>
               </button>
               <button className="w-full flex items-center justify-center space-x-2 px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors font-medium">
-                <Mail size={16} />
+                <span>📧</span>
                 <span>Send Email</span>
               </button>
               <button className="w-full flex items-center justify-center space-x-2 px-4 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 transition-colors font-medium">
@@ -188,7 +187,7 @@ export default function LeadDetailPage({
                 <span>Schedule Job</span>
               </button>
               <button className="w-full flex items-center justify-center space-x-2 px-4 py-2 bg-gray-100 text-gray-900 rounded-lg hover:bg-gray-200 transition-colors font-medium">
-                <Edit size={16} />
+                <span>✏️</span>
                 <span>Edit Lead</span>
               </button>
             </div>
@@ -227,7 +226,7 @@ export default function LeadDetailPage({
               rows={4}
             />
             <button className="w-full mt-3 flex items-center justify-center space-x-2 px-4 py-2 bg-red-600 text-white rounded-lg hover:bg-red-700 transition-colors font-medium">
-              <Send size={16} />
+              <span>📤</span>
               <span>Add Note</span>
             </button>
           </div>
