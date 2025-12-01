@@ -2,7 +2,6 @@
 
 import { useState } from 'react';
 import Link from 'next/link';
-import { Plus, Search, Filter, Phone, Mail } from 'react-icons/fa';
 
 /**
  * Leads Management Page
@@ -130,7 +129,7 @@ export default function LeadsPage({
           <p className="mt-2 text-gray-600">Manage and track all leads for this location</p>
         </div>
         <button className="flex items-center space-x-2 px-4 py-2 bg-red-600 text-white rounded-lg hover:bg-red-700 transition-colors font-medium">
-          <Plus size={18} />
+          <span>➕</span>
           <span>New Lead</span>
         </button>
       </div>
@@ -138,14 +137,14 @@ export default function LeadsPage({
       {/* Filters */}
       <div className="bg-white rounded-lg shadow p-4 space-y-4">
         <div className="flex items-center space-x-2 text-gray-600">
-          <Filter size={16} />
+          <span>🔍</span>
           <span className="text-sm font-medium">Filters</span>
         </div>
 
         <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
           {/* Search */}
           <div className="relative">
-            <Search className="absolute left-3 top-3 text-gray-400" size={18} />
+            <span className="absolute left-3 top-3 text-gray-400">🔎</span>
             <input
               type="text"
               placeholder="Search by name, email, or phone..."
@@ -217,13 +216,13 @@ export default function LeadsPage({
                   <td className="px-6 py-4 text-sm text-gray-600">
                     <div className="space-y-1">
                       <div className="flex items-center space-x-2">
-                        <Mail size={14} className="text-gray-400" />
+                        <span>📧</span>
                         <a href={`mailto:${lead.email}`} className="text-red-600 hover:text-red-700">
                           {lead.email}
                         </a>
                       </div>
                       <div className="flex items-center space-x-2">
-                        <Phone size={14} className="text-gray-400" />
+                        <span>📱</span>
                         <a href={`tel:${lead.phone}`} className="text-red-600 hover:text-red-700">
                           {lead.phone}
                         </a>
