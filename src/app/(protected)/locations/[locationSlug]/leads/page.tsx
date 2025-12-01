@@ -106,65 +106,6 @@ export default function LeadsPage({
     );
   }
 
-  // Previous leads array kept as fallback - will be overridden by fetched data
-  const defaultLeads = [
-    {
-      id: 'L001',
-      name: 'Robert Martinez',
-      email: 'robert@example.com',
-      phone: '(540) 555-0101',
-      city: 'Fredericksburg',
-      problemType: 'Foggy Glass',
-      source: 'web_form',
-      status: 'new',
-      createdAt: '2024-01-15',
-    },
-    {
-      id: 'L002',
-      name: 'Jennifer Lee',
-      email: 'jennifer@example.com',
-      phone: '(540) 555-0102',
-      city: 'Stafford',
-      problemType: 'Broken Glass',
-      source: 'vapi_call',
-      status: 'contacted',
-      createdAt: '2024-01-14',
-    },
-    {
-      id: 'L003',
-      name: 'David Wilson',
-      email: 'david@example.com',
-      phone: '(540) 555-0103',
-      city: 'Woodbridge',
-      problemType: 'Window Parts',
-      source: 'web_form',
-      status: 'scheduled',
-      createdAt: '2024-01-13',
-    },
-    {
-      id: 'L004',
-      name: 'Patricia Anderson',
-      email: 'patricia@example.com',
-      phone: '(540) 555-0104',
-      city: 'Alexandria',
-      problemType: 'Screens',
-      source: 'referral',
-      status: 'completed',
-      createdAt: '2024-01-12',
-    },
-    {
-      id: 'L005',
-      name: 'James Taylor',
-      email: 'james@example.com',
-      phone: '(540) 555-0105',
-      city: 'Manassas',
-      problemType: 'Foggy Glass',
-      source: 'text',
-      status: 'lost',
-      createdAt: '2024-01-11',
-    },
-  ];
-
   const filteredLeads = leads.filter((lead) => {
     const matchesSearch =
       lead.name.toLowerCase().includes(search.toLowerCase()) ||
