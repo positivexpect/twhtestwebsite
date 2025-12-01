@@ -3,7 +3,7 @@
 import { useState, ReactNode } from 'react';
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
-import { Menu, X, LogOut, Settings } from 'react-icons/fa';
+import { FaBars, FaTimes, FaSignOutAlt, FaCog } from 'react-icons/fa';
 
 /**
  * Protected Layout Client Component
@@ -22,7 +22,7 @@ export default function ProtectedLayoutClient({
   children: ReactNode;
 }) {
   const [sidebarOpen, setSidebarOpen] = useState(false);
-  const pathname = usePathname();
+  const pathname = usePathname() || '';
 
   // Extract location slug from pathname if present
   const locationMatch = pathname.match(/\/locations\/([^/]+)/);
@@ -110,11 +110,11 @@ export default function ProtectedLayoutClient({
           {/* User Menu Footer */}
           <div className="p-4 border-t border-gray-200 space-y-2">
             <button className="w-full flex items-center space-x-2 px-4 py-2 text-gray-700 hover:bg-gray-50 rounded-lg transition-colors">
-              <Settings size={16} />
+              <FaCog size={16} />
               <span className="text-sm">Account Settings</span>
             </button>
             <button className="w-full flex items-center space-x-2 px-4 py-2 text-red-600 hover:bg-red-50 rounded-lg transition-colors font-medium">
-              <LogOut size={16} />
+              <FaSignOutAlt size={16} />
               <span className="text-sm">Logout</span>
             </button>
           </div>
@@ -131,7 +131,7 @@ export default function ProtectedLayoutClient({
               className="lg:hidden p-2 hover:bg-gray-100 rounded-lg transition-colors"
               aria-label="Toggle sidebar"
             >
-              {sidebarOpen ? <X size={24} /> : <Menu size={24} />}
+              {sidebarOpen ? <FaTimes size={24} /> : <FaBars size={24} />}
             </button>
 
             {/* Breadcrumb or Title */}
