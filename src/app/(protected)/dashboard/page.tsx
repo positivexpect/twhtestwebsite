@@ -139,7 +139,7 @@ export default function DashboardPage() {
                   </td>
                   <td className="px-6 py-4 text-sm">
                     <Link
-                      href={`/locations/${location.name.toLowerCase().replace(/,/g, '').replace(/\s+/g, '-')}/dashboard`}
+                      href={`/locations/${location.slug}/dashboard`}
                       className="text-red-600 hover:text-red-700 font-medium"
                     >
                       View
