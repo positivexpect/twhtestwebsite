@@ -1,7 +1,8 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import Link from 'next/link';
+import { createClient } from '@supabase/supabase-js';
 
 /**
  * Leads Management Page
@@ -12,6 +13,18 @@ import Link from 'next/link';
  * - Quick actions (contact, schedule, etc.)
  */
 
+const supabase = createClient(
+  process.env.NEXT_PUBLIC_SUPABASE_URL!,
+  process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!
+);
+
+// Map location slugs to location IDs
+const LOCATION_MAPPING: Record<string, { id: string; name: string }> = {
+  'fredericksburg-va': { id: '1', name: 'Fredericksburg, VA' },
+  'nova-va': { id: '2', name: 'Northern Virginia' },
+  'florida': { id: '3', name: 'Florida' }
+};
+
 export default function LeadsPage({
   params,
 }: {
@@ -20,9 +33,81 @@ export default function LeadsPage({
   const [search, setSearch] = useState('');
   const [statusFilter, setStatusFilter] = useState('all');
   const [sourceFilter, setSourceFilter] = useState('all');
+  const [leads, setLeads] = useState<any[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState('');
 
-  // TODO: Fetch real data from API filtered by location_id
-  const leads = [
+  const location = LOCATION_MAPPING[params.locationSlug];
+
+  useEffect(() => {
+    async function fetchLeads() {
+      try {
+        if (!location) {
+          setError('Location not found');
+          setLoading(false);
+          return;
+        }
+
+        const { data, error: fetchError } = await supabase
+          .from('form_submissions')
+          .select('*')
+          .eq('location_id', location.id)
+          .order('created_at', { ascending: false });
+
+        if (fetchError) {
+          throw fetchError;
+        }
+
+        const formattedLeads = (data || []).map((submission: any) => {
+          const formData = submission.form_data || {};
+          const issueTypes = formData.issueTypes || [];
+
+          return {
+            id: submission.id,
+            name: submission.name || 'Unknown',
+            email: submission.email || '',
+            phone: submission.phone || '',
+            city: submission.address?.city || '',
+            problemType: issueTypes.length > 0 ? issueTypes[0] : 'Assessment Request',
+            source: 'web_form',
+            status: submission.status || 'new',
+            createdAt: submission.created_at ? new Date(submission.created_at).toLocaleDateString() : '',
+          };
+        });
+
+        setLeads(formattedLeads);
+      } catch (err) {
+        console.error('Error fetching leads:', err);
+        setError('Failed to load leads');
+      } finally {
+        setLoading(false);
+      }
+    }
+
+    fetchLeads();
+  }, [location]);
+
+  if (!location) {
+    return (
+      <div className="space-y-6">
+        <div className="text-red-600">Location not found</div>
+      </div>
+    );
+  }
+
+  if (loading) {
+    return (
+      <div className="space-y-6">
+        <div className="animate-pulse">
+          <div className="h-8 bg-gray-200 rounded w-1/4 mb-4"></div>
+          <div className="h-4 bg-gray-200 rounded w-1/2"></div>
+        </div>
+      </div>
+    );
+  }
+
+  // Previous leads array kept as fallback - will be overridden by fetched data
+  const defaultLeads = [
     {
       id: 'L001',
       name: 'Robert Martinez',
