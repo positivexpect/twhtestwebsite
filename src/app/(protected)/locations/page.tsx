@@ -185,8 +185,12 @@ export default function LocationsPage() {
                   <td className="px-6 py-4 text-sm text-gray-600">{location.staff} members</td>
                   <td className="px-6 py-4 text-sm text-gray-600">{location.totalLeads}</td>
                   <td className="px-6 py-4 text-sm">
-                    <span className="inline-flex px-3 py-1 text-xs font-semibold text-green-700 bg-green-100 rounded-full">
-                      Active
+                    <span className={`inline-flex px-3 py-1 text-xs font-semibold rounded-full ${
+                      location.status === 'active'
+                        ? 'text-green-700 bg-green-100'
+                        : 'text-gray-700 bg-gray-200'
+                    }`}>
+                      {location.status.charAt(0).toUpperCase() + location.status.slice(1)}
                     </span>
                   </td>
                   <td className="px-6 py-4 text-sm space-x-3 flex">
