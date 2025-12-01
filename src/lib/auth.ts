@@ -1,11 +1,12 @@
 /**
  * Authentication utilities and functions
- * 
+ *
  * TODO: Integrate with Supabase Auth or preferred auth provider
  * Currently supports basic JWT token handling
  */
 
 import { User } from '@/types/franchise';
+import { redirect } from 'next/navigation';
 
 /**
  * Store auth token in localStorage/cookies
