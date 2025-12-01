@@ -325,12 +325,15 @@ export async function POST(request: Request) {
       .from('form_submissions')
       .insert({
         form_type: formData.formType,
+        location_id: '1',
+        location_name: 'Fredericksburg, VA',
         name: formData.name,
         email: formData.email,
         phone: formData.phone,
         address: formData.address,
         form_data: formData,
-        files: fileReferences
+        files: fileReferences,
+        status: 'new'
       })
       .select()
       .single();
@@ -412,4 +415,4 @@ export async function POST(request: Request) {
       error: error instanceof Error ? error.message : 'Unknown error'
     }, { status: 500 });
   }
-} 
+}
