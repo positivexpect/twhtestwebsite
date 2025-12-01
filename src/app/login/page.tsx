@@ -23,16 +23,28 @@ export default function LoginPage() {
     setError('');
 
     try {
-      // TODO: Implement actual login logic
-      // For now, simulate a successful login
-      await new Promise((resolve) => setTimeout(resolve, 1000));
+      const response = await fetch('/api/auth/login', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          email,
+          password,
+        }),
+      });
 
-      // Set auth token (TODO: use proper session management)
-      document.cookie = 'authToken=demo-token; path=/; max-age=86400';
+      if (!response.ok) {
+        const errorData = await response.json();
+        throw new Error(errorData.message || 'Login failed');
+      }
 
+      const data = await response.json();
+
+      // Token is automatically set in httpOnly cookie by the API
       router.push('/dashboard');
     } catch (err) {
-      setError('Invalid email or password');
+      setError(err instanceof Error ? err.message : 'Invalid email or password');
     } finally {
       setIsLoading(false);
     }
@@ -101,9 +113,8 @@ export default function LoginPage() {
 
         {/* Demo Credentials */}
         <div className="mt-6 p-4 bg-blue-50 border border-blue-200 rounded-lg">
-          <p className="text-xs font-semibold text-blue-900 mb-2">Demo Credentials:</p>
-          <p className="text-xs text-blue-700">Email: admin@example.com</p>
-          <p className="text-xs text-blue-700">Password: demo-password</p>
+          <p className="text-xs font-semibold text-blue-900 mb-2">Operations Portal Login:</p>
+          <p className="text-xs text-blue-700">Enter your operations portal credentials</p>
         </div>
 
         {/* Footer */}
