@@ -218,3 +218,21 @@ export async function refreshToken(): Promise<string | null> {
     return null;
   }
 }
+
+/**
+ * Server-side function to check if user is authenticated
+ * Redirects to login if not authenticated
+ * Used in protected layouts
+ */
+export async function checkAuth(): Promise<User | null> {
+  try {
+    const user = await getCurrentUser();
+    if (!user) {
+      redirect('/login');
+    }
+    return user;
+  } catch (error) {
+    console.error('Auth check error:', error);
+    redirect('/login');
+  }
+}
