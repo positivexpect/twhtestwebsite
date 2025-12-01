@@ -207,10 +207,16 @@ export default function LeadsPage({
 
   return (
     <div className="space-y-6">
+      {error && (
+        <div className="bg-red-50 border border-red-200 text-red-700 px-4 py-3 rounded">
+          {error}
+        </div>
+      )}
+
       {/* Page Header */}
       <div className="flex justify-between items-center">
         <div>
-          <h1 className="text-3xl font-bold text-gray-900">Leads</h1>
+          <h1 className="text-3xl font-bold text-gray-900">Leads - {location.name}</h1>
           <p className="mt-2 text-gray-600">Manage and track all leads for this location</p>
         </div>
         <button className="flex items-center space-x-2 px-4 py-2 bg-red-600 text-white rounded-lg hover:bg-red-700 transition-colors font-medium">
