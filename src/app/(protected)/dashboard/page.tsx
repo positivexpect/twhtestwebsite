@@ -22,10 +22,9 @@ export default function DashboardPage() {
   ];
 
   const recentLocations = [
-    { id: '1', name: 'Fredericksburg, VA', leads: 156, jobsThisWeek: 34, status: 'active' },
-    { id: '2', name: 'Richmond, VA', leads: 203, jobsThisWeek: 47, status: 'active' },
-    { id: '3', name: 'Arlington, VA', leads: 89, jobsThisWeek: 18, status: 'active' },
-    { id: '4', name: 'Charlottesville, VA', leads: 67, jobsThisWeek: 12, status: 'active' },
+    { id: '1', name: 'Fredericksburg, VA', slug: 'fredericksburg-va', leads: 287, jobsThisWeek: 58, status: 'active' },
+    { id: '2', name: 'Northern Virginia', slug: 'nova-va', leads: 156, jobsThisWeek: 34, status: 'active' },
+    { id: '3', name: 'Florida', slug: 'florida', leads: 0, jobsThisWeek: 0, status: 'planned' },
   ];
 
   const chartData = [
