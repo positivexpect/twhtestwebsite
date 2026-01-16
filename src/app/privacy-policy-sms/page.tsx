@@ -67,12 +67,8 @@ export default function PrivacyPolicySMS() {
 
             <h2 className="text-2xl font-bold text-gray-900 mt-8 mb-4">6. Contact Information</h2>
             <p className="text-gray-600 mb-4">
-              If you have questions about this Privacy Policy or how your data is handled, contact us at:
+              If you have questions or wish to contact us, please email thewindowhospital@gmail.com or call (703) 574-6003.
             </p>
-            <ul className="list-none pl-6 text-gray-600 mb-6">
-              <li><strong>Email:</strong> thewindowhospital@gmail.com</li>
-              <li><strong>Phone:</strong> (703) 574-6003</li>
-            </ul>
 
             <h2 className="text-2xl font-bold text-gray-900 mt-8 mb-4">7. Policy Availability</h2>
             <p className="text-gray-600 mb-6">
