@@ -59,7 +59,7 @@ export default function PrivacyPolicySMS() {
               You may opt out of SMS communications at any time by texting <strong>STOP</strong> or <strong>UNSUBSCRIBE</strong>.
             </p>
             <p className="text-gray-600 mb-4">
-              For assistance, text <strong>HELP</strong>.
+              For assistance, text <strong>HELP</strong>. For help, text <strong>HELP</strong>.
             </p>
             <p className="text-gray-600 mb-6">
               After opting out, you will receive a final confirmation message, and your number will be removed from our SMS list.
