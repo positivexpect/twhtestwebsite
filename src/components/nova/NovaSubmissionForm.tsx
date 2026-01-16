@@ -413,25 +413,6 @@ export default function NovaSubmissionForm() {
 
       {/* SMS Consent */}
       <div className="mb-6 p-4 bg-blue-50 rounded-lg border border-blue-200">
-        <p className="text-sm font-semibold text-gray-900 mb-3">
-          Do you agree to receive text messages from The Window Hospital Inc. sent from (703)-574-6003? *
-        </p>
-
-        <p className="text-xs text-gray-700 mb-4 leading-relaxed">
-          Message frequency varies and may include:
-          <br />
-          • To provide and manage our services
-          <br />
-          • To schedule and confirm appointments
-          <br />
-          • To process payments and send invoices
-          <br />
-          • To communicate with you regarding your inquiries and our services
-          <br />
-          <br />
-          We do not sell your information. This is only to communicate with The Window Hospital Inc. Message and data rates may apply. Reply STOP at any time to end or unsubscribe. For assistance, reply HELP or contact support at (703)-574-6003.
-        </p>
-
         <div className="space-y-3">
           <label className="flex items-start cursor-pointer">
             <input
@@ -443,8 +424,21 @@ export default function NovaSubmissionForm() {
               className="w-4 h-4 text-[#CD2028] focus:ring-[#CD2028] border-gray-300 mt-0.5 flex-shrink-0"
               required
             />
-            <span className="ml-3 text-sm text-gray-900">
-              Yes, I agree to receive text messages from The Window Hospital Inc. sent from (703)-574-6003
+            <span className="ml-3 text-sm text-gray-900 leading-relaxed">
+              ☐ I agree to receive text messages from The Window Hospital Inc. at the number provided regarding appointments, service updates, and customer care.
+              <br />
+              <br />
+              Message frequency: up to 4 messages per month.
+              <br />
+              Message &amp; data rates may apply.
+              <br />
+              Reply STOP to unsubscribe or HELP for assistance.
+              <br />
+              <br />
+              Privacy Policy &amp; Terms:{' '}
+              <Link href="https://www.thewindowhospital.com/privacy-policy.html" className="text-blue-600 hover:text-blue-800 underline">
+                https://www.thewindowhospital.com/privacy-policy.html
+              </Link>
             </span>
           </label>
 
@@ -459,11 +453,7 @@ export default function NovaSubmissionForm() {
               required
             />
             <span className="ml-3 text-sm text-gray-900">
-              No, I do not want to receive text messages from The Window Hospital Inc. See our{' '}
-              <Link href="/privacy-policy" className="text-blue-600 hover:text-blue-800 underline">
-                Privacy Policy
-              </Link>
-              {' '}for details on how we handle your information.
+              No, I do not want to receive text messages from The Window Hospital Inc.
             </span>
           </label>
         </div>
