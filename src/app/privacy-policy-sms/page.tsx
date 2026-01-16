@@ -46,8 +46,12 @@ export default function PrivacyPolicySMS() {
               Mobile opt-in data and consent are never shared with anyone.
             </p>
             <p className="text-gray-600 mb-6">
-              We implement reasonable administrative and technical safeguards to protect your information from unauthorized access or disclosure. 
+              We implement reasonable administrative and technical safeguards to protect your information from unauthorized access or disclosure.
               Personal data is not transferred to external organizations except as required by law.
+            </p>
+            <p className="text-gray-600 mb-6">
+              We do not share your personal or mobile information with third parties for marketing or promotional purposes under any circumstances.
+              Information is shared only as required to provide our services or as required by law.
             </p>
 
             <h2 className="text-2xl font-bold text-gray-900 mt-8 mb-4">5. Opt-Out and Help Instructions</h2>
