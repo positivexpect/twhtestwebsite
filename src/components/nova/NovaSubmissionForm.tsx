@@ -436,9 +436,9 @@ export default function NovaSubmissionForm() {
               <br />
               <br />
               Privacy Policy &amp; Terms:{' '}
-              <Link href="/privacy-policy-sms" className="text-blue-600 hover:text-blue-800 underline">
-                Privacy Policy – SMS Messaging & Data Use
-              </Link>
+              <a href="https://www.thewindowhospital.com/privacy-policy.html" className="text-blue-600 hover:text-blue-800 underline" target="_blank" rel="noopener noreferrer">
+                https://www.thewindowhospital.com/privacy-policy.html
+              </a>
             </span>
           </label>
 
