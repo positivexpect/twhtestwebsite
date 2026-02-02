@@ -316,7 +316,7 @@ export default function FranchisePage() {
 
             {/* hCaptcha */}
             <div className="flex justify-center">
-              <CaptchaWrapper onVerify={(token) => setCaptchaToken(token)} />
+              <CaptchaWrapper ref={captchaRef} onVerify={(token) => setCaptchaToken(token)} />
             </div>
 
             <div>
