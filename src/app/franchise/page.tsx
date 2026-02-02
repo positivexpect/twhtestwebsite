@@ -8,6 +8,7 @@ import CaptchaWrapper from '@/components/shared/CaptchaWrapper';
 export default function FranchisePage() {
   const formRef = useRef<HTMLFormElement>(null);
   const [isSubmitting, setIsSubmitting] = useState(false);
+  // Force recompile v2
   const [submitStatus, setSubmitStatus] = useState<'idle' | 'success' | 'error'>('idle');
   const [errorMessage, setErrorMessage] = useState('');
   const [captchaToken, setCaptchaToken] = useState('');
