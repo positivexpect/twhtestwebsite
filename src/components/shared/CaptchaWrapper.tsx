@@ -16,9 +16,14 @@ interface CaptchaWrapperProps {
   onVerify: (token: string) => void;
 }
 
-export default function CaptchaWrapper({ onVerify }: CaptchaWrapperProps) {
+export interface CaptchaWrapperHandle {
+  reset: () => void;
+}
+
+const CaptchaWrapperComponent = ({ onVerify }: CaptchaWrapperProps, ref: React.Ref<CaptchaWrapperHandle>) => {
   const [isVisible, setIsVisible] = useState(false);
   const containerRef = useRef<HTMLDivElement>(null);
+  const captchaRef = useRef<any>(null);
 
   useEffect(() => {
     if (!containerRef.current) return;
@@ -40,10 +45,19 @@ export default function CaptchaWrapper({ onVerify }: CaptchaWrapperProps) {
     };
   }, []);
 
+  React.useImperativeHandle(ref, () => ({
+    reset: () => {
+      if (captchaRef.current) {
+        captchaRef.current.resetCaptcha();
+      }
+    }
+  }));
+
   return (
     <div ref={containerRef}>
       {isVisible && (
         <HCaptcha
+          ref={captchaRef}
           sitekey={process.env.NEXT_PUBLIC_HCAPTCHA_SITE_KEY!}
           onVerify={onVerify}
           theme="light"
@@ -52,4 +66,6 @@ export default function CaptchaWrapper({ onVerify }: CaptchaWrapperProps) {
       )}
     </div>
   );
-}
+};
+
+export default React.forwardRef(CaptchaWrapperComponent);
