@@ -111,13 +111,13 @@ export default function FranchisePage() {
       }
 
       setSubmitStatus('success');
-      try {
-        if (formRef.current) {
-          formRef.current.reset();
+      // Clear form fields
+      const inputs = formRef.current?.querySelectorAll('input, textarea');
+      inputs?.forEach((input: Element) => {
+        if (input instanceof HTMLInputElement || input instanceof HTMLTextAreaElement) {
+          input.value = '';
         }
-      } catch (resetError) {
-        console.warn('Form reset failed:', resetError);
-      }
+      });
       setCaptchaToken('');
     } catch (error) {
       console.error('Error submitting form:', error);
