@@ -8,6 +8,37 @@ const supabase = createClient(
   process.env.SUPABASE_SERVICE_ROLE_KEY!
 );
 
+// CAPTCHA verification function
+async function verifyCaptcha(token: string) {
+  try {
+    console.log('Verifying captcha token...');
+    const response = await fetch('https://api.hcaptcha.com/siteverify', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/x-www-form-urlencoded',
+      },
+      body: `response=${token}&secret=${process.env.HCAPTCHA_SECRET_KEY}`,
+    });
+
+    if (!response.ok) {
+      console.error('Captcha verification HTTP error:', response.status);
+      return false;
+    }
+
+    const data = await response.json();
+    console.log('Captcha verification response:', {
+      success: data.success,
+      errorCodes: data['error-codes'],
+      hostname: data.hostname
+    });
+
+    return data.success;
+  } catch (error) {
+    console.error('Captcha verification error:', error);
+    return false;
+  }
+}
+
 // Initialize email transporter for franchise inquiries
 const transporter = nodemailer.createTransport({
   host: process.env.FRANCHISE_SMTP_HOST,
@@ -167,4 +198,4 @@ export async function POST(request: Request) {
       { status: 500 }
     );
   }
-} 
+}
