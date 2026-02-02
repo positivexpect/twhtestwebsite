@@ -65,13 +65,30 @@ transporter.verify(function(error, success) {
 export async function POST(request: Request) {
   try {
     const data = await request.json();
-    
+    const { captchaToken, ...formData } = data;
+
+    // Verify CAPTCHA
+    if (!captchaToken) {
+      return NextResponse.json(
+        { success: false, message: 'CAPTCHA verification required' },
+        { status: 400 }
+      );
+    }
+
+    const isValidCaptcha = await verifyCaptcha(captchaToken);
+    if (!isValidCaptcha) {
+      return NextResponse.json(
+        { success: false, message: 'CAPTCHA verification failed. Please try again.' },
+        { status: 400 }
+      );
+    }
+
     // Log the received data
     console.log('Received franchise inquiry:', {
-      name: data.name,
-      email: data.email,
-      phone: data.phone,
-      location: data.location
+      name: formData.name,
+      email: formData.email,
+      phone: formData.phone,
+      location: formData.location
     });
 
     // Store submission in database
