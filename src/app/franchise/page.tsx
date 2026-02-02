@@ -78,6 +78,12 @@ export default function FranchisePage() {
     setSubmitStatus('idle');
     setErrorMessage('');
 
+    if (!captchaToken) {
+      setErrorMessage('Please complete the CAPTCHA');
+      setIsSubmitting(false);
+      return;
+    }
+
     try {
       const formData = new FormData(e.currentTarget);
       const data = {
@@ -86,7 +92,8 @@ export default function FranchisePage() {
         phone: formData.get('phone'),
         location: formData.get('location'),
         message: formData.get('message'),
-        formType: 'franchise'
+        formType: 'franchise',
+        captchaToken
       };
 
       const response = await fetch('/api/submit-franchise-inquiry', {
@@ -105,10 +112,14 @@ export default function FranchisePage() {
 
       setSubmitStatus('success');
       e.currentTarget.reset();
+      setCaptchaToken('');
+      setHcaptchaKey(prev => prev + 1);
     } catch (error) {
       console.error('Error submitting form:', error);
       setSubmitStatus('error');
       setErrorMessage(error instanceof Error ? error.message : 'Failed to submit inquiry');
+      setCaptchaToken('');
+      setHcaptchaKey(prev => prev + 1);
     } finally {
       setIsSubmitting(false);
     }
