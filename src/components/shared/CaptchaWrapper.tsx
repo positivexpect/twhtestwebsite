@@ -48,7 +48,7 @@ const CaptchaWrapperComponent = ({ onVerify }: CaptchaWrapperProps, ref: React.R
   React.useImperativeHandle(ref, () => ({
     reset: () => {
       if (captchaRef.current) {
-        captchaRef.current.resetCaptcha();
+        captchaRef.current.reset();
       }
     }
   }));
