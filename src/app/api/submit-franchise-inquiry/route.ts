@@ -123,13 +123,13 @@ export async function POST(request: Request) {
         <img src="https://thewindowhospital.com/images/fulllogo_transparent_nobuffer.png" alt="The Window Hospital" style="width: 200px; margin-bottom: 20px;" />
         <h2 style="color: #CD2028;">New Franchise Inquiry</h2>
         <div style="background: #f5f5f5; padding: 20px; border-radius: 5px;">
-          <p><strong>Name:</strong> ${data.name}</p>
-          <p><strong>Email:</strong> ${data.email}</p>
-          <p><strong>Phone:</strong> ${data.phone}</p>
-          <p><strong>Location:</strong> ${data.location}</p>
-          ${data.message ? `
+          <p><strong>Name:</strong> ${formData.name}</p>
+          <p><strong>Email:</strong> ${formData.email}</p>
+          <p><strong>Phone:</strong> ${formData.phone}</p>
+          <p><strong>Location:</strong> ${formData.location}</p>
+          ${formData.message ? `
           <h3 style="color: #333; margin-top: 20px;">Additional Information:</h3>
-          <p>${data.message}</p>
+          <p>${formData.message}</p>
           ` : ''}
         </div>
       </div>
