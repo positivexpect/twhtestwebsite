@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useEffect, useRef, useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import dynamic from 'next/dynamic';
 
 const HCaptcha = dynamic(() => import('@hcaptcha/react-hcaptcha'), {
@@ -16,14 +16,9 @@ interface CaptchaWrapperProps {
   onVerify: (token: string) => void;
 }
 
-export interface CaptchaWrapperHandle {
-  reset: () => void;
-}
-
-const CaptchaWrapperComponent = ({ onVerify }: CaptchaWrapperProps, ref: React.Ref<CaptchaWrapperHandle>) => {
+export default function CaptchaWrapper({ onVerify }: CaptchaWrapperProps) {
   const [isVisible, setIsVisible] = useState(false);
   const containerRef = useRef<HTMLDivElement>(null);
-  const captchaRef = useRef<any>(null);
 
   useEffect(() => {
     if (!containerRef.current) return;
@@ -45,19 +40,10 @@ const CaptchaWrapperComponent = ({ onVerify }: CaptchaWrapperProps, ref: React.R
     };
   }, []);
 
-  React.useImperativeHandle(ref, () => ({
-    reset: () => {
-      if (captchaRef.current) {
-        captchaRef.current.reset();
-      }
-    }
-  }));
-
   return (
     <div ref={containerRef}>
       {isVisible && (
         <HCaptcha
-          ref={captchaRef}
           sitekey={process.env.NEXT_PUBLIC_HCAPTCHA_SITE_KEY!}
           onVerify={onVerify}
           theme="light"
@@ -66,6 +52,4 @@ const CaptchaWrapperComponent = ({ onVerify }: CaptchaWrapperProps, ref: React.R
       )}
     </div>
   );
-};
-
-export default React.forwardRef(CaptchaWrapperComponent);
+}
