@@ -169,9 +169,10 @@ export async function POST(request: Request) {
       data: submission
     });
   } catch (error) {
-    console.error('Server error:', error);
+    console.error('Server error:', error instanceof Error ? error.message : JSON.stringify(error));
+    console.error('Full error:', error);
     return NextResponse.json(
-      { success: false, message: 'Internal server error' },
+      { success: false, message: error instanceof Error ? error.message : 'Internal server error' },
       { status: 500 }
     );
   }
