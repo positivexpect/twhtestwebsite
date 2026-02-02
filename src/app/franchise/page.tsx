@@ -1,9 +1,9 @@
 'use client';
 
-import { useState, useEffect } from 'react';
+import { useState } from 'react';
 import Link from 'next/link';
 import Image from 'next/image';
-import HCaptcha from '@hcaptcha/react';
+import CaptchaWrapper from '@/components/shared/CaptchaWrapper';
 
 export default function FranchisePage() {
   const [isSubmitting, setIsSubmitting] = useState(false);
