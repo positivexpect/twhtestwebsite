@@ -5,7 +5,7 @@ import Link from 'next/link';
 import Image from 'next/image';
 import CaptchaWrapper from '@/components/shared/CaptchaWrapper';
 
-// Cache buster v4
+// Cache buster v5
 export default function FranchisePage() {
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [submitStatus, setSubmitStatus] = useState<'idle' | 'success' | 'error'>('idle');
