@@ -1,9 +1,9 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useRef } from 'react';
 import Link from 'next/link';
 import Image from 'next/image';
-import CaptchaWrapper from '@/components/shared/CaptchaWrapper';
+import CaptchaWrapper, { type CaptchaWrapperHandle } from '@/components/shared/CaptchaWrapper';
 
 // Cache buster v4
 export default function FranchisePage() {
