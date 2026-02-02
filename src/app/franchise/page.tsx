@@ -1,8 +1,9 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import Link from 'next/link';
 import Image from 'next/image';
+import HCaptcha from '@hcaptcha/react';
 
 export default function FranchisePage() {
   const [isSubmitting, setIsSubmitting] = useState(false);
@@ -361,4 +362,4 @@ export default function FranchisePage() {
       </section>
     </main>
   );
-} 
+}
