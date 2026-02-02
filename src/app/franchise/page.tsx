@@ -73,7 +73,7 @@ export default function FranchisePage() {
   ];
 
   const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
-    // v3 - cache buster
+    console.log('Form submitted - v4');
     e.preventDefault();
     setIsSubmitting(true);
     setSubmitStatus('idle');
