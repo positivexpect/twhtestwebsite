@@ -162,13 +162,13 @@ export async function POST(request: Request) {
     }
 
     // Send auto-reply to the franchise inquirer
-    if (data.email) {
+    if (formData.email) {
       try {
         const autoReplyHtml = `
           <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto;">
             <img src="https://thewindowhospital.com/images/fulllogo_transparent_nobuffer.png" alt="The Window Hospital" style="width: 200px; margin-bottom: 20px;" />
             <h2 style="color: #CD2028;">Thank You for Your Franchise Inquiry</h2>
-            <p>Dear ${data.name},</p>
+            <p>Dear ${formData.name},</p>
             <p>We have received your franchise inquiry and will contact you shortly to discuss this exciting opportunity.</p>
             <p>Best regards,<br/>The Window Hospital Team</p>
           </div>
@@ -179,7 +179,7 @@ export async function POST(request: Request) {
             name: 'The Window Hospital',
             address: process.env.FRANCHISE_SMTP_FROM_EMAIL!
           },
-          to: data.email,
+          to: formData.email,
           subject: 'Thank You for Your Franchise Inquiry',
           html: autoReplyHtml
         });
