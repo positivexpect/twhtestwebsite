@@ -229,7 +229,7 @@ export default function FranchisePage() {
             </p>
           </div>
 
-          <form onSubmit={handleSubmit} className="space-y-6" noValidate>
+          <form ref={formRef} onSubmit={handleSubmit} className="space-y-6" noValidate>
             <div className="grid md:grid-cols-2 gap-6">
               {/* Name Field */}
               <div>
