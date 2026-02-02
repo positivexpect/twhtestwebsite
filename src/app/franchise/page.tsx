@@ -6,6 +6,7 @@ import Image from 'next/image';
 import CaptchaWrapper from '@/components/shared/CaptchaWrapper';
 
 export default function FranchisePage() {
+  const formRef = useRef<HTMLFormElement>(null);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [submitStatus, setSubmitStatus] = useState<'idle' | 'success' | 'error'>('idle');
   const [errorMessage, setErrorMessage] = useState('');
