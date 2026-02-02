@@ -115,7 +115,8 @@ export default function FranchisePage() {
 
       setSubmitStatus('success');
       setCaptchaToken('');
-      // Don't reset the form
+      // Reset the captcha component
+      captchaRef.current?.reset();
     } catch (error) {
       console.error('Error submitting form:', error);
       setSubmitStatus('error');
