@@ -311,12 +311,7 @@ export default function FranchisePage() {
 
             {/* hCaptcha */}
             <div className="flex justify-center">
-              <HCaptcha
-                key={hcaptchaKey}
-                sitekey={process.env.NEXT_PUBLIC_HCAPTCHA_SITE_KEY || ''}
-                onVerify={(token) => setCaptchaToken(token)}
-                onExpire={() => setCaptchaToken('')}
-              />
+              <CaptchaWrapper onVerify={(token) => setCaptchaToken(token)} />
             </div>
 
             <div>
