@@ -11,6 +11,7 @@ export default function FranchisePage() {
   const [submitStatus, setSubmitStatus] = useState<'idle' | 'success' | 'error'>('idle');
   const [errorMessage, setErrorMessage] = useState('');
   const [captchaToken, setCaptchaToken] = useState('');
+  const captchaRef = useRef<CaptchaWrapperHandle>(null);
 
   const benefits = [
     {
