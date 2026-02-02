@@ -111,7 +111,9 @@ export default function FranchisePage() {
       }
 
       setSubmitStatus('success');
-      formRef.current?.reset();
+      if (formRef.current) {
+        formRef.current.reset();
+      }
       setCaptchaToken('');
     } catch (error) {
       console.error('Error submitting form:', error);
