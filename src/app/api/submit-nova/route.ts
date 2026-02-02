@@ -67,7 +67,7 @@ export async function POST(request: Request) {
     }));
 
     const { data: submission, error: dbError } = await supabase
-      .from('form_submissions')
+      .from('nova_submissions')
       .insert({
         form_type: 'assessment',
         location_id: '2',
