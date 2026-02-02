@@ -10,7 +10,6 @@ export default function FranchisePage() {
   const [submitStatus, setSubmitStatus] = useState<'idle' | 'success' | 'error'>('idle');
   const [errorMessage, setErrorMessage] = useState('');
   const [captchaToken, setCaptchaToken] = useState('');
-  const [hcaptchaKey, setHcaptchaKey] = useState(0);
 
   const benefits = [
     {
