@@ -96,10 +96,10 @@ export async function POST(request: Request) {
       .from('form_submissions')
       .insert({
         form_type: 'franchise',
-        name: data.name,
-        email: data.email,
-        phone: data.phone,
-        form_data: data
+        name: formData.name,
+        email: formData.email,
+        phone: formData.phone,
+        form_data: formData
       })
       .select()
       .single();
