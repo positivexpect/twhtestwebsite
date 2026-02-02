@@ -84,9 +84,9 @@ export async function POST(request: Request) {
       .single();
 
     if (dbError) {
-      console.error('Database error:', dbError);
+      console.error('Database error:', JSON.stringify(dbError, null, 2));
       return NextResponse.json(
-        { success: false, message: 'Failed to save submission' },
+        { success: false, message: `Database error: ${dbError.message}` },
         { status: 500 }
       );
     }
