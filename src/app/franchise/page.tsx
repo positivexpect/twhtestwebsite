@@ -112,13 +112,11 @@ export default function FranchisePage() {
       setSubmitStatus('success');
       e.currentTarget.reset();
       setCaptchaToken('');
-      setHcaptchaKey(prev => prev + 1);
     } catch (error) {
       console.error('Error submitting form:', error);
       setSubmitStatus('error');
       setErrorMessage(error instanceof Error ? error.message : 'Failed to submit inquiry');
       setCaptchaToken('');
-      setHcaptchaKey(prev => prev + 1);
     } finally {
       setIsSubmitting(false);
     }
