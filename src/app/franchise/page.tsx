@@ -85,7 +85,10 @@ export default function FranchisePage() {
     }
 
     try {
-      const formData = new FormData(e.currentTarget);
+      if (!formRef.current) {
+        throw new Error('Form reference not available');
+      }
+      const formData = new FormData(formRef.current);
       const data = {
         name: formData.get('name'),
         email: formData.get('email'),
