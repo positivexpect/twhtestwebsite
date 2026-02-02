@@ -111,8 +111,12 @@ export default function FranchisePage() {
       }
 
       setSubmitStatus('success');
-      if (formRef.current) {
-        formRef.current.reset();
+      try {
+        if (formRef.current) {
+          formRef.current.reset();
+        }
+      } catch (resetError) {
+        console.warn('Form reset failed:', resetError);
       }
       setCaptchaToken('');
     } catch (error) {
