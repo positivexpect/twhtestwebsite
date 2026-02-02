@@ -143,7 +143,7 @@ export async function POST(request: Request) {
           address: process.env.FRANCHISE_SMTP_FROM_EMAIL!
         },
         to: process.env.FRANCHISE_ADMIN_EMAIL!,
-        subject: `New Franchise Inquiry from ${data.name}`,
+        subject: `New Franchise Inquiry from ${formData.name}`,
         html: adminEmailHtml
       });
       console.log('Admin email sent successfully');
