@@ -114,13 +114,6 @@ export default function FranchisePage() {
       }
 
       setSubmitStatus('success');
-      // Clear form fields
-      const inputs = formRef.current?.querySelectorAll('input, textarea');
-      inputs?.forEach((input: Element) => {
-        if (input instanceof HTMLInputElement || input instanceof HTMLTextAreaElement) {
-          input.value = '';
-        }
-      });
       setCaptchaToken('');
     } catch (error) {
       console.error('Error submitting form:', error);
