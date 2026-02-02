@@ -324,6 +324,7 @@ export async function POST(request: Request) {
     const { data: submission, error: dbError } = await supabase
       .from('form_submissions')
       .insert({
+        form_type: formData.formType || 'assessment',
         name: formData.name,
         email: formData.email,
         phone: formData.phone,
