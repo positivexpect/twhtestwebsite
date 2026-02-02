@@ -84,10 +84,8 @@ export default function FranchisePage() {
     }
 
     try {
-      if (!formRef.current) {
-        throw new Error('Form reference not available');
-      }
-      const formData = new FormData(formRef.current);
+      const form = e.currentTarget as HTMLFormElement;
+      const formData = new FormData(form);
       const data = {
         name: formData.get('name'),
         email: formData.get('email'),
@@ -114,6 +112,7 @@ export default function FranchisePage() {
 
       setSubmitStatus('success');
       setCaptchaToken('');
+      // Don't reset the form
     } catch (error) {
       console.error('Error submitting form:', error);
       setSubmitStatus('error');
