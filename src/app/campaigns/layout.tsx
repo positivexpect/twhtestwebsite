@@ -1,5 +1,4 @@
 import { Metadata } from 'next';
-import CampaignsPage from './page';
 
 export const metadata: Metadata = {
   title: 'Window Repair Offers & Programs',
@@ -12,4 +11,4 @@ export default function CampaignsLayout({
   children: React.ReactNode
 }) {
   return children
-} 
+}

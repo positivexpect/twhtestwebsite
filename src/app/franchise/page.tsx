@@ -3,11 +3,14 @@
 import { useState } from 'react';
 import Link from 'next/link';
 import Image from 'next/image';
+import CaptchaWrapper from '@/components/shared/CaptchaWrapper';
 
+// Cache buster v5
 export default function FranchisePage() {
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [submitStatus, setSubmitStatus] = useState<'idle' | 'success' | 'error'>('idle');
   const [errorMessage, setErrorMessage] = useState('');
+  const [captchaToken, setCaptchaToken] = useState('');
 
   const benefits = [
     {
@@ -70,20 +73,29 @@ export default function FranchisePage() {
   ];
 
   const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
+    console.log('Form submitted - v4');
     e.preventDefault();
     setIsSubmitting(true);
     setSubmitStatus('idle');
     setErrorMessage('');
 
+    if (!captchaToken) {
+      setErrorMessage('Please complete the CAPTCHA');
+      setIsSubmitting(false);
+      return;
+    }
+
     try {
-      const formData = new FormData(e.currentTarget);
+      const form = e.currentTarget as HTMLFormElement;
+      const formData = new FormData(form);
       const data = {
         name: formData.get('name'),
         email: formData.get('email'),
         phone: formData.get('phone'),
         location: formData.get('location'),
         message: formData.get('message'),
-        formType: 'franchise'
+        formType: 'franchise',
+        captchaToken
       };
 
       const response = await fetch('/api/submit-franchise-inquiry', {
@@ -101,11 +113,12 @@ export default function FranchisePage() {
       }
 
       setSubmitStatus('success');
-      e.currentTarget.reset();
+      setCaptchaToken('');
     } catch (error) {
       console.error('Error submitting form:', error);
       setSubmitStatus('error');
       setErrorMessage(error instanceof Error ? error.message : 'Failed to submit inquiry');
+      setCaptchaToken('');
     } finally {
       setIsSubmitting(false);
     }
@@ -298,6 +311,11 @@ export default function FranchisePage() {
               />
             </div>
 
+            {/* hCaptcha */}
+            <div className="flex justify-center">
+              <CaptchaWrapper onVerify={(token) => setCaptchaToken(token)} />
+            </div>
+
             <div>
               <button
                 type="submit"
@@ -361,4 +379,4 @@ export default function FranchisePage() {
       </section>
     </main>
   );
-} 
+}

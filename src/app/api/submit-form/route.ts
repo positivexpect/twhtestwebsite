@@ -324,13 +324,14 @@ export async function POST(request: Request) {
     const { data: submission, error: dbError } = await supabase
       .from('form_submissions')
       .insert({
-        form_type: formData.formType,
+        form_type: formData.formType || 'assessment',
         name: formData.name,
         email: formData.email,
         phone: formData.phone,
         address: formData.address,
         form_data: formData,
-        files: fileReferences
+        files: fileReferences,
+        status: 'new'
       })
       .select()
       .single();
@@ -412,4 +413,4 @@ export async function POST(request: Request) {
       error: error instanceof Error ? error.message : 'Unknown error'
     }, { status: 500 });
   }
-} 
+}

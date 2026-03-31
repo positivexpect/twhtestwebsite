@@ -1,12 +1,17 @@
 import './globals.css';
 import { Inter } from 'next/font/google';
 import type { Metadata, Viewport } from 'next';
+import { Analytics } from '@vercel/analytics/next';
 import Navigation from '@/components/client/Navigation';
 import Footer from '@/components/Footer';
-import ChatBot from '@/components/client/ChatBot';
-import ExitIntentPopup from '@/components/client/ExitIntentPopup';
+import ChatBotWrapper from '@/components/client/ChatBotWrapper';
+import ExitIntentPopupWrapper from '@/components/client/ExitIntentPopupWrapper';
 
-const inter = Inter({ subsets: ['latin'], variable: '--font-inter' });
+const inter = Inter({
+  subsets: ['latin'],
+  variable: '--font-inter',
+  display: 'swap'
+});
 
 export const viewport: Viewport = {
   width: 'device-width',
@@ -70,6 +75,26 @@ export default function RootLayout({
   return (
     <html lang="en" className={inter.variable}>
       <head>
+        {/* Preconnect to critical domains */}
+        <link rel="preconnect" href="https://fonts.googleapis.com" />
+        <link rel="preconnect" href="https://fonts.gstatic.com" crossOrigin="anonymous" />
+
+        {/* Google tag (gtag.js) */}
+        <script
+          defer
+          src="https://www.googletagmanager.com/gtag/js?id=G-CNZE5NMBG5"
+        ></script>
+        <script
+          defer
+          dangerouslySetInnerHTML={{
+            __html: `
+              window.dataLayer = window.dataLayer || [];
+              function gtag(){dataLayer.push(arguments);}
+              gtag('js', new Date());
+              gtag('config', 'G-CNZE5NMBG5');
+            `,
+          }}
+        />
         <link rel="icon" href="/favicon.svg" type="image/svg+xml" />
         <link rel="alternate icon" href="/favicon-96x96.png" type="image/png" />
         <link rel="apple-touch-icon" href="/apple-touch-icon.png" />
@@ -80,8 +105,9 @@ export default function RootLayout({
         <Navigation />
         <main>{children}</main>
         <Footer />
-        <ChatBot />
-        <ExitIntentPopup />
+        <ChatBotWrapper />
+        <ExitIntentPopupWrapper />
+        <Analytics />
       </body>
     </html>
   );

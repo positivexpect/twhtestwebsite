@@ -3,14 +3,14 @@ import { NextResponse } from 'next/server';
 
 export async function POST(request: Request) {
   const body = await request.json();
-  const success = await login(body.password);
 
-  if (success) {
-    return NextResponse.json({ success: true });
+  try {
+    const result = await login(body.email || 'admin@example.com', body.password);
+    return NextResponse.json({ success: true, token: result.token });
+  } catch (error) {
+    return NextResponse.json(
+      { success: false, message: 'Invalid credentials' },
+      { status: 401 }
+    );
   }
-
-  return NextResponse.json(
-    { success: false, message: 'Invalid password' },
-    { status: 401 }
-  );
-} 
+}

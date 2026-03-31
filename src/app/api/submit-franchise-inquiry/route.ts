@@ -8,6 +8,37 @@ const supabase = createClient(
   process.env.SUPABASE_SERVICE_ROLE_KEY!
 );
 
+// CAPTCHA verification function
+async function verifyCaptcha(token: string) {
+  try {
+    console.log('Verifying captcha token...');
+    const response = await fetch('https://api.hcaptcha.com/siteverify', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/x-www-form-urlencoded',
+      },
+      body: `response=${token}&secret=${process.env.HCAPTCHA_SECRET_KEY}`,
+    });
+
+    if (!response.ok) {
+      console.error('Captcha verification HTTP error:', response.status);
+      return false;
+    }
+
+    const data = await response.json();
+    console.log('Captcha verification response:', {
+      success: data.success,
+      errorCodes: data['error-codes'],
+      hostname: data.hostname
+    });
+
+    return data.success;
+  } catch (error) {
+    console.error('Captcha verification error:', error);
+    return false;
+  }
+}
+
 // Initialize email transporter for franchise inquiries
 const transporter = nodemailer.createTransport({
   host: process.env.FRANCHISE_SMTP_HOST,
@@ -34,13 +65,30 @@ transporter.verify(function(error, success) {
 export async function POST(request: Request) {
   try {
     const data = await request.json();
-    
+    const { captchaToken, ...formData } = data;
+
+    // Verify CAPTCHA
+    if (!captchaToken) {
+      return NextResponse.json(
+        { success: false, message: 'CAPTCHA verification required' },
+        { status: 400 }
+      );
+    }
+
+    const isValidCaptcha = await verifyCaptcha(captchaToken);
+    if (!isValidCaptcha) {
+      return NextResponse.json(
+        { success: false, message: 'CAPTCHA verification failed. Please try again.' },
+        { status: 400 }
+      );
+    }
+
     // Log the received data
     console.log('Received franchise inquiry:', {
-      name: data.name,
-      email: data.email,
-      phone: data.phone,
-      location: data.location
+      name: formData.name,
+      email: formData.email,
+      phone: formData.phone,
+      location: formData.location
     });
 
     // Store submission in database
@@ -48,10 +96,10 @@ export async function POST(request: Request) {
       .from('form_submissions')
       .insert({
         form_type: 'franchise',
-        name: data.name,
-        email: data.email,
-        phone: data.phone,
-        form_data: data
+        name: formData.name,
+        email: formData.email,
+        phone: formData.phone,
+        form_data: formData
       })
       .select()
       .single();
@@ -75,13 +123,13 @@ export async function POST(request: Request) {
         <img src="https://thewindowhospital.com/images/fulllogo_transparent_nobuffer.png" alt="The Window Hospital" style="width: 200px; margin-bottom: 20px;" />
         <h2 style="color: #CD2028;">New Franchise Inquiry</h2>
         <div style="background: #f5f5f5; padding: 20px; border-radius: 5px;">
-          <p><strong>Name:</strong> ${data.name}</p>
-          <p><strong>Email:</strong> ${data.email}</p>
-          <p><strong>Phone:</strong> ${data.phone}</p>
-          <p><strong>Location:</strong> ${data.location}</p>
-          ${data.message ? `
+          <p><strong>Name:</strong> ${formData.name}</p>
+          <p><strong>Email:</strong> ${formData.email}</p>
+          <p><strong>Phone:</strong> ${formData.phone}</p>
+          <p><strong>Location:</strong> ${formData.location}</p>
+          ${formData.message ? `
           <h3 style="color: #333; margin-top: 20px;">Additional Information:</h3>
-          <p>${data.message}</p>
+          <p>${formData.message}</p>
           ` : ''}
         </div>
       </div>
@@ -95,7 +143,7 @@ export async function POST(request: Request) {
           address: process.env.FRANCHISE_SMTP_FROM_EMAIL!
         },
         to: process.env.FRANCHISE_ADMIN_EMAIL!,
-        subject: `New Franchise Inquiry from ${data.name}`,
+        subject: `New Franchise Inquiry from ${formData.name}`,
         html: adminEmailHtml
       });
       console.log('Admin email sent successfully');
@@ -114,13 +162,13 @@ export async function POST(request: Request) {
     }
 
     // Send auto-reply to the franchise inquirer
-    if (data.email) {
+    if (formData.email) {
       try {
         const autoReplyHtml = `
           <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto;">
             <img src="https://thewindowhospital.com/images/fulllogo_transparent_nobuffer.png" alt="The Window Hospital" style="width: 200px; margin-bottom: 20px;" />
             <h2 style="color: #CD2028;">Thank You for Your Franchise Inquiry</h2>
-            <p>Dear ${data.name},</p>
+            <p>Dear ${formData.name},</p>
             <p>We have received your franchise inquiry and will contact you shortly to discuss this exciting opportunity.</p>
             <p>Best regards,<br/>The Window Hospital Team</p>
           </div>
@@ -131,7 +179,7 @@ export async function POST(request: Request) {
             name: 'The Window Hospital',
             address: process.env.FRANCHISE_SMTP_FROM_EMAIL!
           },
-          to: data.email,
+          to: formData.email,
           subject: 'Thank You for Your Franchise Inquiry',
           html: autoReplyHtml
         });
@@ -167,4 +215,4 @@ export async function POST(request: Request) {
       { status: 500 }
     );
   }
-} 
+}

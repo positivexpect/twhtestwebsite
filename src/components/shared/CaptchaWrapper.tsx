@@ -18,10 +18,10 @@ interface CaptchaWrapperProps {
 
 export default function CaptchaWrapper({ onVerify }: CaptchaWrapperProps) {
   const [isVisible, setIsVisible] = useState(false);
-  const captchaRef = useRef<HTMLDivElement>(null);
+  const containerRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
-    if (!captchaRef.current) return;
+    if (!containerRef.current) return;
 
     const observer = new IntersectionObserver(
       ([entry]) => {
@@ -33,7 +33,7 @@ export default function CaptchaWrapper({ onVerify }: CaptchaWrapperProps) {
       { threshold: 0.1 }
     );
 
-    observer.observe(captchaRef.current);
+    observer.observe(containerRef.current);
 
     return () => {
       observer.disconnect();
@@ -41,7 +41,7 @@ export default function CaptchaWrapper({ onVerify }: CaptchaWrapperProps) {
   }, []);
 
   return (
-    <div ref={captchaRef}>
+    <div ref={containerRef}>
       {isVisible && (
         <HCaptcha
           sitekey={process.env.NEXT_PUBLIC_HCAPTCHA_SITE_KEY!}
@@ -52,4 +52,4 @@ export default function CaptchaWrapper({ onVerify }: CaptchaWrapperProps) {
       )}
     </div>
   );
-} 
+}

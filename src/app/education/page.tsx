@@ -52,7 +52,8 @@ export default function EducationPage() {
   }, []);
 
   return (
-    <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
+    <div className="bg-white min-h-screen">
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
       <div className="text-center mb-16">
         <h1 className="text-5xl font-extrabold text-gray-900 mb-6 tracking-tight">
           Window Education Center
@@ -192,18 +193,19 @@ export default function EducationPage() {
         </div>
       </section>
 
-      <section className="bg-gradient-to-br from-gray-900 to-gray-800 p-12 rounded-3xl shadow-2xl text-center">
-        <h2 className="text-3xl font-bold text-white mb-6">Ready to Save on Your Window Repairs?</h2>
-        <p className="text-xl text-gray-300 mb-10 max-w-2xl mx-auto leading-relaxed">
+      <section className="bg-white p-12 rounded-3xl shadow-2xl text-center border-2 border-[#CD2028]">
+        <h2 className="text-3xl font-bold text-gray-900 mb-6">Ready to Save on Your Window Repairs?</h2>
+        <p className="text-xl text-gray-600 mb-10 max-w-2xl mx-auto leading-relaxed">
           Now that you understand the benefits of window repair, let our experts assess your windows and provide a customized solution.
         </p>
         <Link
           href="/contact"
-          className="inline-flex items-center px-8 py-4 border-2 border-white text-lg font-semibold rounded-xl text-white hover:bg-white hover:text-gray-900 transition-all duration-300 transform hover:scale-105"
+          className="inline-flex items-center px-8 py-4 bg-[#CD2028] text-lg font-semibold rounded-xl text-white hover:bg-[#B01B22] transition-all duration-300 transform hover:scale-105"
         >
           Get Your Free Assessment
         </Link>
       </section>
+      </div>
     </div>
   );
 }
